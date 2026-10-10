@@ -1,9 +1,9 @@
 // DOGTAG Revision offline service worker. Bump VERSION when you change any app file.
-const VERSION = "v3";
+const VERSION = "v5";
 const APP = "dogtag-app-" + VERSION;
-const FONTS = "dogtag-fonts";
+const EXTERNAL = "dogtag-external";
 const SHELL = [
-  "./", "./index.html", "./manifest.webmanifest",
+  "./", "./index.html", "./config.js", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png",
   "./icons/apple-touch-icon.png", "./icons/favicon-32.png"
 ];
@@ -20,21 +20,26 @@ self.addEventListener("activate", e => {
   );
 });
 
+// Serve from cache straight away, refresh the cached copy in the background
+function staleWhileRevalidate(cacheName, req) {
+  return caches.open(cacheName).then(async c => {
+    const hit = await c.match(req);
+    const net = fetch(req).then(r => { if (r.ok || r.type === "opaque") c.put(req, r.clone()); return r; }).catch(() => hit);
+    return hit || net;
+  });
+}
+
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // Google Fonts: serve from cache, refresh in the background
-  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
-    e.respondWith(caches.open(FONTS).then(async c => {
-      const hit = await c.match(req);
-      const net = fetch(req).then(r => { if (r.ok || r.type === "opaque") c.put(req, r.clone()); return r; }).catch(() => hit);
-      return hit || net;
-    }));
+  // Fonts and the Firebase sync library: keep a copy so the app opens offline
+  if (["fonts.googleapis.com", "fonts.gstatic.com", "www.gstatic.com"].includes(url.hostname)) {
+    e.respondWith(staleWhileRevalidate(EXTERNAL, req));
     return;
   }
-  if (url.origin !== location.origin) return;
+  if (url.origin !== location.origin) return;   // live sync traffic goes straight to the network
 
   // The page itself: try the network (quick timeout) so updates arrive, fall back to the saved copy offline
   if (req.mode === "navigate") {
@@ -51,9 +56,6 @@ self.addEventListener("fetch", e => {
     return;
   }
 
-  // Icons, manifest etc: cache first
-  e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {
-    if (r.ok) caches.open(APP).then(c => c.put(req, r.clone()));
-    return r;
-  })));
+  // App files (config, icons, manifest)
+  e.respondWith(staleWhileRevalidate(APP, req));
 });

@@ -273,6 +273,7 @@ label.lbl{font-weight:700;font-size:.9rem;display:grid;gap:6px}
 <main class="wrap" id="app"></main>
 <div class="toast" id="toast" aria-live="polite"></div>
 
+<script src="config.js"></script>
 <script>
 /* ============ CONTENT ============ */
 /* Notes syntax: **key term**, `code`, line starting "= " is a formula, "$ " is a code block (\n for new lines) */
@@ -882,7 +883,7 @@ exam:[
 }]}
 ];
 
-const CMDS=[["Calculate","Work out a number — show your working."],["Describe","Give a clear account of features or steps; no reasons needed."],["Explain","Give a point, then why/how (because… so…)."],["Analyse","Break it down; show chains of cause and effect."],["Discuss","Look at different sides of an issue with reasons."],["Assess","Weigh up importance/impact and reach a judgement."],["Evaluate","Weigh strengths & weaknesses using evidence, then conclude."],["Justify","Give reasons/evidence that support a choice."],["Solve","Find the value(s) that make it true. Show each step."],["Simplify","Write it in its simplest form by cancelling and collecting terms."],["Rearrange","Change the subject of the formula."]];
+const CMDS=[["Calculate","Work out a number — show your working."],["Describe","Give a clear account of features or steps; no reasons needed."],["Explain","Give a point, then why/how (because… so…)."],["Analyse","Break it down; show chains of cause and effect."],["Discuss","Look at different sides of an issue with reasons."],["Assess","Weigh up importance/impact and reach a judgement."],["Evaluate","Weigh strengths & weaknesses using evidence, then conclude."],["Justify","Give reasons/evidence that support a choice."],["Solve","Find the value(s) that make it true. Show each step."],["Simplify","Write it in its simplest form by cancelling and collecting terms."],["Rearrange","Change the subject of the formula."],["Compare","Give similarities and differences between two things."],["Write","Produce the code or answer asked for."]];
 
 
 /* ============ STATE ============ */
@@ -919,6 +920,7 @@ function persistLocal(){try{localStorage.setItem(LS,JSON.stringify(P))}catch(e){
 function persistPacks(){try{localStorage.setItem(LSP,JSON.stringify(PACKS))}catch(e){}}
 function save(){
   P.updated=Date.now(); persistLocal(); updateTop();
+  if(typeof CLOUD!=="undefined"&&CLOUD.prog) cloudQueue();
   if(!docRef) return;
   dirty=true; setSync("busy","Saving…");
   clearTimeout(timer); timer=setTimeout(flush,1200);
@@ -930,7 +932,10 @@ async function flush(){
   catch(e){if(e&&e.code==="unavailable"){dirty=true;setTimeout(flush,1500+Math.random()*1500)}else setSync("","Not synced — saved on this device")}
   writing=false; if(dirty) flush();
 }
-function packsCol(){return DB&&UID?DB.collection("data/users/"+UID):null}
+function packsCol(){
+  if(DB&&UID)return DB.collection("data/users/"+UID);
+  if(typeof CLOUD!=="undefined"&&CLOUD.packs)return {doc:id=>({set:p=>CLOUD.packs.doc(id).set({json:JSON.stringify(p)}),delete:()=>CLOUD.packs.doc(id).delete()})};
+  return null}
 async function initRuntime(){
   if(!window.claude||!window.claude.use) return;
   claude.use("sample").then(async s=>{SAMPLE=s;if(s){try{LIMITS=await s.limits()}catch(e){LIMITS=null}} if(view.name==="import")render()});
@@ -1310,24 +1315,119 @@ function quizSession(el,S,onExit){
   const nx=$("#nx");if(nx){nx.onclick=()=>{S.pos++;S.picked=null;quizSession(el,S,onExit)};nx.focus({preventScroll:true})}
 }
 
+/* ============ EXAM QUESTIONS: bigger banks + generated maths + refresh ============ */
+const EXTRA_EXAM={
+it1:[
+{q:"Describe the difference between lossy and lossless compression, giving an example of when each would be used.",m:4,cmd:"Describe",pts:["Lossy permanently removes some data to make the file smaller (1)","e.g. JPEG photos, MP3 or streamed video, where small size matters more than perfect quality (1)","Lossless makes the file smaller but the original can be rebuilt exactly (1)","e.g. ZIP for documents or program files, or PNG, where no data can be lost (1)"]},
+{q:"Explain two ways UK GDPR / the Data Protection Act 2018 affects how an online shop handles customer data.",m:4,cmd:"Explain",pts:["It must only collect the data it needs (data minimisation) (1), so it can't ask for unnecessary details just to process an order (1).","It must keep data secure (integrity and confidentiality) (1), so it needs encryption and access controls or risks ICO fines (1).","It must not keep data longer than needed (storage limitation) (1), so old accounts should be deleted (1)."]},
+{q:"Compare the use of a wired network and a wireless network in a small office.",m:6,cmd:"Compare",pts:["Wired (Ethernet/fibre) is faster and more reliable, with less interference.","Wired is more secure because a device needs a physical connection.","Wired costs more to install and ties devices to desks.","Wireless lets staff move around and makes it easy to connect laptops, phones and visitors.","Wireless is slower and less stable through walls and over distance, and is a security risk unless encrypted (e.g. WPA3).","Top marks need linked similarities and differences covering both sides."]},
+{q:"Evaluate the use of cloud storage instead of its own servers for a growing company.",m:12,cmd:"Evaluate",pts:["Scalable: pay for more storage as the company grows, with no new hardware.","Lower up-front cost; the provider handles maintenance and updates.","Access from anywhere supports remote working and collaboration.","Provider backups and redundancy help disaster recovery.","Depends on the internet: an outage stops work.","Data is held by a third party, which raises security, privacy and UK GDPR concerns.","Subscriptions can cost more than own servers in the long term, and switching provider is hard (lock-in).","A justified conclusion for a growing company, e.g. cloud is usually better while growing if the internet is reliable and security is strong."]},
+{q:"Explain why a business should keep its operating system and software up to date.",m:4,cmd:"Explain",pts:["Updates patch security vulnerabilities (1), so attackers and malware can't exploit known weaknesses (1).","Updates fix bugs and add features (1), improving stability and productivity (1).","They keep compatibility with new hardware and file formats (1), so staff can open customers' files (1)."]}],
+it2:[
+{q:"Explain the purpose of a data dictionary when creating a database.",m:4,cmd:"Explain",pts:["It records each field's name, data type, size, format and validation (1)","so the database is built consistently and correctly (1)","It helps other developers maintain or update the system later (1)","It acts as a plan to check against during testing (1)"]},
+{q:"A table stores OrderID, CustomerName, CustomerPhone, ProductName and ProductPrice. Explain why it is not normalised and how it should be split.",m:6,cmd:"Explain",pts:["Customer details repeat on every order, causing data redundancy (1)","Changing a phone number means editing many rows, risking an update anomaly (1)","Product price depends on the product, not the order (a transitive dependency) (1)","Customer table: CustomerID (PK), name, phone (1)","Product table: ProductID (PK), name, price (1)","Order table: OrderID (PK), CustomerID (FK), ProductID (FK), or an order-line link table (1)"]},
+{q:"Describe two validation checks you would use on a 'Date of Birth' field in a sixth-form college database.",m:4,cmd:"Describe",pts:["Format/type check (1): it must be a valid date in DD/MM/YYYY (1).","Range check (1): e.g. the student must be 15–19 on 1 September, so other dates are rejected (1).","Presence check (1): the field can't be left blank (1)."]},
+{q:"Write an SQL query to show the Surname and Course of every student in the Student table who studies 'IT', sorted by Surname.",m:4,cmd:"Write",pts:["SELECT Surname, Course (1)","FROM Student (1)","WHERE Course = \"IT\" (1)","ORDER BY Surname; (1)","SELECT Surname, Course\nFROM Student\nWHERE Course = \"IT\"\nORDER BY Surname;"]},
+{q:"Evaluate how well a database you have created meets the needs of its users.",m:6,cmd:"Evaluate",pts:["Go through each user requirement and say whether it was met, with evidence such as test results.","Usability: forms, navigation and clear error messages.","Data integrity: validation and referential integrity working.","Efficiency: queries and reports give the information needed quickly.","Limitations, with specific improvements (e.g. extra validation, user logins).","A justified overall conclusion."]}],
+it3:[
+{q:"Explain how a business could use analytics to improve its social media plan.",m:4,cmd:"Explain",pts:["Track reach and impressions (1) to find which posts are seen most and make more like them (1).","Compare engagement by time and day (1) to schedule posts when followers are most active (1).","Use click-throughs and conversions (1) to see which content leads to sales and focus budget there (1)."]},
+{q:"Describe what should be included in a business's social media policy.",m:4,cmd:"Describe",pts:["Who is allowed to post on the business accounts (1)","The tone/brand voice and what content is allowed (1)","How to respond to complaints and negative comments (1)","Rules on confidentiality, personal use and legal issues such as copyright and GDPR (1)"]},
+{q:"A post had 12,000 impressions, a reach of 8,000, 400 engagements and 240 link clicks. Calculate the engagement rate (by reach) and the click-through rate.",m:4,cmd:"Calculate",pts:["Engagement rate = 400 ÷ 8,000 × 100 (1) = 5% (1)","CTR = 240 ÷ 12,000 × 100 (1) = 2% (1)"]},
+{q:"Discuss the use of influencers by a small clothing brand.",m:8,cmd:"Discuss",pts:["Reaches a large, targeted audience quickly, and followers trust the influencer's recommendation.","The influencer creates authentic-looking content.","It can be expensive; micro-influencers are cheaper and often get higher engagement.","Risk: the influencer's behaviour can damage the brand; some have fake followers.","Legal: the ASA/CAP Code says paid posts must be labelled, e.g. #ad.","Hard to measure the return without tracked links or discount codes.","A balanced conclusion for a small brand."]},
+{q:"Explain two ways a business can make its social media content accessible.",m:4,cmd:"Explain",pts:["Add alt text to images (1) so screen-reader users know what the image shows (1).","Caption videos (1) for deaf and hard-of-hearing users and people watching without sound (1).","Use strong colour contrast and CamelCase hashtags (1) so text is easy to read and is read aloud correctly (1)."]}],
+b1:[
+{q:"Explain two reasons why stakeholders' objectives might conflict at a large supermarket.",m:4,cmd:"Explain",pts:["Shareholders want higher profits (1) while employees want higher pay, which raises costs (1).","Customers want low prices (1) while suppliers want to be paid more for their goods (1).","The local community wants less traffic and noise (1) while managers want to expand the store (1)."]},
+{q:"Analyse the benefits to a business of carrying out a SWOT analysis.",m:6,cmd:"Analyse",pts:["It identifies strengths to build on, giving a competitive advantage.","It highlights weaknesses to fix before rivals exploit them.","It spots opportunities such as new markets, leading to growth.","It prepares the business for threats such as competitors or a downturn, reducing risk.","It helps set realistic objectives and links with PESTLE.","Each point needs a chain of reasoning."]},
+{q:"Explain what is meant by limited liability and why it matters to shareholders.",m:3,cmd:"Explain",pts:["Owners can only lose the money they invested (1)","Their personal assets, such as a house, are protected if the business fails (1)","so people are more willing to invest, helping the company raise finance (1)"]},
+{q:"Assess the impact of rising interest rates on a small business with a large bank loan.",m:8,cmd:"Assess",pts:["Repayments rise on a variable-rate loan, raising costs and cutting profit.","Less cash is left for investment or expansion.","Customers' borrowing costs rise too, so demand falls, especially for luxuries.","The business may delay borrowing or switch to a fixed-rate deal.","Cash savings earn more interest, a small benefit.","Judgement: the impact depends on fixed vs variable rates, the size of the debt and the type of product."]},
+{q:"Describe two ways a business can protect its intellectual property.",m:4,cmd:"Describe",pts:["Patent (1): stops rivals copying an invention for up to 20 years (1).","Trademark (1): protects brand names and logos (1).","Copyright (1): automatically protects original written, artistic or software work (1)."]}],
+b2:[
+{q:"Explain two advantages of secondary research for a small business.",m:4,cmd:"Explain",pts:["It is cheaper than primary research (1), which suits a small budget (1).","It is quick to get (1), so decisions can be made sooner (1).","It can cover large samples, e.g. ONS data (1), giving a broad view of the market (1)."]},
+{q:"Using the Boston Matrix, explain how a business might manage a 'question mark' product.",m:4,cmd:"Explain",pts:["A question mark has low market share in a high-growth market (1)","It needs investment, e.g. more promotion, to grow its share (1)","If that works it can become a star (1)","If share doesn't grow it may be dropped to save resources (1)"]},
+{q:"Justify a suitable segmentation method for a new premium protein snack.",m:6,cmd:"Justify",pts:["Psychographic: target health- and fitness-focused lifestyles, matching what the product is for.","Demographic: ages 18–35 with middle to high incomes who can afford a premium price.","Behavioural: regular gym-goers and frequent snack buyers.","Link the method to better-targeted promotion (e.g. gym partnerships, Instagram) and less wasted budget.","Say why alternatives such as purely geographic segmentation are less suitable."]},
+{q:"Analyse how a business could use the product life cycle when planning its marketing.",m:6,cmd:"Analyse",pts:["Introduction: heavy promotion to build awareness; penetration or skimming pricing.","Growth: widen distribution and build brand loyalty.","Maturity: competitive pricing and extension strategies (new versions, new markets).","Decline: cut promotion, discount, or withdraw and replace the product.","Helps balance a portfolio, with cash from mature products funding new launches."]},
+{q:"Evaluate whether a small local bakery should spend its marketing budget on above-the-line or below-the-line promotion.",m:10,cmd:"Evaluate",pts:["Above the line (TV, national radio, press) has huge reach but is very expensive and mostly reaches people outside the area.","Below the line (social media, leaflets, loyalty cards, promotions, local sponsorship) is cheaper and targeted.","Social media allows local targeting, shows off products visually and is measurable.","Local radio or the local paper could be a cost-effective middle ground.","Consider the budget, target market, objectives and how results will be measured.","Judgement: below the line suits a small local bakery best, perhaps with occasional local press."]}],
+b3:[
+{q:"A business has current assets of £45,000 (including inventory of £15,000) and current liabilities of £20,000. Calculate the current ratio and the liquid capital (acid test) ratio.",m:4,cmd:"Calculate",pts:["Current ratio = 45,000 ÷ 20,000 (1) = 2.25 : 1 (1)","Acid test = (45,000 − 15,000) ÷ 20,000 (1) = 1.5 : 1 (1)"]},
+{q:"Explain the difference between a statement of comprehensive income and a statement of financial position.",m:4,cmd:"Explain",pts:["The statement of comprehensive income shows revenue, costs and profit (1) over a period, e.g. a year (1).","The statement of financial position shows assets, liabilities and capital (1) at one moment in time, like a snapshot (1)."]},
+{q:"Revenue is £120,000, cost of sales is £70,000 and expenses are £32,000. Calculate the gross profit margin and the net profit margin.",m:4,cmd:"Calculate",pts:["Gross profit = £50,000; GPM = 50,000 ÷ 120,000 × 100 (1) = 41.7% (1)","Net profit = 50,000 − 32,000 = £18,000; NPM = 18,000 ÷ 120,000 × 100 (1) = 15% (1)"]},
+{q:"Explain two differences between a bank and a building society.",m:4,cmd:"Explain",pts:["Banks are owned by shareholders (1), so profits are paid out as dividends (1).","Building societies are mutual, owned by their members (1), so profits can go into better rates (1).","Building societies focus mainly on savings and mortgages (1), while banks offer a wider range of services (1)."]},
+{q:"Discuss whether a student should use a credit card or an arranged overdraft for short-term spending.",m:6,cmd:"Discuss",pts:["Arranged overdraft: flexible and linked to the current account; student accounts often have an interest-free limit.","Overdraft risks: charges beyond the limit, and it can become a long-term habit.","Credit card: up to about 56 days interest-free if paid in full, plus purchase protection (Section 75 on items over £100).","Credit card risks: a high APR if not cleared, the minimum-payment trap, and harm to the credit score.","Conclusion: depends on whether the student can repay in full and has an interest-free overdraft."]}]
+};
+Object.entries(EXTRA_EXAM).forEach(([id,list])=>{if(BASE[id])BASE[id].exam.push(...list)});
+
+const r3=v=>v.toPrecision(3),r2dp=v=>(Math.round(v*100)/100).toFixed(2);
+const MATHEXAM={
+m1:[
+()=>{const d1=pick([2,3,4,5]),n1=ri(1,d1-1),w1=ri(1,3),d2=pick([2,3,4,5]),n2=ri(1,d2-1),w2=ri(1,3),p1=w1*d1+n1,p2=w2*d2+n2;
+  return {q:`Without a calculator, work out ${w1} ${n1}/${d1} ÷ ${w2} ${n2}/${d2}. Give your answer as a fraction in its simplest form.`,m:3,cmd:"Calculate",pts:[`Improper fractions: ${p1}/${d1} ÷ ${p2}/${d2} (1)`,`Flip and multiply: ${p1}/${d1} × ${d2}/${p2} = ${p1*d2}/${d1*p2} (1)`,`Simplest form: ${frac(p1*d2,d1*p2)} (1)`]}},
+()=>{const old=pick([200,250,320,400,450,500,640,800]),r=pick([4,5,8,10,12,15,16,20,25].filter(v=>old*v%100===0))*(Math.random()<.3?-1:1),nw=old*(100+r)/100;
+  return {q:`A price changes from £${old} to £${nw}. Calculate the percentage ${r>0?"increase":"decrease"}.`,m:2,cmd:"Calculate",pts:[`Change = ${nw} − ${old} = ${neg(nw-old)} (1)`,`${Math.abs(nw-old)} ÷ ${old} × 100 = ${Math.abs(r)}% ${r>0?"increase":"decrease"} (1)`]}},
+()=>{const a=pick([1.5,2,2.5,3,4]),b=pick([2,3,4].filter(x=>a*x<10)),m=ri(2,6),n=pick([-4,-3,-2,-1,1,2,3,4,5].filter(v=>v!==-m)),p=+(a*b).toFixed(2);
+  return {q:`Work out (${a} × 10${sup(m)}) × (${b} × 10${sup(n)}). Give your answer in standard form.`,m:2,cmd:"Calculate",pts:[`Multiply the numbers: ${a} × ${b} = ${p} (1)`,`Add the powers: 10${sup(m)} × 10${sup(n)} = 10${sup(m+n)}, so ${p} × 10${sup(m+n)} (1)`]}}],
+m2:[
+()=>{const a=ri(2,5),b=ri(1,9),c=ri(2,6);
+  return {q:`Make x the subject of y = (${a}x + ${b}) / (x − ${c}).`,m:4,cmd:"Rearrange",pts:[`Multiply by (x − ${c}): y(x − ${c}) = ${a}x + ${b} (1)`,`Expand: xy − ${c}y = ${a}x + ${b} (1)`,`Collect x terms: xy − ${a}x = ${c}y + ${b}, so x(y − ${a}) = ${c}y + ${b} (1)`,`x = (${c}y + ${b}) / (y − ${a}) (1)`]}},
+()=>{const q=pick([2,3,4,5]),s=pick([2,3,4,5].filter(v=>v!==q)),x=ri(-4,12),A=ri(1,6),B=ri(-3,4),p=A*q-x,r=B*s-x,t=A-B,L=q*s/gcd(q,s);
+  const br=n=>n===0?"x":`x ${sgn(n)}`;
+  return {q:`Solve (${br(p)})/${q} − (${br(r)})/${s} = ${neg(t)}.`,m:3,cmd:"Solve",pts:[`Multiply every term by ${L}: ${L/q}(${br(p)}) − ${L/s}(${br(r)}) = ${neg(t*L)} (1)`,`Expand and simplify, then solve (1)`,`x = ${neg(x)} (1)`]}},
+()=>{const k=ri(2,9);
+  return {q:`Simplify fully (x² + ${k}x) / (x² − ${k*k}).`,m:3,cmd:"Simplify",pts:[`Numerator: x(x + ${k}) (1)`,`Denominator: (x + ${k})(x − ${k}) (1)`,`Cancel (x + ${k}): x / (x − ${k}) (1)`]}}],
+m3:[
+()=>{const m=ri(-4,5)||2,c=ri(-6,6),x1=ri(-3,3),x2=x1+ri(1,4);const eq=`y = ${m===1?"":m===-1?"−":neg(m)}x${c?" "+sgn(c):""}`;
+  return {q:`Find the equation of the straight line through (${neg(x1)}, ${neg(m*x1+c)}) and (${neg(x2)}, ${neg(m*x2+c)}).`,m:3,cmd:"Calculate",pts:[`Gradient = (${neg(m*x2+c)} − ${m*x1+c<0?"("+neg(m*x1+c)+")":m*x1+c}) ÷ (${neg(x2)} − ${x1<0?"("+neg(x1)+")":x1}) = ${neg(m)} (1)`,`Substitute a point to find c = ${neg(c)} (1)`,`${eq} (1)`]}},
+()=>{const r=ri(2,7),h=ri(3,12);
+  return {q:`A closed cylinder has radius ${r} cm and height ${h} cm. Calculate its total surface area in terms of π.`,m:3,cmd:"Calculate",pts:[`Two circles: 2 × π × ${r}² = ${2*r*r}π (1)`,`Curved surface: 2π × ${r} × ${h} = ${2*r*h}π (1)`,`Total = ${2*r*r+2*r*h}π cm² (1)`]}},
+()=>{const t=pick([[3,4,5],[5,12,13],[8,15,17],[7,24,25]]),k=t[0]===3?pick([0.5,1,1.5]):pick([0.2,0.5]),a=+(t[0]*k).toFixed(1),b=+(t[1]*k).toFixed(1),c=+(t[2]*k).toFixed(1);
+  return {q:`A ${c} m ladder leans against a vertical wall with its foot ${a} m from the wall. How high up the wall does it reach?`,m:3,cmd:"Calculate",pts:[`h² + ${a}² = ${c}² (1)`,`h² = ${+(c*c).toFixed(2)} − ${+(a*a).toFixed(2)} = ${+(b*b).toFixed(2)} (1)`,`h = ${b} m (1)`]}}],
+m4:[
+()=>{let a,b,c,d,x,y;do{a=ri(2,5);b=ri(1,5);c=ri(2,5);d=ri(1,5);x=ri(-3,6);y=ri(-3,6)}while(a*d===b*c||a===c);const e1=a*x+b*y,e2=c*x-d*y;
+  return {q:`Solve the simultaneous equations ${a}x + ${b===1?"":b}y = ${neg(e1)} and ${c}x − ${d===1?"":d}y = ${neg(e2)}.`,m:4,cmd:"Solve",pts:[`Make the y coefficients match: multiply the first by ${d/gcd(b,d)} and the second by ${b/gcd(b,d)} (1)`,`Add to eliminate y, giving ${neg((a*d+b*c)/gcd(b,d))}x = ${neg((e1*d+e2*b)/gcd(b,d))} (1)`,`x = ${neg(x)} (1)`,`Substitute back: y = ${neg(y)} (1)`]}},
+()=>{let a,b,c,D;do{a=ri(1,3);b=ri(-7,7);c=ri(-6,-1);D=b*b-4*a*c}while(Number.isInteger(Math.sqrt(D)));const s=Math.sqrt(D),x1=(-b+s)/(2*a),x2=(-b-s)/(2*a);
+  const term=(n,v)=>n===0?"":(n<0?" − ":" + ")+(Math.abs(n)===1&&v?"":Math.abs(n))+v;
+  return {q:`Solve ${a===1?"":a}x²${term(b,"x")}${term(c,"")} = 0, giving your answers to 2 decimal places.`,m:3,cmd:"Solve",pts:[`a = ${a}, b = ${neg(b)}, c = ${neg(c)}, so x = (${neg(-b)} ± √${D}) / ${2*a} (1)`,`√${D} ≈ ${s.toFixed(3)} (1)`,`x ≈ ${neg(+r2dp(x1))} or x ≈ ${neg(+r2dp(x2))} (1)`]}},
+()=>{const a=pick([2,3,5,7]),k=pick([1,2,3]),N=pick([10,20,40,50,100,150]),x=Math.log(N)/(k*Math.log(a));
+  return {q:`Solve ${a}^(${k===1?"":k}x) = ${N}, giving x to 3 significant figures.`,m:3,cmd:"Solve",pts:[`Take logs: ${k===1?"":k}x log ${a} = log ${N} (1)`,`${k===1?"x":k+"x"} = log ${N} ÷ log ${a} = ${r3(k*x)}… (1)`,`x ≈ ${r3(x)} (1)`]}}],
+m5:[
+()=>{const h=pick([0.8,1.2,1.5,2,2.4,3]),d=pick([3,4,4.5,5,6,8]),th=Math.atan(h/d)*180/Math.PI;
+  return {q:`A ramp rises ${h} m over a horizontal distance of ${d} m. Calculate the angle between the ramp and the ground, to 1 decimal place.`,m:3,cmd:"Calculate",pts:[`tan θ = ${h} ÷ ${d} (1)`,`θ = tan⁻¹(${(h/d).toFixed(4)}) (1)`,`θ ≈ ${th.toFixed(1)}° (1)`]}},
+()=>{const a=ri(-5,5)||2,b=ri(-5,5)||-3,r=ri(2,8),k=a*a+b*b-r*r;const term=(n,v)=>n===0?"":(n<0?" − ":" + ")+(Math.abs(n)===1&&v?"":Math.abs(n))+v;
+  const sq=(v,l)=>`(${l} ${sgn(-v)})²`;
+  return {q:`Find the centre and radius of the circle x² + y²${term(-2*a,"x")}${term(-2*b,"y")}${term(k,"")} = 0.`,m:4,cmd:"Calculate",pts:[`Complete the square: ${sq(a,"x")} − ${a*a} + ${sq(b,"y")} − ${b*b}${term(k,"")} = 0 (1)`,`${sq(a,"x")} + ${sq(b,"y")} = ${r*r} (1)`,`Centre (${neg(a)}, ${neg(b)}) (1)`,`Radius ${r} (1)`]}},
+()=>{const r=ri(3,12),d=pick([30,45,60,90,120,150]),g=gcd(r*d,180),an=r*d/g,ad=180/g,g2=gcd(r*r*d,360),sn=r*r*d/g2,sd=360/g2;
+  const pf=(n,dd)=>(n===1?"":n)+"π"+(dd===1?"":"/"+dd);
+  return {q:`A sector has radius ${r} cm and angle ${d}°. Find its arc length and its area in terms of π.`,m:4,cmd:"Calculate",pts:[`${d}° = ${piFrac(d)} radians (1)`,`Arc length = ${r} × ${piFrac(d)} = ${pf(an,ad)} cm (1)`,`Area = ½ × ${r}² × ${piFrac(d)} (1)`,`= ${pf(sn,sd)} cm² (1)`]}}]
+};
+const examSets={};
+function examPool(u){return examOf(u)}
+function newExamSet(u){
+  const pool=examPool(u),prev=new Set((examSets[u.id]||[]).map(e=>e.k)),gens=MATHEXAM[u.id]||[];
+  let set=[];
+  if(gens.length){shuffle(gens).slice(0,2).forEach(g=>{const e=g();set.push(Object.assign(e,{k:"gen:"+hashStr(e.q)}))})}
+  const fresh=shuffle(pool.filter(e=>!prev.has(e.k))),rest=shuffle(pool.filter(e=>prev.has(e.k)));
+  set=set.concat([...fresh,...rest].slice(0,3-set.length));
+  examSets[u.id]=set;return set;
+}
 const drafts={};
 function tabExam(u,el){
-  const ex=examOf(u);
-  el.innerHTML=`<details class="cmdwords"><summary>Command words: what each question wants</summary><dl>${CMDS.map(([w,d])=>`<dt>${w}</dt><dd>${d}</dd>`).join("")}</dl></details>`+
-  ex.map((e,i)=>{const r=P.exam[e.k];
+  const set=examSets[u.id]||newExamSet(u),pool=examPool(u),gen=!!MATHEXAM[u.id];
+  el.innerHTML=`<div class="legend"><span>${gen?"New numbers every time, plus questions from the bank":`Showing ${set.length} of ${pool.length} questions`}</span><button class="btn small" id="newEx">🔄 New questions</button></div>
+  <details class="cmdwords"><summary>Command words: what each question wants</summary><dl>${CMDS.map(([w,d])=>`<dt>${w}</dt><dd>${d}</dd>`).join("")}</dl></details>`+
+  set.map((e,i)=>{const r=P.exam[e.k];
     return `<article class="eq" data-i="${i}"><div class="qline"><span class="qtext">${i+1}. ${esc(e.q)}</span><span class="marks">${e.m} marks</span></div>
-    <span class="status">${esc(e.cmd)}${e.pack?" · 📎 from your slides":""}${r?` · last self-mark ${r.g}/${e.m}`:""}</span>
+    <span class="status">${esc(e.cmd)}${e.pack?" · 📎 from your slides":""}${e.k.startsWith("gen:")?" · 🎲 generated":""}${r?` · last self-mark ${r.g}/${e.m}`:""}</span>
     <textarea id="ans-${esc(e.k)}" placeholder="Write or plan your answer here (kept while this page is open)">${esc(drafts[e.k]||"")}</textarea>
     <div><button class="btn ghost small" data-show>Show mark scheme</button></div>
     <div class="scheme" hidden><b>Mark scheme points</b><ul>${e.pts.map(p=>p.includes("\n")?`<li class="codeblock"><pre>${esc(p)}</pre></li>`:`<li>${esc(p)}</li>`).join("")}</ul></div>
     <div class="selfmark" hidden><span>Self-mark:</span>${Array.from({length:e.m+1},(_,g)=>`<button data-g="${g}" aria-pressed="${!!r&&r.g===g}">${g}</button>`).join("")}</div></article>`}).join("");
+  $("#newEx").onclick=()=>{newExamSet(u);tabExam(u,el);toast("New questions")};
   el.querySelectorAll(".eq").forEach(card=>{
-    const e=ex[+card.dataset.i];
+    const e=set[+card.dataset.i];
     card.querySelector("textarea").oninput=ev=>drafts[e.k]=ev.target.value;
     card.querySelector("[data-show]").onclick=ev=>{card.querySelector(".scheme").hidden=false;card.querySelector(".selfmark").hidden=false;ev.target.parentElement.hidden=true};
     card.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{const first=!P.exam[e.k];P.exam[e.k]={g:+b.dataset.g,o:e.m,t:Date.now()};if(first)addXP(+b.dataset.g+2);save();
       card.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x===b));
-      card.querySelector(".status").textContent=`${e.cmd}${e.pack?" · 📎 from your slides":""} · last self-mark ${b.dataset.g}/${e.m}`});
+      card.querySelector(".status").textContent=`${e.cmd}${e.pack?" · 📎 from your slides":""}${e.k.startsWith("gen:")?" · 🎲 generated":""} · last self-mark ${b.dataset.g}/${e.m}`});
   });
 }
 
@@ -1503,6 +1603,87 @@ async function deletePack(id){
 }
 
 
+/* ============ LIVE CLOUD SYNC (installed app, Firebase) ============ */
+const FB_CFG=(!IN_CLAUDE&&window.DOGTAG_FIREBASE&&window.DOGTAG_FIREBASE.apiKey)?window.DOGTAG_FIREBASE:null;
+const CLOUD={state:FB_CFG?"loading":"off",user:null,db:null,auth:null,prog:null,packs:null,unsub:[],timer:null,err:"",firstPacks:true};
+function canon(o){if(Array.isArray(o))return "["+o.map(canon).join(",")+"]";if(o&&typeof o==="object")return "{"+Object.keys(o).filter(k=>k!=="updated"&&o[k]!==undefined).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}";return JSON.stringify(o)}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+function cloudStatus(){
+  if(IN_CLAUDE)return;
+  const st=CLOUD.state,on=navigator.onLine;
+  if(!FB_CFG){setSync("","Saved on this device. Live sync isn't set up yet");return}
+  if(st==="signedout"){setSync("","Saved on this device. Sign in under Sync to turn on live sync");return}
+  if(!on||st==="waiting"||st==="unavailable"){setSync("busy","Offline. Changes will sync when you're back online");return}
+  if(st==="error"){setSync("","Live sync problem ("+CLOUD.err+"). Saved on this device");return}
+  if(st==="on")setSync("on","Live sync on");else setSync("busy","Syncing…");
+}
+async function initCloud(){
+  if(!FB_CFG||CLOUD.auth)return;
+  try{
+    const B="https://www.gstatic.com/firebasejs/10.12.2/";
+    if(!window.firebase){await loadScript(B+"firebase-app-compat.js");await loadScript(B+"firebase-auth-compat.js");await loadScript(B+"firebase-firestore-compat.js")}
+    if(!firebase.apps.length)firebase.initializeApp(FB_CFG);
+    CLOUD.auth=firebase.auth();CLOUD.db=firebase.firestore();
+    CLOUD.auth.onAuthStateChanged(u=>{CLOUD.user=u;cloudDetach();if(u)cloudAttach();else CLOUD.state="signedout";cloudStatus();if(view.name==="sync")render()});
+  }catch(e){CLOUD.state="unavailable";cloudStatus()}
+}
+function cloudDetach(){CLOUD.unsub.forEach(f=>{try{f()}catch(e){}});CLOUD.unsub=[];CLOUD.prog=null;CLOUD.packs=null;CLOUD.firstPacks=true}
+function softRender(){updateTop();if(view.name==="home"||view.name==="sync"||(view.name==="unit"&&!view.sub&&view.tab!=="exam"))render()}
+function cloudAttach(){
+  const base=CLOUD.db.collection("users").doc(CLOUD.user.uid);
+  CLOUD.prog=base.collection("data").doc("progress");CLOUD.packs=base.collection("packs");
+  CLOUD.state="syncing";cloudStatus();
+  CLOUD.unsub.push(CLOUD.prog.onSnapshot({includeMetadataChanges:true},s=>{
+    if(!s.metadata.hasPendingWrites){
+      let remote=null;try{remote=s.exists&&s.data().json?JSON.parse(s.data().json):null}catch(e){}
+      if(remote){const before=canon(P);P=merge(P,remote);if(canon(P)!==before){persistLocal();const n=PACKS.length;PACKS=PACKS.filter(p=>!P.gone[p.id]);if(PACKS.length!==n)persistPacks();softRender()}}
+      if(!remote||canon(P)!==canon(remote))cloudQueue(400);
+    }
+    CLOUD.state=s.metadata.fromCache?"waiting":"on";cloudStatus();
+  },e=>{CLOUD.state="error";CLOUD.err=e.code||"error";cloudStatus()}));
+  CLOUD.unsub.push(CLOUD.packs.onSnapshot(qs=>{
+    let changed=false;const have=new Set(PACKS.map(p=>p.id));
+    qs.docChanges().forEach(ch=>{const id=ch.doc.id;
+      if(ch.type==="removed"){if(!ch.doc.metadata.hasPendingWrites&&!qs.metadata.fromCache&&!P.gone[id]){P.gone[id]=Date.now();PACKS=PACKS.filter(p=>p.id!==id);changed=true;save()}}
+      else if(P.gone[id]){ch.doc.ref.delete().catch(()=>{})}
+      else if(!have.has(id)){try{PACKS.push(cleanStored(JSON.parse(ch.doc.data().json)));have.add(id);changed=true}catch(e){}}});
+    if(CLOUD.firstPacks&&!qs.metadata.fromCache){CLOUD.firstPacks=false;
+      const remote=new Set(qs.docs.map(d=>d.id));
+      PACKS.filter(p=>!remote.has(p.id)&&!P.gone[p.id]).forEach(p=>CLOUD.packs.doc(p.id).set({json:JSON.stringify(p)}).catch(()=>{}))}
+    if(changed){persistPacks();softRender()}
+  },()=>{}));
+}
+function cloudQueue(delay=1200){
+  if(!CLOUD.prog)return;clearTimeout(CLOUD.timer);
+  CLOUD.timer=setTimeout(()=>{if(!CLOUD.prog)return;CLOUD.prog.set({json:JSON.stringify(P),updated:P.updated||Date.now()}).catch(e=>{CLOUD.state="error";CLOUD.err=e.code||"error";cloudStatus()})},delay);
+}
+const AUTH_ERR={"auth/invalid-email":"That email address doesn't look right.","auth/missing-password":"Enter a password.","auth/weak-password":"Use a password of at least 6 characters.",
+  "auth/email-already-in-use":"There's already an account with that email. Use Sign in instead.","auth/invalid-credential":"Wrong email or password.","auth/wrong-password":"Wrong email or password.",
+  "auth/user-not-found":"No account with that email yet. Use Create account.","auth/network-request-failed":"You're offline. Connect to the internet to sign in.","auth/too-many-requests":"Too many attempts. Wait a few minutes and try again."};
+function cloudSection(){
+  if(IN_CLAUDE)return "";
+  if(!FB_CFG)return `<div class="step"><h2><span class="num">☁</span>Live sync</h2><p class="status">Live sync between your phone and PC isn't switched on yet. Once it's set up, sign in here on each device and everything updates automatically whenever you're online. Until then, use the sync code below.</p></div>`;
+  if(!CLOUD.user)return `<div class="step"><h2><span class="num">☁</span>Live sync</h2>
+    <p class="status">${CLOUD.state==="unavailable"?"Connect to the internet to sign in. The app still works offline.":"Sign in with the same email on your phone and PC. Your progress and slides then stay in step automatically."}</p>
+    <label class="lbl">Email<input type="text" id="cEmail" inputmode="email" autocomplete="username" autocapitalize="off"></label>
+    <label class="lbl">Password<input type="password" id="cPass" autocomplete="current-password" style="width:100%;background:var(--raised);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px"></label>
+    <div class="row"><button class="btn" id="cIn" style="--c:var(--it)">Sign in</button><button class="btn ghost" id="cUp">Create account</button><span class="status" id="cMsg"></span></div></div>`;
+  const lab={on:"✅ Live sync is on",waiting:"⏳ Offline. Changes will sync when you're back online",syncing:"🔄 Syncing…",error:"⚠️ Sync problem: "+CLOUD.err}[CLOUD.state]||"🔄 Syncing…";
+  return `<div class="step"><h2><span class="num">☁</span>Live sync</h2><p><b>${lab}</b></p><p class="status">Signed in as ${esc(CLOUD.user.email||"")}. Progress, mistakes and slide packs update on every signed-in device as soon as it's online.</p>
+    <div class="row"><button class="btn ghost small" id="cOut">Sign out</button></div></div>`;
+}
+function wireCloudSection(){
+  const go=async up=>{const em=$("#cEmail").value.trim(),pw=$("#cPass").value,msg=$("#cMsg");msg.textContent=up?"Creating account…":"Signing in…";
+    try{if(!CLOUD.auth)await initCloud();if(!CLOUD.auth)throw {code:"auth/network-request-failed"};
+      if(up)await CLOUD.auth.createUserWithEmailAndPassword(em,pw);else await CLOUD.auth.signInWithEmailAndPassword(em,pw);toast("Live sync on")}
+    catch(e){msg.textContent=AUTH_ERR[e&&e.code]||"Couldn't sign in ("+(e&&e.code||"error")+")."}};
+  if($("#cIn"))$("#cIn").onclick=()=>go(false);
+  if($("#cUp"))$("#cUp").onclick=()=>go(true);
+  if($("#cOut"))$("#cOut").onclick=()=>CLOUD.auth&&CLOUD.auth.signOut();
+}
+addEventListener("online",()=>{if(FB_CFG&&!CLOUD.auth)initCloud();cloudStatus()});
+addEventListener("offline",cloudStatus);
+
 /* ============ SYNC CODES ============ */
 const SYNC_PREFIX="DOGTAG1:";
 function b64e(str){const by=new TextEncoder().encode(str);let bin="";for(let i=0;i<by.length;i+=0x8000)bin+=String.fromCharCode.apply(null,by.subarray(i,i+0x8000));return btoa(bin)}
@@ -1540,7 +1721,8 @@ function renderSync(){
   const n=PACKS.length;
   app.innerHTML=`<section class="imp-h"><div class="eyebrow">Sync</div><h1>${IN_CLAUDE?"Sync with the offline app":"Sync &amp; slides"}</h1>
   <p>${IN_CLAUDE?"Send your progress and imported slides to the installed app, or bring progress from the app back here."
-    :"Your progress is saved on this device. A sync code copies it to your other devices, and brings in slides you imported in the Claude version."}</p></section>
+    :"Your progress is saved on this device. Live sync keeps your devices in step automatically; a sync code is the manual backup and brings in slides imported in the Claude version."}</p></section>
+  ${cloudSection()}
   <div class="step"><h2><span class="num">1</span>Send from this ${IN_CLAUDE?"page":"device"}</h2>
     <p class="status">One code holding your progress${n?` and ${n} imported slide pack${n>1?"s":""}`:""}. Paste it on the other device.</p>
     <div class="row"><button class="btn" id="copyCode" style="--c:var(--it)">Copy sync code</button><span class="status" id="copyMsg"></span></div>
@@ -1552,6 +1734,7 @@ function renderSync(){
   <div class="step"><h2><span class="num">3</span>${IN_CLAUDE?"Getting slides into the offline app":"Adding new slides"}</h2>
     <p class="status">${IN_CLAUDE?"Import slides on this page as usual, then come here, tap <b>Copy sync code</b>, open the offline app → <b>Sync &amp; slides</b> and paste it."
       :"Slide importing needs Claude, so do it in the Claude version of DOGTAG Revision (online). Then tap <b>Sync with the offline app</b> there, copy the code, and paste it above."}</p></div>`;
+  wireCloudSection();
   $("#copyCode").onclick=()=>{
     const code=makeCode(),out=$("#codeOut"),msg=$("#copyMsg");
     const fallback=()=>{out.hidden=false;out.value=code;out.focus();out.select();msg.textContent="Copy the selected code"};
@@ -1577,6 +1760,7 @@ document.addEventListener("keydown",e=>{
 
 render();
 initRuntime();
+if(!IN_CLAUDE){cloudStatus();initCloud()}
 </script>
 <div class="notch" aria-hidden="true"></div>
 <script>
