@@ -205,6 +205,27 @@ code{font-family:var(--f-mono);font-size:.86em;background:var(--sunk);border-rad
 .explain{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--sunk);font-size:.95rem}
 .explain b{color:var(--good)} .explain b.x{color:var(--bad)}
 .qnav{display:flex;justify-content:flex-end;margin-top:14px}
+.pendbar{background:color-mix(in srgb,var(--gold) 18%,var(--surface));border:1px solid var(--gold);border-radius:12px;padding:10px 14px;font-weight:700}
+.chip.areas{cursor:pointer;background:color-mix(in srgb,var(--hot) 14%,transparent);border-color:var(--hot);color:var(--hot);font-weight:700}
+.subtabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.subtabs button{flex:1;white-space:nowrap;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 12px;font-weight:700;color:var(--muted)}
+.subtabs button[aria-selected="true"]{background:var(--c);border-color:var(--c);color:var(--onc)}
+.subtabs .cnt{display:inline-block;min-width:20px;border-radius:999px;background:var(--hot);color:#fff;font-size:.75rem;padding:0 6px;margin-left:4px}
+.topic{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--hot);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;display:grid;gap:10px;box-shadow:var(--shadow)}
+.topic-h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.topic h3{font-size:1.2rem}
+.topic-stat{display:flex;gap:10px;align-items:center}
+.wrongn{font-family:var(--f-mono);font-size:.78rem;font-weight:700;color:var(--hot)}
+.dots{display:inline-flex;gap:4px}.dots i{width:12px;height:12px;border-radius:50%;background:var(--sunk);border:1.5px solid var(--line)}.dots i.on{background:var(--good);border-color:var(--good)}
+.learn summary{font-weight:700;cursor:pointer}.learn ul{margin:8px 0 0;padding-left:1.2em;display:grid;gap:6px}.learn li::marker{color:var(--c)}
+.kc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:6px 12px;margin:8px 0 0}.kc dt{font-weight:700}.kc dd{margin:0;color:var(--muted)}
+.pastlist{display:grid;gap:6px}.past{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--line);background:var(--raised);border-radius:12px;padding:10px 12px;text-align:left}
+.chip.good{border-color:var(--good);color:var(--good)}.chip.badc{border-color:var(--bad);color:var(--bad)}
+.marks.full{background:var(--good)}.marks.zero{background:var(--bad)}
+.fb{margin:0}.tip{margin:0;color:var(--muted)}
+.youans{background:var(--raised);border-radius:10px;padding:10px 12px;margin-top:6px;white-space:normal}
+.ms{list-style:none;padding-left:0!important}.ms li{padding-left:1.6em;position:relative}.ms li::before{content:"✗";position:absolute;left:0;color:var(--bad);font-weight:700}.ms li.hit::before{content:"✓";color:var(--good)}
+.ms pre{margin:0;font-family:var(--f-mono);font-size:.84rem;white-space:pre-wrap}
 .quizhub{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px}
 .quizhub .done{align-content:start}
 .done.mistakes{border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
@@ -889,11 +910,13 @@ const CMDS=[["Calculate","Work out a number — show your working."],["Describe"
 /* ============ STATE ============ */
 const BASE={}; COURSES.forEach(c=>c.units.forEach(u=>{u.course=c;BASE[u.id]=u}));
 const COURSE=Object.fromEntries(COURSES.map(c=>[c.id,c]));
-const LS="dogtag-revision-v1", LSP="dogtag-packs-v1";
+const APP=Object.assign({name:"DOGTAG Revision",mark:"DT",hello:"DOGTAG",ls:"dogtag",dataNs:"data",packsNs:"packs",slides:true},window.APP_CFG||{});
+const LS=APP.ls+"-revision-v1", LSP=APP.ls+"-packs-v1";
+document.title=APP.name;document.querySelector(".logo .mark").textContent=APP.mark;document.querySelector(".logo b").textContent=APP.name;
 const DAY=864e5, GAPS=[0,1,3,7,14,30];
 let P={cards:{},quiz:{},exam:{},days:{},updated:0};
 try{const s=localStorage.getItem(LS); if(s) P=Object.assign(P,JSON.parse(s));}catch(e){}
-P.days=P.days||{}; P.gone=P.gone||{}; P.wrong=P.wrong||{};
+P.days=P.days||{}; P.gone=P.gone||{}; P.wrong=P.wrong||{}; P.topics=P.topics||{}; P.tests=P.tests||{};
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 let PACKS=[];
 try{const s=localStorage.getItem(LSP); if(s) PACKS=(JSON.parse(s)||[]).filter(p=>!P.gone[p.id]);}catch(e){}
@@ -902,8 +925,8 @@ const syncEl=document.getElementById("sync");
 function setSync(cls,title){syncEl.className="sync "+cls;syncEl.title=title}
 
 function merge(a,b){
-  const out={cards:{},quiz:{},exam:{},wrong:{},days:{},updated:Math.max(a.updated||0,b.updated||0)};
-  for(const k of ["cards","exam","wrong"]){
+  const out={cards:{},quiz:{},exam:{},wrong:{},topics:{},tests:{},days:{},updated:Math.max(a.updated||0,b.updated||0)};
+  for(const k of ["cards","exam","wrong","topics","tests"]){
     const A=a[k]||{},B=b[k]||{};
     new Set([...Object.keys(A),...Object.keys(B)]).forEach(id=>{const x=A[id],y=B[id];out[k][id]=!x?y:!y?x:((y.t||0)>(x.t||0)?y:x)});
   }
@@ -1027,15 +1050,15 @@ function go(v){view=v;render();scrollTo(0,0)}
 function render(){
   document.documentElement.style.removeProperty("--c");
   updateTop();
-  ({home:renderHome,unit:renderUnit,review:renderReview,import:renderImport,sync:renderSync,mistakes:renderMistakes})[view.name]();
+  ({home:renderHome,unit:renderUnit,review:renderReview,import:renderImport,sync:renderSync,mistakes:renderMistakes,focus:renderFocus,practice:renderPractice})[view.name]();
 }
 function ring(p,label){return `<span class="ring" style="--p:${p}"><b>${label??p+"%"}</b></span>`}
 
 function renderHome(){
-  const due=allDue().length, li=levelInfo(), st=streak(), mist=liveWrong().length;
+  const due=allDue().length, li=levelInfo(), st=streak(), mist=liveWrong().length, areas=activeTopics().length, pend=pendingTests().length;
   const d=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
   let h=`<section class="hero">
-  <div><div class="eyebrow">${esc(d)}</div><h1>Ready, <span class="tag">DOGTAG</span>?</h1></div>
+  <div><div class="eyebrow">${esc(d)}</div><h1>${APP.hello?`Ready, <span class="tag">${esc(APP.hello)}</span>?`:`Ready to <span class="tag">revise</span>?`}</h1></div>
   <div class="stats">
     <div class="stat s-due"><b>${due}</b><span>cards due</span></div>
     <div class="stat s-streak"><b>${st}</b><span>day streak${st?"":" — start one today"}</span></div>
@@ -1044,11 +1067,12 @@ function renderHome(){
   <div class="actions">
     <button class="big-go" id="revAll" ${due?"":"disabled"}><b>▶ Review ${Math.min(due,30)} due cards</b><span>${due?"Mixed from all three courses. Right answers come back later.":"Nothing due. Pick a unit below to learn something new."}</span></button>
     ${IN_CLAUDE?`<button class="big-imp" id="impBtn"><b>＋ Import slides</b><span>Paste or upload PowerPoint and get notes, cards and a quiz</span></button>`
-      :`<button class="big-imp" id="syncBtn"><b>⇄ Sync &amp; slides</b><span>Copy progress between devices, or add slides imported in the Claude version</span></button>`}
+      :`<button class="big-imp" id="syncBtn"><b>⇄ Sync${APP.slides?" &amp; slides":""}</b><span>${APP.slides?"Copy progress between devices, or add slides imported in the Claude version":"Live sync and backup codes for your progress"}</span></button>`}
   </div>
-  <div class="row">${mist?`<button class="btn small" id="mistBtn" style="--c:var(--bad)">❌ Fix ${mist} mistake${mist>1?"s":""}</button>`:""}${IN_CLAUDE?`<button class="btn ghost small" id="syncBtn">⇄ Sync with the offline app</button>`:""}</div></section>`;
+  ${pend?`<div class="pendbar">⏳ ${pend} test${pend>1?"s":""} waiting to be marked${navigator.onLine?"":" (you're offline)"}</div>`:""}
+  <div class="row"><button class="btn small" id="focusBtn" style="--c:var(--hot)">🎯 Areas to work on${areas?` · ${areas}`:""}</button>${mist?`<button class="btn small" id="mistBtn" style="--c:var(--bad)">❌ Fix ${mist} mistake${mist>1?"s":""}</button>`:""}${IN_CLAUDE?`<button class="btn ghost small" id="syncBtn">⇄ Sync with the offline app</button>`:""}</div></section>`;
   COURSES.forEach(c=>{
-    h+=`<section class="course" style="--c:var(${c.color})"><header class="course-h"><span class="blob"></span><h2>${esc(c.name)}</h2><span class="course-sub">${esc(c.full)}</span></header><div class="tiles">`;
+    h+=`<section class="course" style="--c:var(${c.color})"><header class="course-h"><span class="blob"></span><h2>${esc(c.name)}</h2>${activeTopics(c.id).length?`<button class="chip areas" data-focus="${c.id}">🎯 ${activeTopics(c.id).length} to work on</button>`:""}<span class="course-sub">${esc(c.full)}</span></header><div class="tiles">`;
     unitsOf(c).forEach(u=>{
       const s=unitStats(u), extra=PACKS.filter(p=>p.unitId===u.id).length;
       h+=`<button class="tile" data-u="${u.id}"><div class="tile-top"><span class="code">${esc(u.code)}</span>${ring(s.pct)}</div>
@@ -1058,19 +1082,21 @@ function renderHome(){
     h+=`</div></section>`;
   });
   h+=IN_CLAUDE?`<div class="foot"><span>Progress and imported slides save to your Claude account. Use <b>Sync with the offline app</b> to send them to the installed app.</span></div>`
-   :`<div class="foot"><span>Works offline. Progress is saved on this device; use <b>Sync &amp; slides</b> to copy it to your other devices.</span></div>`;
+   :`<div class="foot"><span>Works offline. Progress is saved on this device; use <b>Sync</b> to keep your other devices in step.</span></div>`;
   app.innerHTML=h;
   app.querySelectorAll(".tile").forEach(b=>b.onclick=()=>go({name:"unit",id:b.dataset.u,tab:"notes"}));
   $("#revAll").onclick=()=>startReview(shuffle(allDue()).slice(0,30));
   if($("#impBtn"))$("#impBtn").onclick=()=>openImport("");
   $("#syncBtn").onclick=()=>go({name:"sync"});
   if($("#mistBtn"))$("#mistBtn").onclick=startGlobalMistakes;
+  $("#focusBtn").onclick=()=>{const first=COURSES.find(c=>activeTopics(c.id).length)||COURSES[0];go({name:"focus",course:first.id})};
+  app.querySelectorAll("[data-focus]").forEach(b=>b.onclick=()=>go({name:"focus",course:b.dataset.focus}));
 }
 
 function renderUnit(){
   const u=getUnit(view.id); if(!u){go({name:"home"});return}
   setC(u); const s=unitStats(u);
-  const tabs=[["notes","📖","Notes"],["cards","🃏","Cards"],["quiz","⚡","Quiz"],["exam","✍️","Exam"]];
+  const tabs=[["notes","📖","Notes"],["cards","🃏","Cards"],["quiz","⚡","Quiz"],["exam","📝","Test"]];
   app.innerHTML=`<section class="banner"><div class="txt"><div class="eyebrow">${esc(u.course.name)}</div><h1>${esc(u.title)}</h1>
   <div class="row"><span class="chip">${esc(u.code)}</span><span class="chip">${esc(u.assess)}</span></div></div>${ring(s.pct)}</section>
   <div class="tabs" role="tablist">${tabs.map(([k,i,l])=>`<button role="tab" data-t="${k}" aria-selected="${view.tab===k}"><span aria-hidden="true">${i}</span>${l}</button>`).join("")}</div>
@@ -1241,29 +1267,30 @@ function cardQuestions(u,n){
     const termFirst=!/^[\d−(-]/.test(c.f)&&c.f.length<45&&Math.random()<.5;
     if(termFirst){
       const ds=others.map(o=>o.f).filter(f=>f!==c.f).slice(0,3);
-      return {k:"gen:"+hashStr("t"+c.k),raw:[`Which term matches this?\n“${c.b}”`,[c.f,...ds],0,`${c.f}: ${c.b}`]};
+      return {k:"gen:"+hashStr("t"+c.k),tp:tagText(u,c.f+" "+c.b),raw:[`Which term matches this?\n“${c.b}”`,[c.f,...ds],0,`${c.f}: ${c.b}`]};
     }
     const ds=others.map(o=>o.b).filter(b=>b!==c.b).slice(0,3);
-    return {k:"gen:"+hashStr("d"+c.k),raw:[c.f+(/[?…]$/.test(c.f)?"":" — which is right?"),[c.b,...ds],0,`${c.f}: ${c.b}`]};
+    return {k:"gen:"+hashStr("d"+c.k),tp:tagText(u,c.f+" "+c.b),raw:[c.f+(/[?…]$/.test(c.f)?"":" — which is right?"),[c.b,...ds],0,`${c.f}: ${c.b}`]};
   }).filter(q=>q.raw[1].length===4);
 }
-function bankQuestions(u){const out=[];sources(u).forEach(s=>s.quiz.forEach((q,i)=>out.push({k:"bank:"+s.id+":"+i,raw:q})));return out}
+function bankQuestions(u){const out=[];sources(u).forEach(s=>s.quiz.forEach((q,i)=>out.push({k:"bank:"+s.id+":"+i,tp:tagText(u,q[0]+" "+q[1][q[2]]+" "+(q[3]||"")),raw:q})));return out}
 function buildQuiz(u,total=12){
   const gens=MATHGEN[u.id]||[],out=[],stems=new Set();
   const add=q=>{if(q&&!stems.has(q.raw[0])&&out.length<total){stems.add(q.raw[0]);out.push(q)}};
   if(gens.length){
-    shuffle(gens).concat(shuffle(gens)).slice(0,6).forEach(g=>{try{const raw=g();add({k:"gen:"+hashStr(raw[0]),raw})}catch(e){}});
+    const gi=gens.map((g,i)=>[g,i]);shuffle(gi).concat(shuffle(gi)).slice(0,6).forEach(([g,i])=>{try{const raw=g();add({k:"gen:"+hashStr(raw[0]),tp:genTopic(u,"q",i,raw[0]),raw})}catch(e){}});
     shuffle(bankQuestions(u)).slice(0,3).forEach(add);
   }else shuffle(bankQuestions(u)).slice(0,6).forEach(add);
   cardQuestions(u,total).forEach(add);
   shuffle(bankQuestions(u)).forEach(add);
   return shuffle(out).map(q=>({...q,u:u.id}));
 }
-function toSession(list){return list.map(q=>({k:q.k,u:q.u,raw:q.raw,s:q.raw[0],o:shuffle(q.raw[1].map((t,j)=>({t:String(t),c:j===q.raw[2]}))),e:q.raw[3]}))}
-function liveWrong(filterU){return Object.entries(P.wrong||{}).filter(([k,w])=>w&&!w.fixed&&w.q&&(!filterU||w.u===filterU)).map(([k,w])=>({k,u:w.u,raw:w.q,n:w.n||1,t:w.t}))}
+function toSession(list){return list.map(q=>({k:q.k,u:q.u,tp:q.tp,raw:q.raw,s:q.raw[0],o:shuffle(q.raw[1].map((t,j)=>({t:String(t),c:j===q.raw[2]}))),e:q.raw[3]}))}
+function liveWrong(filterU){return Object.entries(P.wrong||{}).filter(([k,w])=>w&&!w.fixed&&w.q&&(!filterU||w.u===filterU)).map(([k,w])=>({k,u:w.u,tp:w.tp,raw:w.q,n:w.n||1,t:w.t}))}
 function recordAnswer(q,ok){
   P.wrong=P.wrong||{};const w=P.wrong[q.k];
-  if(!ok)P.wrong[q.k]={u:q.u,q:q.raw,n:(w&&!w.fixed?w.n||1:0)+1,t:Date.now()};
+  recordTopic(q.tp,ok);
+  if(!ok)P.wrong[q.k]={u:q.u,tp:q.tp||null,q:q.raw,n:(w&&!w.fixed?w.n||1:0)+1,t:Date.now()};
   else if(w&&!w.fixed)P.wrong[q.k]=Object.assign({},w,{fixed:Date.now(),t:Date.now()});
 }
 (function prune(){const cut=Date.now()-60*DAY;for(const [k,w] of Object.entries(P.wrong||{}))if(w&&w.fixed&&w.fixed<cut)delete P.wrong[k]})();
@@ -1292,13 +1319,17 @@ function quizSession(el,S,onExit){
     if(!S.saved){S.saved=true;
       if(S.mode==="quiz"){const old=P.quiz[S.unit]||{best:0,n:0};P.quiz[S.unit]={best:Math.max(old.best,pct),last:pct,n:old.n+1,t:Date.now()};S.newBest=pct>old.best&&old.n>0}
       save();if(pct>=70)confetti()}
-    el.innerHTML=S.mode==="quiz"
+    const tr=S.tid&&(P.topics||{})[S.tid];
+    el.innerHTML=S.mode==="topic"
+      ?`<div class="done"><div class="big">${S.score}/${S.qs.length}</div>${tr&&tr.on?`<p>Streak on this topic: ${dots(tr.s)} (${tr.s}/4 in a row)</p><p>Get 4 right in a row to clear it.</p>`:`<p><b>Topic cleared 🎉</b> It's off your list.</p>`}
+        <div class="row center">${tr&&tr.on?`<button class="btn" id="again">Practise again</button>`:""}<button class="btn ghost" id="back">Done</button></div></div>`
+      :S.mode==="quiz"
       ?`<div class="done"><div class="big">${pct}%</div><p>${S.score} of ${S.qs.length} correct${S.newBest?" · new best 🎉":""}</p>${left?`<p>${left} question${left>1?"s":""} added to <b>Mistakes</b>.</p>`:""}
         <div class="row center"><button class="btn" id="again">New quiz</button>${left?`<button class="btn" id="fix" style="--c:var(--bad)">Fix mistakes now</button>`:""}<button class="btn ghost" id="back">Done</button></div></div>`
       :`<div class="done"><div class="big">${S.score}/${S.qs.length}</div><p>mistakes fixed${left?` · ${left} still to fix`:" · all cleared 🎉"}</p>
         <div class="row center">${left?`<button class="btn" id="fix" style="--c:var(--bad)">Go again</button>`:""}<button class="btn ghost" id="back">Done</button></div></div>`;
     $("#back").onclick=onExit;
-    const ag=$("#again");if(ag)ag.onclick=()=>{const u=getUnit(S.unit);Object.assign(S,{qs:toSession(buildQuiz(u)),pos:0,score:0,picked:null,combo:0,saved:false});quizSession(el,S,onExit)};
+    const ag=$("#again");if(ag)ag.onclick=()=>{const u=getUnit(S.unit);Object.assign(S,{qs:toSession(S.mode==="topic"?topicQuestions(S.tid):buildQuiz(u)),pos:0,score:0,picked:null,combo:0,saved:false});quizSession(el,S,onExit)};
     const fx=$("#fix");if(fx)fx.onclick=()=>{const w=S.unit&&S.mode==="quiz"?liveWrong(S.unit):view.name==="mistakes"?liveWrong():liveWrong(view.id);
       Object.assign(S,{mode:"mistakes",qs:toSession(shuffle(w).slice(0,20)),pos:0,score:0,picked:null,combo:0,saved:false});quizSession(el,S,onExit)};
     return;
@@ -1398,37 +1429,269 @@ m5:[
   const pf=(n,dd)=>(n===1?"":n)+"π"+(dd===1?"":"/"+dd);
   return {q:`A sector has radius ${r} cm and angle ${d}°. Find its arc length and its area in terms of π.`,m:4,cmd:"Calculate",pts:[`${d}° = ${piFrac(d)} radians (1)`,`Arc length = ${r} × ${piFrac(d)} = ${pf(an,ad)} cm (1)`,`Area = ½ × ${r}² × ${piFrac(d)} (1)`,`= ${pf(sn,sd)} cm² (1)`]}}]
 };
+if(typeof EXTRA_MATHGEN!=="undefined")Object.assign(MATHGEN,EXTRA_MATHGEN);
+if(typeof EXTRA_MATHEXAM!=="undefined")Object.assign(MATHEXAM,EXTRA_MATHEXAM);
 const examSets={};
 function examPool(u){return examOf(u)}
 function newExamSet(u){
-  const pool=examPool(u),prev=new Set((examSets[u.id]||[]).map(e=>e.k)),gens=MATHEXAM[u.id]||[];
+  const pool=examPool(u),prev=new Set((examSets[u.id]||[]).map(e=>e.k)),gens=(MATHEXAM[u.id]||[]).map((g,i)=>[g,i]);
   let set=[];
-  if(gens.length){shuffle(gens).slice(0,2).forEach(g=>{const e=g();set.push(Object.assign(e,{k:"gen:"+hashStr(e.q)}))})}
+  if(gens.length){shuffle(gens).slice(0,2).forEach(([g,i])=>{const e=g();set.push(Object.assign(e,{k:"gen:"+hashStr(e.q),tp:genTopic(u,"x",i,e.q)}))})}
   const fresh=shuffle(pool.filter(e=>!prev.has(e.k))),rest=shuffle(pool.filter(e=>prev.has(e.k)));
-  set=set.concat([...fresh,...rest].slice(0,3-set.length));
+  set=set.concat([...fresh,...rest].slice(0,3-set.length).map(e=>({...e,tp:tagText(u,e.q+" "+e.pts.join(" "))})));
   examSets[u.id]=set;return set;
 }
-const drafts={};
+/* ============ TOPICS: tagging + areas to work on ============ */
+const STOPW=new Set("the and for with that this from into what which when your their have has are was were will would could should than then them they there about also more most such been being does each other only over under very just like onto using used use make made gives give given shows show its it's not can may one two three how why who all any per out off our you".split(" "));
+function words(t){return String(t||"").replace(/\d\s*\/\s*\d/g," fraction ").replace(/%/g," percentage ").replace(/[²³⁴⁵⁶⁷⁸⁹⁻]|\^/g," power ").replace(/√/g," root ").replace(/×\s*10/g," standard form ").replace(/\(−\d/g," negative ").replace(/π/g," radian circle ").replace(/°/g," angle ").replace(/£/g," money ").toLowerCase().replace(/[^a-z0-9 ]+/g," ").split(/\s+/).filter(w=>w.length>=3&&!STOPW.has(w)).map(w=>w.replace(/ies$/,"y").replace(/(sses|ss)$/,"ss").replace(/([^s])s$/,"$1").replace(/(ing|ed)$/,""))}
+const SECT_CACHE={};
+function sectionsOf(u){
+  const key=u.id+"|"+PACKS.length;if(SECT_CACHE[key])return SECT_CACHE[key];
+  const list=[];sources(u).forEach(s=>(s.notes||[]).forEach((n,i)=>list.push({tid:s.id+"#"+i,u:u.id,h:n.h,n,hw:new Set(words(n.h)),bw:new Set(words(n.b.join(" ")))})));
+  const df={};list.forEach(s=>new Set([...s.hw,...s.bw]).forEach(w=>df[w]=(df[w]||0)+1));
+  list.idf=w=>df[w]?Math.log((list.length+1)/df[w]):0;
+  return SECT_CACHE[key]=list;
+}
+const TAG_MEMO={};
+const TOPIC_HINTS={m1:[[/^Work out .*×.*²|BIDMAS|order of operations/i,"Order of operations"],[/estimate/i,"Order of operations"]],
+  m2:[[/^Expand/i,"Brackets"],[/^Factorise x²/i,"Brackets"],[/subject/i,"Rearranging"],[/^Simplify.*\//i,"Algebraic fractions"],[/^If a =|find a²/i,"Simplifying"],[/number is doubled|^Solve .*=.*x/i,"Linear equations"],[/^Solve .*[<>]/i,"Linear inequalities"]],
+  m4:[[/^Solve .* and /i,"Simultaneous"],[/x².*= 0|real roots|quadratic/i,"Quadratic"],[/log/i,"Logarithms"]],
+  m3:[[/hypotenuse|Pythagoras|ladder/i,"Pythagoras"],[/cylinder/i,"Cylinders"],[/gradient|equation of the .*line|y-intercept|parallel/i,"Coordinates"]],
+  m5:[[/radian|arc length|sector/i,"Radians"],[/centre and radius|circle with centre|x² \+ y²/i,"Equation of a circle"],[/sin|cos|tan|hypotenuse|ramp/i,"SOH CAH TOA"]]};
+function tagText(u,text){
+  const mk=u.id+"|"+text;if(TAG_MEMO[mk]!==undefined)return TAG_MEMO[mk];
+  const S=sectionsOf(u);if(!S.length)return TAG_MEMO[mk]=null;
+  for(const [re,h] of (TOPIC_HINTS[u.id]||[])){if(re.test(text)){const s=S.find(s=>s.h.toLowerCase().includes(h.toLowerCase()));if(s)return TAG_MEMO[mk]=s.tid}}
+  const ws=words(text);let best=S[0],bs=-1;
+  S.forEach(s=>{let sc=0;ws.forEach(w=>{const f=S.idf(w);if(s.hw.has(w))sc+=2.5*f;else if(s.bw.has(w))sc+=f});if(sc>bs+1e-9){bs=sc;best=s}});
+  return TAG_MEMO[mk]=best.tid;
+}
+const GENTOPIC_BASE={q:{
+  m1:["Order of operations","Negative numbers","Percentages","Fractions","Fractions","SI units","SI units"],
+  m2:["Linear equations","Linear equations","Brackets","Brackets","Linear inequalities","Simplifying"],
+  m3:["Pythagoras","Coordinates","Coordinates","Areas","Cylinders","Cylinders"],
+  m4:["Rules for powers","Rules for powers","Logarithms","Simultaneous","Quadratic","Quadratic"],
+  m5:["Radians","SOH CAH TOA","Equation of a circle","Radians","SOH CAH TOA"]},
+ x:{m1:["Fractions","Percentages","SI units"],m2:["Rearranging","Linear equations","Algebraic fractions"],m3:["Coordinates","Cylinders","Pythagoras"],m4:["Simultaneous","Quadratic","Logarithms"],m5:["SOH CAH TOA","Equation of a circle","Radians"]}};
+const GENTOPIC={q:Object.assign({},GENTOPIC_BASE.q,typeof EXTRA_GENTOPIC!=="undefined"?EXTRA_GENTOPIC.q:{}),x:Object.assign({},GENTOPIC_BASE.x,typeof EXTRA_GENTOPIC!=="undefined"?EXTRA_GENTOPIC.x:{})};
+function genTopic(u,kind,idx,fallbackText){
+  const h=((GENTOPIC[kind]||{})[u.id]||[])[idx];
+  if(h){const s=sectionsOf(u).find(s=>s.h.toLowerCase().includes(h.toLowerCase()));if(s)return s.tid}
+  return tagText(u,fallbackText||"");
+}
+function topicInfo(tid){
+  if(!tid)return null;const [sid,ix]=tid.split("#");let u=BASE[sid];
+  if(!u){const p=PACKS.find(x=>x.id===sid);if(!p)return null;u=getUnit(p.unitId&&getUnit(p.unitId)?p.unitId:p.id)}
+  if(!u)return null;const s=sectionsOf(u).find(s=>s.tid===tid);return s?{tid,u,h:s.h,n:s.n}:null;
+}
+function recordTopic(tid,ok){
+  if(!tid)return;P.topics=P.topics||{};
+  const r=Object.assign({w:0,s:0,on:false,n:0},P.topics[tid]||{});
+  if(!ok){r.w++;r.n++;r.s=0;if(r.w>=2&&!r.on){r.on=true;r.since=Date.now()}}
+  else{r.s++;if(r.s>=4){if(r.on){r.on=false;r.cleared=Date.now();const ti=topicInfo(tid);setTimeout(()=>toast("🎯 Cleared: "+(ti?ti.h:"topic")),900)}r.w=0;r.s=0}}
+  r.t=Date.now();P.topics[tid]=r;
+}
+function activeTopics(courseId){
+  return Object.entries(P.topics||{}).filter(([tid,r])=>r&&r.on).map(([tid,r])=>({...topicInfo(tid),r})).filter(x=>x.u&&(!courseId||x.u.course.id===courseId)).sort((a,b)=>b.r.w-a.r.w||b.r.t-a.r.t);
+}
+function topicQuestions(tid,total=8){
+  const ti=topicInfo(tid);if(!ti)return [];const u=ti.u,out=[],stems=new Set();
+  const add=q=>{if(q&&out.length<total){out.push({...q,u:u.id,tp:tid});stems.add(q.raw[0])}};
+  const gens=(MATHGEN[u.id]||[]).map((g,i)=>[g,i]).filter(([g,i])=>genTopic(u,"q",i)===tid);
+  const fixed=shuffle([...bankQuestions(u),...cardQuestions(u,999)].filter(q=>q.tp===tid));
+  let guard=0;
+  while(out.length<total&&guard++<60){
+    if(gens.length&&(out.length%2===0||!fixed.length)){const [g]=pick(gens);try{const raw=g();if(!stems.has(raw[0]))add({k:"gen:"+hashStr(raw[0]),raw})}catch(e){}}
+    else if(fixed.length){add(fixed[out.length%fixed.length])}
+    else break;
+  }
+  return shuffle(out);
+}
+function startTopicPractice(tid){
+  const qs=topicQuestions(tid);if(!qs.length){toast("No practice questions for this topic yet");return}
+  view={name:"practice",tid,sub:{mode:"topic",tid,qs:toSession(qs),pos:0,score:0,picked:null,combo:0}};render();scrollTo(0,0);
+}
+function renderPractice(){
+  const ti=topicInfo(view.tid);if(ti)setC(ti.u);
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">🎯 Practise · ${esc(ti?ti.u.code:"")}</div><h1>${esc(ti?ti.h:"Topic")}</h1></section><div class="panel" id="panel"></div>`;
+  quizSession($("#panel"),view.sub,()=>go({name:"focus",course:ti?ti.u.course.id:COURSES[0].id}));
+}
+function dots(s){return `<span class="dots" aria-label="${s} of 4 in a row">${[0,1,2,3].map(i=>`<i class="${i<s?"on":""}"></i>`).join("")}</span>`}
+function renderFocus(){
+  const cid=view.course||COURSES[0].id,c=COURSE[cid]||COURSES[0];
+  document.documentElement.style.setProperty("--c",`var(${c.color})`);
+  const list=activeTopics(cid);
+  const watch=Object.entries(P.topics||{}).filter(([t,r])=>r&&!r.on&&r.w===1).map(([t,r])=>({...topicInfo(t),r})).filter(x=>x.u&&x.u.course.id===cid);
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">🎯 Areas to work on</div><h1>${esc(c.name)}</h1>
+   <p>Topics land here after you get 2 questions on them wrong (in quizzes, mistake retries or exam tests). Answer <b>4 in a row</b> correctly on a topic and it's cleared.</p></section>
+  <div class="subtabs" role="tablist">${COURSES.map(x=>{const n=activeTopics(x.id).length;return `<button role="tab" data-c="${x.id}" aria-selected="${x.id===cid}" style="--c:var(${x.color})">${esc(x.name.split(" · ")[0])}${n?` <span class="cnt">${n}</span>`:""}</button>`}).join("")}</div>
+  <div class="panel">${list.length?list.map(t=>{
+    const cards=cardsOf(t.u).filter(cd=>tagText(t.u,cd.f+" "+cd.b)===t.tid).slice(0,5);
+    return `<article class="topic"><div class="topic-h"><div><div class="status">${esc(t.u.code)} · ${esc(t.u.title)}</div><h3>${esc(t.h)}</h3></div>
+      <div class="topic-stat"><span class="wrongn">✗ ${t.r.w} wrong</span>${dots(t.r.s)}</div></div>
+      <details class="learn" open><summary>What you need to know</summary><ul>${t.n.b.map(x=>x.startsWith("= ")?`<li class="formula">${esc(x.slice(2))}</li>`:x.startsWith("$ ")?`<li class="codeblock"><pre>${esc(x.slice(2))}</pre></li>`:`<li>${fmt(x)}</li>`).join("")}</ul></details>
+      ${cards.length?`<details class="learn"><summary>Key cards (${cards.length})</summary><dl class="kc">${cards.map(cd=>`<dt>${esc(cd.f)}</dt><dd>${esc(cd.b)}</dd>`).join("")}</dl></details>`:""}
+      <div class="row"><button class="btn" data-prac="${esc(t.tid)}">Practise this topic</button><button class="btn ghost small" data-unit="${esc(t.u.id)}">Open unit</button></div></article>`}).join("")
+   :`<div class="done"><div class="big">✓</div><p>Nothing to work on in ${esc(c.name)} right now.</p><p class="hint">Keep doing quizzes and exam tests. Weak topics will show up here automatically.</p></div>`}
+   ${watch.length?`<p class="status" style="margin-top:16px">Watching (1 wrong so far): ${watch.map(w=>esc(w.h)).join(" · ")}</p>`:""}</div>`;
+  app.querySelectorAll(".subtabs button").forEach(b=>b.onclick=()=>go({name:"focus",course:b.dataset.c}));
+  app.querySelectorAll("[data-prac]").forEach(b=>b.onclick=()=>startTopicPractice(b.dataset.prac));
+  app.querySelectorAll("[data-unit]").forEach(b=>b.onclick=()=>go({name:"unit",id:b.dataset.unit,tab:"notes"}));
+}
+
+/* ============ EXAM TESTS: answer, submit, AI marking ============ */
+const TESTKEY=LS+"-test-";
+const DEVICE=(()=>{try{let d=localStorage.getItem(LS+"-dev");if(!d){d=Math.random().toString(36).slice(2,10);localStorage.setItem(LS+"-dev",d)}return d}catch(e){return "dev"}})();
+const DRAFTS={};
+function loadDraft(uid){if(uid in DRAFTS)return DRAFTS[uid];try{return DRAFTS[uid]=JSON.parse(localStorage.getItem(TESTKEY+uid)||"null")}catch(e){return null}}
+function saveDraft(uid,d){DRAFTS[uid]=d||null;try{d?localStorage.setItem(TESTKEY+uid,JSON.stringify(d)):localStorage.removeItem(TESTKEY+uid)}catch(e){}}
+function testsOf(uid){return Object.entries(P.tests||{}).filter(([id,t])=>t&&!t.gone&&(!uid||t.u===uid)).map(([id,t])=>({id,...t})).sort((a,b)=>b.c-a.c)}
+function pendingTests(){return testsOf().filter(t=>t.status==="pending")}
+function pruneTests(){const all=testsOf();all.slice(25).forEach(t=>{P.tests[t.id]={u:t.u,c:t.c,t:Date.now(),gone:1,status:t.status,score:t.score,max:t.max}})}
+function aiAvailable(){return IN_CLAUDE?!!SAMPLE:!!FB_CFG}
+function parseJSONLoose(s){s=String(s||"").trim().replace(/^```(?:json)?\s*/i,"").replace(/```\s*$/,"");try{return JSON.parse(s)}catch(e){}
+  const a=Math.min(...["[","{"].map(c=>{const i=s.indexOf(c);return i<0?1e9:i})),b=Math.max(s.lastIndexOf("]"),s.lastIndexOf("}"));if(a<1e9&&b>a)return JSON.parse(s.slice(a,b+1));throw {code:"invalid_json"}}
+let AIM=null;
+async function getAIModel(){
+  if(AIM)return AIM;
+  if(window.__AI_MOCK)return AIM={mock:window.__AI_MOCK};
+  const B="https://www.gstatic.com/firebasejs/12.19.0/";
+  const appMod=await import(B+"firebase-app.js"),aiMod=await import(B+"firebase-ai.js");
+  const app=appMod.getApps().find(a=>a.name==="ai")||appMod.initializeApp(FB_CFG,"ai");
+  if(FB_CFG.recaptchaSiteKey){try{const ac=await import(B+"firebase-app-check.js");ac.initializeAppCheck(app,{provider:new ac.ReCaptchaV3Provider(FB_CFG.recaptchaSiteKey),isTokenAutoRefreshEnabled:true})}catch(e){}}
+  return AIM={ai:aiMod.getAI(app,{backend:new aiMod.GoogleAIBackend()}),getGenerativeModel:aiMod.getGenerativeModel};
+}
+async function geminiJSON(prompt){
+  const M=await getAIModel();if(M.mock)return parseJSONLoose(await M.mock(prompt));
+  const models=(FB_CFG.aiModels&&FB_CFG.aiModels.length)?FB_CFG.aiModels:["gemini-3.5-flash","gemini-3.5-flash-lite","gemini-3.1-flash-lite"];let last;
+  for(const m of models){
+    try{const model=M.getGenerativeModel(M.ai,{model:m,generationConfig:{responseMimeType:"application/json",temperature:0.2}});
+      const r=await model.generateContent(prompt);return parseJSONLoose(r.response.text())}
+    catch(e){last=e;if(!/not.?found|404|not supported|unsupported|no longer available|retired/i.test(String(e&&(e.message||e))))break}
+  }
+  throw last||{code:"upstream_error"};
+}
+async function aiJSON(prompt){
+  if(IN_CLAUDE){if(!SAMPLE)throw {code:"no_ai"};return SAMPLE.json(prompt,{cache:false})}
+  if(!FB_CFG)throw {code:"no_ai"};
+  if(!navigator.onLine)throw {code:"offline"};
+  return geminiJSON(prompt);
+}
+function markPrompt(t,items){
+  const u=getUnit(t.u);
+  return `You are an experienced examiner marking a student's written exam answers for: ${u?u.course.full+" — "+u.code+" "+u.title:"a UK sixth-form course"}.
+Mark each answer fairly and consistently against its mark scheme, exactly as a real examiner would.
+Rules:
+- Only credit what is actually in the student's answer. Spelling mistakes don't lose marks unless the meaning is unclear.
+- Calculations: credit each correct step in the mark scheme. A correct final answer with no working gets full marks unless working is clearly required.
+- "Explain" points need a reason or consequence, not just a statement.
+- For questions worth 9+ marks, or with command words Analyse, Assess, Evaluate, Discuss, Justify or "To what extent", use levels of response: knowledge, application to the context, developed chains of analysis, and (where asked) a supported judgement. Not all indicative content needs to appear.
+- Be honest but encouraging. Write feedback to the student as "you".
+
+${items.map(q=>`--- Question ${q.i+1} (${q.m} marks, command word: ${q.cmd}) ---
+${q.q}
+Mark scheme points:
+${q.pts.map((p,j)=>`${j+1}. ${p}`).join("\n")}
+Student's answer:
+<<<
+${String(q.ans).slice(0,4000)}
+>>>`).join("\n\n")}
+
+Reply with ONLY a JSON array with one object per question above, in this exact shape:
+[{"q": <question number>, "score": <whole number from 0 to that question's marks>, "hit": [<numbers of the mark scheme points the answer earned>], "feedback": "<2-3 sentences: what was good and what was missing>", "tip": "<one specific thing to add next time>"}]`;
+}
+const MARKING=new Set();
+async function markTest(id){
+  if(MARKING.has(id))return "busy";const t=P.tests[id];if(!t||t.status!=="pending")return "done";
+  MARKING.add(id);
+  try{
+    const items=t.qs.map((q,i)=>({i,...q})).filter(q=>String(q.ans||"").trim().length>=2);
+    let res=[];
+    if(items.length){res=await aiJSON(markPrompt(t,items));if(!Array.isArray(res))res=(res&&(res.results||res.questions||res.marks))||[]}
+    const qs=t.qs.map((q,i)=>{
+      if(String(q.ans||"").trim().length<2)return {...q,score:0,fb:"No answer given.",hit:[],tip:"Have a go at every question: even a definition can earn a mark."};
+      const r=res.find(x=>+x.q===i+1);if(!r)throw {code:"invalid_json"};
+      return {...q,score:Math.max(0,Math.min(q.m,Math.round(+r.score||0))),fb:String(r.feedback||""),tip:String(r.tip||""),hit:(Array.isArray(r.hit)?r.hit:[]).map(Number).filter(n=>n>=1&&n<=q.pts.length)};
+    });
+    const latest=P.tests[id];if(!latest||latest.status!=="pending")return "done";
+    const score=qs.reduce((a,q)=>a+q.score,0),max=qs.reduce((a,q)=>a+q.m,0);
+    P.tests[id]={...latest,qs,score,max,status:"marked",t:Date.now()};
+    qs.forEach(q=>recordTopic(q.tp,q.m?q.score/q.m>=0.5:false));
+    addXP(Math.max(2,score*2));pruneTests();save();
+    return "ok";
+  }finally{MARKING.delete(id)}
+}
+const MARK_ERR={offline:"You're offline. Your test is saved and will be marked automatically when you're back online.",no_ai:"Marking isn't set up on this device yet. Your test is saved and will be marked once it is.",
+  not_granted:"Claude wasn't allowed to mark this. Tap Mark now and choose Allow.",rate_limited:"Too many marking requests. Your test is saved; try Mark now again in a bit.",invalid_json:"The marker's reply came back garbled. Tap Mark now to try again."};
+function markErrText(e){const c=e&&e.code;if(MARK_ERR[c])return MARK_ERR[c];const m=String(e&&(e.message||e)||"");
+  if(/app.?check/i.test(m))return "Marking is blocked by Firebase App Check. See the setup note, then tap Mark now.";
+  if(/api.*not.*(enabled|been used)|AI Logic|firebasevertexai|generativelanguage/i.test(m))return "Firebase AI Logic isn't switched on yet. Your test is saved and will be marked once it is.";
+  if(/fetch|network|Failed to/i.test(m))return MARK_ERR.offline;
+  return "Couldn't mark it right now ("+(c||m.slice(0,80)||"error")+"). Your test is saved; tap Mark now to retry.";}
+let pendingRun=false;
+async function markPending(auto){
+  if(pendingRun||!aiAvailable()||!navigator.onLine)return;pendingRun=true;let n=0;
+  try{for(const t of pendingTests()){if(auto&&t.dev!==DEVICE&&Date.now()-t.c<30*60e3)continue;try{if(await markTest(t.id)==="ok")n++}catch(e){break}}}
+  finally{pendingRun=false}
+  if(n){toast(`📝 ${n} test${n>1?"s":""} marked`);if(["home","unit"].includes(view.name)&&!(view.name==="unit"&&view.tab==="exam"&&loadDraft(view.id)))render()}
+}
+if(!IN_CLAUDE){addEventListener("online",()=>setTimeout(()=>markPending(true),2500));setTimeout(()=>markPending(true),4000)}
+
+function bandFor(p){return p>=80?"Excellent":p>=60?"Good":p>=40?"Getting there":"Needs work"}
 function tabExam(u,el){
-  const set=examSets[u.id]||newExamSet(u),pool=examPool(u),gen=!!MATHEXAM[u.id];
-  el.innerHTML=`<div class="legend"><span>${gen?"New numbers every time, plus questions from the bank":`Showing ${set.length} of ${pool.length} questions`}</span><button class="btn small" id="newEx">🔄 New questions</button></div>
-  <details class="cmdwords"><summary>Command words: what each question wants</summary><dl>${CMDS.map(([w,d])=>`<dt>${w}</dt><dd>${d}</dd>`).join("")}</dl></details>`+
-  set.map((e,i)=>{const r=P.exam[e.k];
-    return `<article class="eq" data-i="${i}"><div class="qline"><span class="qtext">${i+1}. ${esc(e.q)}</span><span class="marks">${e.m} marks</span></div>
-    <span class="status">${esc(e.cmd)}${e.pack?" · 📎 from your slides":""}${e.k.startsWith("gen:")?" · 🎲 generated":""}${r?` · last self-mark ${r.g}/${e.m}`:""}</span>
-    <textarea id="ans-${esc(e.k)}" placeholder="Write or plan your answer here (kept while this page is open)">${esc(drafts[e.k]||"")}</textarea>
-    <div><button class="btn ghost small" data-show>Show mark scheme</button></div>
-    <div class="scheme" hidden><b>Mark scheme points</b><ul>${e.pts.map(p=>p.includes("\n")?`<li class="codeblock"><pre>${esc(p)}</pre></li>`:`<li>${esc(p)}</li>`).join("")}</ul></div>
-    <div class="selfmark" hidden><span>Self-mark:</span>${Array.from({length:e.m+1},(_,g)=>`<button data-g="${g}" aria-pressed="${!!r&&r.g===g}">${g}</button>`).join("")}</div></article>`}).join("");
-  $("#newEx").onclick=()=>{newExamSet(u);tabExam(u,el);toast("New questions")};
-  el.querySelectorAll(".eq").forEach(card=>{
-    const e=set[+card.dataset.i];
-    card.querySelector("textarea").oninput=ev=>drafts[e.k]=ev.target.value;
-    card.querySelector("[data-show]").onclick=ev=>{card.querySelector(".scheme").hidden=false;card.querySelector(".selfmark").hidden=false;ev.target.parentElement.hidden=true};
-    card.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{const first=!P.exam[e.k];P.exam[e.k]={g:+b.dataset.g,o:e.m,t:Date.now()};if(first)addXP(+b.dataset.g+2);save();
-      card.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x===b));
-      card.querySelector(".status").textContent=`${e.cmd}${e.pack?" · 📎 from your slides":""}${e.k.startsWith("gen:")?" · 🎲 generated":""} · last self-mark ${b.dataset.g}/${e.m}`});
-  });
+  const draft=loadDraft(u.id);
+  if(view.sub&&view.sub.result){renderResult(u,el,view.sub.result);return}
+  if(draft){renderTestForm(u,el,draft);return}
+  const past=testsOf(u.id),pend=past.filter(t=>t.status==="pending");
+  const preview=newExamSet(u),marks=preview.reduce((a,e)=>a+e.m,0);
+  el.innerHTML=`<div class="done"><div class="eyebrow">📝 Exam test</div><div class="big">${preview.length} Qs</div><p>${marks} marks · answer every question, then submit to get marked${MATHEXAM[u.id]?" · fresh numbers each time":""}</p>
+    <div class="row center"><button class="btn" id="startTest">Start a test</button></div>
+    <p class="hint">${aiAvailable()?"Marked automatically against the mark scheme.":"Answers are saved and marked automatically once marking is available."}${!IN_CLAUDE?" Offline? It gets marked when you're back online.":""}</p></div>
+  ${pend.length?`<div class="note"><h3>⏳ Waiting to be marked (${pend.length})</h3><p class="status">${navigator.onLine?"":"You're offline. "}These will be marked automatically when you're online.</p><div class="row"><button class="btn small" id="markNow" ${aiAvailable()&&navigator.onLine?"":"disabled"}>Mark now</button><span class="status" id="markMsg"></span></div></div>`:""}
+  ${past.filter(t=>t.status==="marked").length?`<div class="note"><h3>Your past tests</h3><div class="pastlist">${past.filter(t=>t.status==="marked").slice(0,8).map(t=>{const p=Math.round(t.score/t.max*100);return `<button class="past" data-r="${t.id}"><span>${new Date(t.c).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span><b>${t.score}/${t.max}</b><span class="chip ${p>=60?"good":p>=40?"":"badc"}">${p}% · ${bandFor(p)}</span></button>`}).join("")}</div></div>`:""}
+  <details class="cmdwords"><summary>Command words: what each question wants</summary><dl>${CMDS.map(([w,d])=>`<dt>${w}</dt><dd>${d}</dd>`).join("")}</dl></details>`;
+  $("#startTest").onclick=()=>{const set=newExamSet(u);const d={id:"test-"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),u:u.id,c:Date.now(),qs:set.map(e=>({q:e.q,m:e.m,cmd:e.cmd,pts:e.pts,k:e.k,tp:e.tp||tagText(u,e.q+" "+e.pts.join(" "))})),ans:set.map(()=>"")};saveDraft(u.id,d);tabExam(u,el);scrollTo(0,0)};
+  const mn=$("#markNow");if(mn)mn.onclick=async()=>{mn.disabled=true;$("#markMsg").textContent="Marking…";
+    for(const t of pend){try{await markTest(t.id)}catch(e){$("#markMsg").textContent=markErrText(e);mn.disabled=false;return}}tabExam(u,el)};
+  el.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{view.sub={result:b.dataset.r};tabExam(u,el);scrollTo(0,0)});
+}
+function renderTestForm(u,el,d){
+  const max=d.qs.reduce((a,q)=>a+q.m,0);
+  el.innerHTML=`<div class="legend"><span>📝 Test in progress · ${d.qs.length} questions · ${max} marks · saved as you type</span></div>`+
+  d.qs.map((q,i)=>`<article class="eq"><div class="qline"><span class="qtext">${i+1}. ${esc(q.q)}</span><span class="marks">${q.m} mark${q.m>1?"s":""}</span></div>
+    <span class="status">${esc(q.cmd)}</span>
+    <textarea data-i="${i}" id="ta-${esc(d.id)}-${i}" rows="${q.m>=9?10:q.m>=5?6:4}" placeholder="Write your answer here. Show your working for calculations.">${esc(d.ans[i]||"")}</textarea></article>`).join("")+
+  `<div class="note"><div class="row" id="submitRow"><button class="btn" id="submitT">Submit for marking</button><button class="btn ghost small" id="quitT">Quit test</button></div><p class="status" id="subMsg"></p></div>`;
+  let tm;el.querySelectorAll("textarea[data-i]").forEach(ta=>ta.oninput=()=>{d.ans[+ta.dataset.i]=ta.value;clearTimeout(tm);tm=setTimeout(()=>saveDraft(u.id,d),400)});
+  $("#quitT").onclick=()=>{const r=$("#submitRow");r.innerHTML=`<span class="status">Quit and lose your answers?</span><button class="btn danger small" id="qy">Quit test</button><button class="btn ghost small" id="qn">Keep going</button>`;
+    $("#qy").onclick=()=>{saveDraft(u.id,null);tabExam(u,el)};$("#qn").onclick=()=>renderTestForm(u,el,d)};
+  $("#submitT").onclick=()=>{
+    saveDraft(u.id,d);const blank=d.ans.filter(a=>String(a||"").trim().length<2).length;
+    if(blank===d.qs.length){$("#subMsg").textContent="Answer at least one question first.";return}
+    if(blank&&!$("#submitT").dataset.ok){$("#submitT").dataset.ok="1";$("#submitT").textContent="Submit anyway";$("#subMsg").textContent=`${blank} question${blank>1?"s are":" is"} blank and will score 0.`;return}
+    submitTest(u,el,d);
+  };
+}
+async function submitTest(u,el,d){
+  P.tests=P.tests||{};
+  P.tests[d.id]={u:u.id,c:d.c,t:Date.now(),dev:DEVICE,status:"pending",qs:d.qs.map((q,i)=>({...q,ans:String(d.ans[i]||"").slice(0,4000)}))};
+  saveDraft(u.id,null);save();
+  el.innerHTML=`<div class="done"><div class="spinner"><i></i><span>Marking your answers… this can take up to a minute</span></div></div>`;
+  try{const r=await markTest(d.id);if(r==="ok"||P.tests[d.id].status==="marked"){view.sub={result:d.id};if(view.name==="unit"&&view.id===u.id){tabExam(u,el);scrollTo(0,0)}return}}
+  catch(e){el.innerHTML=`<div class="done"><div class="big">⏳</div><p><b>Test saved.</b></p><p>${esc(markErrText(e))}</p><div class="row center"><button class="btn ghost" id="bk">Back to Exam</button></div></div>`;$("#bk").onclick=()=>tabExam(u,el);return}
+  tabExam(u,el);
+}
+function renderResult(u,el,id){
+  const t=P.tests[id];if(!t||t.status!=="marked"){view.sub=null;tabExam(u,el);return}
+  const p=Math.round(t.score/t.max*100);if(!t.seen){t.seen=1;if(p>=70)confetti()}
+  el.innerHTML=`<div class="done"><div class="eyebrow">Test result · ${new Date(t.c).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</div><div class="big">${t.score}/${t.max}</div><p><b>${p}%</b> · ${bandFor(p)}</p>
+    <div class="row center"><button class="btn" id="again">Take another test</button><button class="btn ghost" id="bk">Back</button></div></div>`+
+  t.qs.map((q,i)=>`<article class="eq"><div class="qline"><span class="qtext">${i+1}. ${esc(q.q)}</span><span class="marks ${q.score===q.m?"full":q.score===0?"zero":""}">${q.score}/${q.m}</span></div>
+    ${q.fb?`<p class="fb">${esc(q.fb)}</p>`:""}${q.tip?`<p class="tip">💡 ${esc(q.tip)}</p>`:""}
+    <details><summary>Your answer</summary><div class="youans">${esc(q.ans||"(blank)").replace(/\n/g,"<br>")}</div></details>
+    <div class="scheme"><b>Mark scheme</b><ul class="ms">${q.pts.map((pt,j)=>`<li class="${(q.hit||[]).includes(j+1)?"hit":""}">${pt.includes("\n")?`<pre>${esc(pt)}</pre>`:esc(pt)}</li>`).join("")}</ul></div></article>`).join("");
+  $("#again").onclick=()=>{view.sub=null;tabExam(u,el);$("#startTest").click()};
+  $("#bk").onclick=()=>{view.sub=null;tabExam(u,el)};
 }
 
 /* ============ SLIDE IMPORT ============ */
@@ -1631,7 +1894,7 @@ function cloudDetach(){CLOUD.unsub.forEach(f=>{try{f()}catch(e){}});CLOUD.unsub=
 function softRender(){updateTop();if(view.name==="home"||view.name==="sync"||(view.name==="unit"&&!view.sub&&view.tab!=="exam"))render()}
 function cloudAttach(){
   const base=CLOUD.db.collection("users").doc(CLOUD.user.uid);
-  CLOUD.prog=base.collection("data").doc("progress");CLOUD.packs=base.collection("packs");
+  CLOUD.prog=base.collection(APP.dataNs).doc("progress");CLOUD.packs=base.collection(APP.packsNs);
   CLOUD.state="syncing";cloudStatus();
   CLOUD.unsub.push(CLOUD.prog.onSnapshot({includeMetadataChanges:true},s=>{
     if(!s.metadata.hasPendingWrites){
@@ -1719,7 +1982,7 @@ async function applyCode(d){
 }
 function renderSync(){
   const n=PACKS.length;
-  app.innerHTML=`<section class="imp-h"><div class="eyebrow">Sync</div><h1>${IN_CLAUDE?"Sync with the offline app":"Sync &amp; slides"}</h1>
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">Sync</div><h1>${IN_CLAUDE?"Sync with the offline app":APP.slides?"Sync &amp; slides":"Sync"}</h1>
   <p>${IN_CLAUDE?"Send your progress and imported slides to the installed app, or bring progress from the app back here."
     :"Your progress is saved on this device. Live sync keeps your devices in step automatically; a sync code is the manual backup and brings in slides imported in the Claude version."}</p></section>
   ${cloudSection()}
@@ -1731,9 +1994,9 @@ function renderSync(){
     <textarea id="codeIn" rows="4" placeholder="Paste a code that starts with DOGTAG1:"></textarea>
     <div class="row"><button class="btn" id="mergeBtn" style="--c:var(--soton)">Merge in</button><span class="status" id="mergeMsg"></span></div>
     <p class="status">Nothing gets wiped. Each card keeps its most recent result, quiz bests are kept, and new slide packs are added.</p></div>
-  <div class="step"><h2><span class="num">3</span>${IN_CLAUDE?"Getting slides into the offline app":"Adding new slides"}</h2>
+  ${!IN_CLAUDE&&!APP.slides?"":`<div class="step"><h2><span class="num">3</span>${IN_CLAUDE?"Getting slides into the offline app":"Adding new slides"}</h2>
     <p class="status">${IN_CLAUDE?"Import slides on this page as usual, then come here, tap <b>Copy sync code</b>, open the offline app → <b>Sync &amp; slides</b> and paste it."
-      :"Slide importing needs Claude, so do it in the Claude version of DOGTAG Revision (online). Then tap <b>Sync with the offline app</b> there, copy the code, and paste it above."}</p></div>`;
+      :"Slide importing needs Claude, so do it in the Claude version of DOGTAG Revision (online). Then tap <b>Sync with the offline app</b> there, copy the code, and paste it above."}</p></div>`}`;
   wireCloudSection();
   $("#copyCode").onclick=()=>{
     const code=makeCode(),out=$("#codeOut"),msg=$("#copyMsg");

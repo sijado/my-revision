@@ -1,5 +1,5 @@
 // DOGTAG Revision offline service worker. Bump VERSION when you change any app file.
-const VERSION = "v5";
+const VERSION = "v7";
 const APP = "dogtag-app-" + VERSION;
 const EXTERNAL = "dogtag-external";
 const SHELL = [
@@ -24,7 +24,7 @@ self.addEventListener("activate", e => {
 function staleWhileRevalidate(cacheName, req) {
   return caches.open(cacheName).then(async c => {
     const hit = await c.match(req);
-    const net = fetch(req).then(r => { if (r.ok || r.type === "opaque") c.put(req, r.clone()); return r; }).catch(() => hit);
+    const net = fetch(req, cacheName === APP ? { cache: "no-cache" } : undefined).then(r => { if (r.ok || r.type === "opaque") c.put(req, r.clone()); return r; }).catch(() => hit);
     return hit || net;
   });
 }
@@ -46,7 +46,8 @@ self.addEventListener("fetch", e => {
     e.respondWith((async () => {
       const c = await caches.open(APP);
       try {
-        const r = await Promise.race([fetch(req), new Promise((_, no) => setTimeout(no, 3000))]);
+        // "no-cache" asks GitHub for the newest copy instead of a browser-cached one
+        const r = await Promise.race([fetch(req, { cache: "no-cache" }), new Promise((_, no) => setTimeout(no, 3000))]);
         if (r.ok) c.put("./index.html", r.clone());
         return r;
       } catch {
