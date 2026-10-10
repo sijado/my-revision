@@ -1,0 +1,17 @@
+{
+  "name": "DOGTAG Revision",
+  "short_name": "Revision",
+  "description": "Offline revision for BTEC IT, BTEC Business and Southampton CS Foundation Year prep.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090C12",
+  "theme_color": "#090C12",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

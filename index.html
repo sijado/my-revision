@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EEF1F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#090C12" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Revision">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.notch{position:fixed;inset:0 0 auto 0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:25}
+</style>
+<title>DOGTAG Revision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+/* Layout: "arcade revision desk" — dotted desk background, chunky colour-coded course tiles with progress rings,
+   unit pages open under a full-bleed course-colour banner; one bold move = course colour everywhere, neutrals stay quiet */
+:root{
+  --bg:#EEF1F7; --dot:#D4DAE6; --surface:#FFFFFF; --raised:#F6F8FC; --sunk:#E4E9F2;
+  --ink:#0F131C; --muted:#5A6378; --line:#DCE2EC;
+  --it:#2F55F5; --biz:#F06A12; --soton:#009E88; --gold:#E9A400; --hot:#F0384F;
+  --good:#12A157; --bad:#E2363A; --key:#FFE27A; --keyink:#3D2C00;
+  --onc:#FFFFFF; --banner-ink:#FFFFFF; --shadow:0 1px 2px rgb(16 24 40 / .06), 0 6px 18px rgb(16 24 40 / .07);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#090C12; --dot:#182033; --surface:#121824; --raised:#17202F; --sunk:#1D2638;
+  --ink:#EEF2F9; --muted:#98A3BA; --line:#253049;
+  --it:#7290FF; --biz:#FF9A52; --soton:#2BD3B8; --gold:#FFC93C; --hot:#FF5D73;
+  --good:#3FD685; --bad:#FF6B6E; --key:#4F3E0C; --keyink:#FFE49C;
+  --onc:#090C12; --shadow:0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .35); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#090C12; --dot:#182033; --surface:#121824; --raised:#17202F; --sunk:#1D2638;
+  --ink:#EEF2F9; --muted:#98A3BA; --line:#253049;
+  --it:#7290FF; --biz:#FF9A52; --soton:#2BD3B8; --gold:#FFC93C; --hot:#FF5D73;
+  --good:#3FD685; --bad:#FF6B6E; --key:#4F3E0C; --keyink:#FFE49C;
+  --onc:#090C12; --shadow:0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .35); color-scheme:dark }
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:16px/1.55 var(--f-body);-webkit-text-size-adjust:100%;
+  background-image:radial-gradient(var(--dot) 1.2px,transparent 1.4px);background-size:22px 22px;background-attachment:fixed}
+.wrap{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:0 56px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--c,var(--it));outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.08;letter-spacing:-.02em}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:10px;padding-block:10px;min-height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0;background:none;border:0;padding:0;text-align:left}
+.logo .mark{width:34px;height:34px;border-radius:10px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:.8rem;transform:rotate(-6deg);flex:none}
+.logo b{font-family:var(--f-display);font-weight:800;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono);font-weight:700;font-size:.78rem;padding:5px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.streak{color:var(--hot)} .pill.xp{color:var(--gold)}
+.sync{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.sync.on{background:var(--good)} .sync.busy{background:var(--gold)}
+@media (max-width:420px){.logo b{display:none}}
+
+/* home hero */
+.hero{padding-block:30px 6px;display:grid;gap:18px}
+.hero h1{font-size:clamp(2.3rem,8vw,3.6rem);font-weight:800}
+.hero h1 .tag{background:var(--ink);color:var(--bg);padding:0 .18em;border-radius:.18em;display:inline-block;transform:rotate(-2deg)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:2px;box-shadow:var(--shadow);min-width:0}
+.stat b{font-family:var(--f-display);font-weight:800;font-size:clamp(1.7rem,6vw,2.4rem);line-height:1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.85rem}
+.stat.s-due b{color:var(--it)} .stat.s-streak b{color:var(--hot)} .stat.s-lvl b{color:var(--gold)}
+.xpbar{display:block;height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:6px}
+.xpbar i{display:block;height:100%;background:var(--gold);border-radius:3px}
+@media (max-width:520px){.stats{grid-template-columns:1fr 1fr}.stat.s-lvl{grid-column:1/-1}}
+.actions{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+@media (max-width:520px){.actions{grid-template-columns:1fr}}
+.big-go{border:0;border-radius:var(--r);padding:18px 20px;text-align:left;background:var(--ink);color:var(--bg);display:grid;gap:2px;box-shadow:var(--shadow)}
+.big-go b{font-family:var(--f-display);font-size:1.3rem;font-weight:800}
+.big-go span{opacity:.7;font-size:.88rem}
+.big-go[disabled]{opacity:.55;cursor:default}
+.big-imp{border:2px dashed var(--muted);border-radius:var(--r);padding:16px 18px;background:transparent;text-align:left;display:grid;gap:2px}
+.big-imp b{font-family:var(--f-display);font-size:1.15rem;font-weight:800}
+.big-imp span{color:var(--muted);font-size:.85rem}
+.big-imp:hover{border-color:var(--ink)}
+
+/* courses & tiles */
+.course{margin-top:40px}
+.course-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.blob{width:18px;height:18px;border-radius:6px;background:var(--c);transform:rotate(12deg);flex:none}
+.course-h h2{font-size:clamp(1.5rem,5vw,1.9rem);font-weight:800}
+.course-sub{color:var(--muted);font-size:.85rem;flex-basis:100%}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.tile{position:relative;display:grid;gap:12px;align-content:start;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);overflow:hidden}
+.tile::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--c)}
+.tile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.code{font-family:var(--f-mono);font-weight:700;font-size:.74rem;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent);border-radius:8px;padding:4px 8px;white-space:nowrap}
+.tile h3{font-size:1.18rem;font-weight:800}
+.tile-foot{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;color:var(--muted);font-size:.8rem}
+.chip{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.chip.exam{border-color:var(--c);color:var(--c)}
+.chip.new{background:var(--c);border-color:var(--c);color:var(--onc)}
+.ring{--p:0;width:52px;height:52px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:conic-gradient(var(--c) calc(var(--p)*1%),var(--sunk) 0)}
+.ring b{width:40px;height:40px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-family:var(--f-mono);font-size:.72rem;font-weight:700;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:no-preference){
+  .tile{transition:transform .18s ease,box-shadow .18s ease}
+  .tile:hover{transform:translateY(-3px);box-shadow:0 12px 30px color-mix(in srgb,var(--c) 25%,transparent)}
+}
+
+/* unit banner */
+.banner{margin-top:18px;border-radius:calc(var(--r) + 4px);padding:24px 22px;color:var(--banner-ink);
+  background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 52%,#000));display:flex;gap:16px;align-items:center;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.banner::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:40px;background:rgb(255 255 255 / .09);transform:rotate(22deg)}
+.banner .txt{flex:1;min-width:0;display:grid;gap:8px;position:relative;z-index:1}
+.banner .eyebrow{color:rgb(255 255 255 / .8)}
+.banner h1{font-size:clamp(1.7rem,6vw,2.5rem);font-weight:800}
+.banner .chip{border-color:rgb(255 255 255 / .55);color:var(--banner-ink)}
+.banner .ring{background:conic-gradient(#fff calc(var(--p)*1%),rgb(255 255 255 / .25) 0);width:68px;height:68px;position:relative;z-index:1}
+.banner .ring b{width:54px;height:54px;background:color-mix(in srgb,var(--c) 60%,#000);color:#fff;font-size:.82rem}
+.tabs{display:flex;gap:6px;margin-top:14px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 12px;font-weight:700;color:var(--muted);white-space:nowrap;display:flex;gap:6px;align-items:center;justify-content:center}
+.tabs button[aria-selected="true"]{background:var(--c);border-color:var(--c);color:var(--onc)}
+.panel{margin-top:18px}
+
+/* notes */
+.note{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.note h3{font-size:1.2rem;margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.note h3 .n{font-family:var(--f-mono);font-size:.75rem;color:var(--c);font-weight:700}
+.note ul{margin:0;padding-left:1.2em;display:grid;gap:7px}
+.note li{max-width:70ch}
+.note li::marker{color:var(--c)}
+.kt{background:var(--key);color:var(--keyink);border-radius:5px;padding:0 4px;font-weight:700;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--sunk);border-radius:5px;padding:1px 5px}
+.formula{list-style:none;margin-left:-1.2em;font-family:var(--f-mono);font-size:.9rem;background:color-mix(in srgb,var(--c) 10%,transparent);border-left:4px solid var(--c);padding:7px 12px;border-radius:0 8px 8px 0;overflow-x:auto}
+.codeblock{list-style:none;margin-left:-1.2em;overflow-x:auto}
+.codeblock pre{margin:0;font-family:var(--f-mono);font-size:.84rem;background:var(--sunk);border-radius:10px;padding:10px 12px;line-height:1.5}
+.legend{font-size:.88rem;color:var(--muted);margin:0 0 14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.packhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:26px 0 10px;padding:12px 16px;border-radius:14px;background:color-mix(in srgb,var(--c) 12%,var(--surface));border:1px dashed var(--c)}
+.packhead b{font-family:var(--f-display);font-size:1.05rem}
+.packhead p{margin:2px 0 0;color:var(--muted);font-size:.86rem;flex-basis:100%}
+.tldr{background:var(--ink);color:var(--bg);border-radius:var(--r);padding:14px 18px;margin-bottom:12px;font-size:1rem}
+.tldr b{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;margin-right:8px;color:var(--gold)}
+
+/* buttons */
+.btn{border:0;border-radius:999px;padding:11px 20px;font-weight:700;background:var(--c,var(--it));color:var(--onc)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.small{padding:6px 12px;font-size:.85rem}
+.btn.danger{background:var(--bad);color:var(--onc)}
+.btn[disabled]{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.center{justify-content:center}
+
+/* flashcards */
+.fc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.count{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;flex:1}
+.track i{display:block;height:100%;background:var(--c);border-radius:4px}
+@media (prefers-reduced-motion:no-preference){.track i{transition:width .3s ease}}
+.flip{perspective:1400px;display:block;width:100%;border:0;background:none;padding:0;text-align:center}
+.flip-inner{display:grid;transform-style:preserve-3d;position:relative}
+@media (prefers-reduced-motion:no-preference){.flip-inner{transition:transform .55s cubic-bezier(.2,.8,.2,1)}}
+.flip.flipped .flip-inner{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:270px;border-radius:24px;padding:30px 24px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.face.front{background:linear-gradient(150deg,var(--c),color-mix(in srgb,var(--c) 55%,#000));color:var(--banner-ink)}
+.face.front .big{font-family:var(--f-display);font-weight:800;font-size:clamp(1.4rem,5vw,2rem);line-height:1.15}
+.face.back{transform:rotateY(180deg);background:var(--surface);border:3px solid var(--c);font-size:1.12rem}
+.face .side{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.face .from{font-family:var(--f-mono);font-size:.7rem;opacity:.8}
+.fc-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.fc-actions button{border-radius:16px;padding:16px;font-weight:800;font-family:var(--f-display);font-size:1.1rem;border:0}
+.again{background:color-mix(in srgb,var(--bad) 15%,var(--surface));color:var(--bad)}
+.gotit{background:var(--good);color:var(--onc)}
+.hint{color:var(--muted);font-size:.86rem;text-align:center;margin:10px 0 0}
+.done{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:30px 22px;text-align:center;display:grid;gap:12px;justify-items:center;box-shadow:var(--shadow)}
+.done .big{font-family:var(--f-display);font-weight:800;font-size:clamp(3rem,12vw,4.5rem);color:var(--c);line-height:1;font-variant-numeric:tabular-nums}
+.done p{margin:0;color:var(--muted)}
+
+/* quiz */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.q .stem{font-family:var(--f-display);font-size:clamp(1.2rem,4.5vw,1.45rem);font-weight:700;margin:12px 0 16px;line-height:1.25}
+.combo{font-family:var(--f-mono);font-weight:700;font-size:.78rem;color:var(--hot)}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;background:var(--raised);border:2px solid var(--line);border-radius:14px;padding:13px 14px}
+.opt .k{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;font-family:var(--f-mono);font-weight:700;background:var(--sunk);color:var(--muted)}
+.opt:hover:not([disabled]){border-color:var(--c)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 13%,var(--surface))}
+.opt.right .k{background:var(--good);color:var(--onc)}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.opt.wrong .k{background:var(--bad);color:var(--onc)}
+.opt[disabled]{cursor:default}
+@media (prefers-reduced-motion:no-preference){.opt.right{animation:pop .35s ease}.opt.wrong{animation:shake .35s ease}}
+@keyframes pop{50%{transform:scale(1.025)}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.explain{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--sunk);font-size:.95rem}
+.explain b{color:var(--good)} .explain b.x{color:var(--bad)}
+.qnav{display:flex;justify-content:flex-end;margin-top:14px}
+.quizhub{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:12px}
+.quizhub .done{align-content:start}
+.done.mistakes{border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+.wronglist{margin:10px 0 0;padding-left:1.3em;display:grid;gap:10px}
+.wronglist li{max-width:70ch}
+
+/* exam */
+.cmdwords{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;font-size:.9rem}
+.cmdwords summary{font-weight:700;cursor:pointer}
+.cmdwords dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:10px 0 0}
+.cmdwords dt{font-family:var(--f-mono);font-weight:700;color:var(--c)}
+.cmdwords dd{margin:0}
+.eq{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:12px;display:grid;gap:10px;box-shadow:var(--shadow)}
+.eq .qline{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.eq .qtext{font-weight:700;min-width:0}
+.marks{font-family:var(--f-mono);font-size:.78rem;font-weight:700;white-space:nowrap;color:var(--onc);background:var(--c);border-radius:8px;padding:3px 8px}
+textarea,input[type=text],select{width:100%;background:var(--raised);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.eq textarea{min-height:110px;resize:vertical}
+.scheme{background:color-mix(in srgb,var(--c) 8%,transparent);border-radius:12px;padding:12px 14px}
+.scheme ul{margin:6px 0 0;padding-left:1.2em;display:grid;gap:4px}
+.selfmark{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85rem;color:var(--muted)}
+.selfmark button{min-width:36px;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 8px;font-family:var(--f-mono);font-weight:700}
+.selfmark button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--onc)}
+.status{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+
+/* import */
+.imp-h{padding-block:28px 6px;display:grid;gap:8px}
+.imp-h h1{font-size:clamp(2rem,7vw,3rem);font-weight:800}
+.imp-h p{margin:0;color:var(--muted);max-width:60ch}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-top:14px;display:grid;gap:12px;box-shadow:var(--shadow)}
+.step h2{font-size:1.15rem;display:flex;gap:10px;align-items:center}
+.step h2 .num{width:28px;height:28px;border-radius:9px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-mono);font-size:.85rem;flex:none}
+.drop{border:2.5px dashed var(--line);border-radius:16px;padding:6px;background:var(--raised)}
+.drop.over{border-color:var(--it);background:color-mix(in srgb,var(--it) 8%,var(--raised))}
+.drop textarea{border:0;background:transparent;min-height:190px;resize:vertical}
+.attach{display:flex;flex-wrap:wrap;gap:8px}
+.att{display:flex;align-items:center;gap:8px;background:var(--sunk);border-radius:10px;padding:5px 6px 5px 10px;font-size:.85rem;max-width:100%}
+.att img{width:44px;height:30px;object-fit:cover;border-radius:5px}
+.att span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.att button{border:0;background:var(--surface);border-radius:7px;width:26px;height:26px;flex:none}
+.gen{display:grid;gap:10px;justify-items:start}
+.spinner{display:flex;gap:10px;align-items:center;font-weight:700}
+.spinner i{width:18px;height:18px;border-radius:50%;border:3px solid var(--sunk);border-top-color:var(--it);display:inline-block}
+@media (prefers-reduced-motion:no-preference){.spinner i{animation:spin .8s linear infinite}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{color:var(--bad);font-weight:700;margin:0}
+.counts{display:flex;flex-wrap:wrap;gap:8px}
+.counts span{font-family:var(--f-mono);font-size:.78rem;font-weight:700;background:var(--sunk);border-radius:8px;padding:4px 9px}
+label.lbl{font-weight:700;font-size:.9rem;display:grid;gap:6px}
+
+.foot{margin-top:44px;color:var(--muted);font-size:.84rem;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:6px}
+.toast{position:fixed;right:16px;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:30;background:var(--gold);color:#1A1300;font-family:var(--f-mono);font-weight:700;border-radius:999px;padding:6px 12px;opacity:0;transform:translateY(-6px);pointer-events:none}
+.toast.show{opacity:1;transform:none}
+@media (prefers-reduced-motion:no-preference){.toast{transition:opacity .2s,transform .2s}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <button class="logo" id="home" aria-label="Home"><span class="mark">DT</span><b>DOGTAG Revision</b></button>
+  <span class="pill streak" id="streakPill" title="Day streak">🔥 0</span>
+  <span class="pill xp" id="xpPill" title="Level and XP">⚡ Lv 1</span>
+  <span class="sync" id="sync" title="Saved on this device only"></span>
+</div></header>
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+/* ============ CONTENT ============ */
+/* Notes syntax: **key term**, `code`, line starting "= " is a formula, "$ " is a code block (\n for new lines) */
+const COURSES = [
+{id:"it",name:"BTEC IT",color:"--it",full:"Pearson BTEC Level 3 National Extended Certificate in Information Technology (single)",units:[
+{id:"it1",code:"IT U1",title:"Information Technology Systems",assess:"Written exam · external",exam:true,
+notes:[
+{h:"Digital devices & storage",b:[
+"Device types: multifunctional devices, personal computers, mobile devices, **servers**, entertainment systems, digital cameras, navigation systems, data-capture devices (e.g. barcode / RFID readers).",
+"**Magnetic** storage (HDD): cheap per GB, large capacity, but moving parts so slower and less robust.",
+"**Solid state** (SSD, flash): no moving parts, faster access, lower power, more durable; higher cost per GB.",
+"**Optical** (CD/DVD/Blu-ray): cheap and portable, but slow and low capacity — mostly legacy/backup use.",
+"Choosing hardware: think about the user's needs, cost, portability, performance, compatibility and accessibility."]},
+{h:"Software & operating systems",b:[
+"The **operating system** manages memory, processes (multitasking), files, security/user accounts and peripherals via **device drivers**.",
+"User interfaces: **GUI** (windows, icons, menus, pointer), **command line** (fast for experts, hard to learn), menu-based, voice/natural language.",
+"**Utility software** maintains the system: antivirus, backup, compression, disk clean-up/defragmentation (HDD only), firewall.",
+"Application software: **off-the-shelf** (cheap, tested, support) vs **bespoke** (fits exact needs, expensive, slow to build); **open source** vs **proprietary**."]},
+{h:"Transmitting data & networks",b:[
+"Network types: **LAN** (one site), **WAN** (wide area, e.g. the internet), **PAN** (Bluetooth around a person), **VPN** (encrypted tunnel over a public network).",
+"Wired: copper Ethernet, **fibre optic** (fast, long distance, immune to interference). Wireless: Wi-Fi, Bluetooth, 4G/5G, satellite — convenient but more interference and security risk.",
+"**Bandwidth** = how much data can be sent per second. **Latency** = the delay before data starts arriving. Video calls need low latency.",
+"**Protocols** are agreed rules: TCP/IP, HTTP/**HTTPS** (encrypted web), FTP (files), SMTP (sending email), IMAP/POP3 (receiving email).",
+"**Packet switching**: data split into packets with headers, sent by different routes, reassembled at the destination.",
+"Compression: **lossy** removes data permanently (JPEG, MP3); **lossless** rebuilds the original exactly (ZIP, PNG)."]},
+{h:"Operating online & threats",b:[
+"Cloud models: **SaaS** (software via browser, e.g. Google Docs), **PaaS** (platform for developers), **IaaS** (rented servers/storage).",
+"Cloud pros: access anywhere, collaboration, scalable, no hardware to maintain. Cons: needs internet, ongoing cost, data held by a third party.",
+"Threats: **malware** (virus, worm, trojan, spyware, **ransomware**), **phishing**, hacking, **DDoS**, social engineering, shoulder surfing, accidental damage.",
+"Protection: firewall, antivirus, **encryption**, strong passwords, **two-factor authentication**, access rights, regular backups, staff training, physical security (locks, CCTV)."]},
+{h:"Laws & ethics",b:[
+"**Data Protection Act 2018 / UK GDPR** — 7 principles: lawfulness, fairness & transparency; purpose limitation; **data minimisation**; accuracy; **storage limitation**; integrity & confidentiality (security); accountability.",
+"**Computer Misuse Act 1990**: unauthorised access; unauthorised access with intent to commit further offences; unauthorised acts that impair a computer (e.g. modifying data, spreading malware).",
+"**Copyright, Designs and Patents Act 1988** protects creative work and software from being copied without permission.",
+"**Equality Act 2010**: services and workplaces must make reasonable adjustments — accessible IT (screen readers, captions, keyboard access).",
+"Ethical issues: privacy & monitoring, the **digital divide**, environmental impact (e-waste, energy use), online abuse, net neutrality."]},
+{h:"Flowcharts & data flow diagrams",b:[
+"Flowchart symbols: terminator (rounded box) start/end; rectangle = process; **diamond = decision**; parallelogram = input/output.",
+"**Data flow diagram (DFD)**: external entity (square), process (rounded box), data store (open box), data flow (labelled arrow).",
+"Exam tip: label every arrow on a DFD and make sure every decision on a flowchart has two labelled exits (Yes / No)."]}
+],
+cards:[
+["Bandwidth vs latency","Bandwidth = amount of data sent per second. Latency = delay before data arrives."],
+["Lossy vs lossless compression","Lossy permanently removes data (smaller, e.g. JPEG/MP3). Lossless restores the original exactly (e.g. ZIP/PNG)."],
+["Phishing","Fake emails/messages pretending to be a trusted organisation to trick people into giving details or clicking malicious links."],
+["DDoS attack","Distributed Denial of Service — many devices (a botnet) flood a server with requests so real users can't access it."],
+["Ransomware","Malware that encrypts a victim's files and demands payment for the key."],
+["Symmetric vs asymmetric encryption","Symmetric: same key encrypts and decrypts. Asymmetric: public key encrypts, private key decrypts."],
+["Two-factor authentication","Logging in needs two different types of proof, e.g. password + code sent to your phone."],
+["Data minimisation (UK GDPR)","Only collect personal data that is adequate, relevant and limited to what is needed for the purpose."],
+["Computer Misuse Act 1990","Makes unauthorised access, access with intent to commit further crimes, and unauthorised acts that impair a computer illegal."],
+["Device driver","Software that lets the operating system communicate with a specific piece of hardware."],
+["Packet switching","Data is split into numbered packets that may take different routes and are reassembled at the destination."],
+["SaaS / PaaS / IaaS","Software (apps in a browser) / Platform (tools to build apps) / Infrastructure (rented servers, storage) as a Service."],
+["Digital divide","The gap between people who have good access to technology and the internet and those who don't."],
+["Flowchart: diamond","A decision — must have two exits (e.g. Yes / No)."]],
+quiz:[
+["Which law makes unauthorised access to computer material a criminal offence?",["Data Protection Act 2018","Computer Misuse Act 1990","Copyright, Designs and Patents Act 1988","Equality Act 2010"],1,"The Computer Misuse Act 1990 covers hacking and unauthorised access."],
+["Which protocol is used to transfer web pages securely?",["FTP","SMTP","HTTPS","IMAP"],2,"HTTPS is HTTP with encryption (TLS)."],
+["Which type of compression permanently removes some data?",["Lossless","Lossy","Huffman","Run-length"],1,"Lossy compression throws data away for smaller files; it can't be fully restored."],
+["An employee gets an email that looks like it's from their bank asking them to confirm their password. This is…",["A DDoS attack","Phishing","Shoulder surfing","A worm"],1,"Phishing uses fake messages from 'trusted' senders to steal details."],
+["Which is an advantage of an SSD over an HDD?",["Cheaper per GB","Has moving read/write heads","Faster access and more durable","Always larger capacity"],2,"SSDs have no moving parts, so they are faster and more robust."],
+["Which UK GDPR principle says data should not be kept longer than needed?",["Accuracy","Purpose limitation","Storage limitation","Accountability"],2,"Storage limitation = delete or anonymise data once it is no longer needed."],
+["In a flowchart, a decision is shown as a…",["Rectangle","Diamond","Parallelogram","Rounded rectangle"],1,"Diamonds are decisions with Yes/No exits."],
+["Google Docs used in a web browser is an example of…",["IaaS","PaaS","SaaS","LAN"],2,"Software as a Service — the app runs in the cloud and you use it in a browser."],
+["The delay before data starts to arrive is called…",["Bandwidth","Latency","Throughput","Jitter"],1,"Latency is delay; bandwidth is capacity."]],
+exam:[
+{q:"Explain two benefits to a small business of storing its files in the cloud.",m:4,cmd:"Explain",pts:["Files can be accessed from any device with an internet connection (1) so staff can work remotely or on the move (1).","No need to buy/maintain own servers (1) which reduces up-front costs for a small business (1).","Also creditable: automatic backup by provider (1) so data is less likely to be lost if a device is damaged (1); real-time collaboration on the same file (1)."]},
+{q:"A college stores students' personal records on its network. Discuss the measures the college should take to protect this data.",m:8,cmd:"Discuss",pts:["Access rights/levels so staff only see data they need — links to UK GDPR integrity & confidentiality.","Strong passwords + two-factor authentication to stop unauthorised access.","Encryption of stored data and data in transit so stolen data is unreadable.","Firewall and up-to-date antivirus to block hacking and malware.","Regular, off-site/cloud backups so data can be restored after ransomware or hardware failure.","Staff training on phishing/social engineering — people are often the weakest link.","Physical security: locked server rooms, CCTV, logging off unattended PCs.","Balanced points: cost/time of measures vs consequences (fines from ICO, reputational damage). Higher marks need a reasoned conclusion."]},
+{q:"Assess the impact on employees of a company introducing remote working supported by IT systems.",m:9,cmd:"Assess",pts:["Positive: no commuting — saves time and money, better work–life balance.","Positive: flexible hours; can live further from the office; suits people with caring responsibilities or disabilities.","Negative: isolation, less informal support from colleagues; harder to switch off.","Negative: needs reliable broadband and suitable equipment/space at home.","Security responsibilities: VPN, secure Wi-Fi, keeping devices locked.","Communication via video calls, instant messaging, shared cloud documents — needs IT skills/training.","Conclusion weighing up which impacts are most significant and for which employees."]}]
+},
+{id:"it2",code:"IT U2",title:"Creating Systems to Manage Information",assess:"Set task · external",exam:true,
+notes:[
+{h:"Relational databases",b:[
+"A **table** stores one entity (e.g. Customer). Each row is a **record**, each column is a **field** (attribute).",
+"**Primary key**: field that uniquely identifies each record (e.g. CustomerID). **Composite key**: two or more fields together form the key.",
+"**Foreign key**: a field in one table that is the primary key of another table — it creates the relationship.",
+"Relationships: one-to-one, **one-to-many** (most common), many-to-many — must be split using a **link (junction) table**."]},
+{h:"ERDs & data dictionary",b:[
+"An **ERD** shows entities and relationships; crow's foot marks the 'many' side.",
+"A **data dictionary** lists for each field: name, data type, size, format, validation rule, description, key.",
+"Data types: Short Text, Number (integer/decimal), Currency, Date/Time, Yes/No (Boolean), AutoNumber.",
+"Use text, not number, for phone numbers (leading 0) and postcodes."]},
+{h:"Normalisation",b:[
+"Purpose: remove **data redundancy** and prevent **anomalies** (insert, update, delete problems).",
+"**1NF**: atomic (single) values, no repeating groups, each table has a primary key.",
+"**2NF**: in 1NF + no **partial dependencies** (non-key fields depend on the whole composite key).",
+"**3NF**: in 2NF + no **transitive dependencies** (non-key fields depend only on the key, 'the key, the whole key and nothing but the key')."]},
+{h:"Data integrity: validation & verification",b:[
+"**Validation** checks data is sensible/allowed: range, presence, type, length, format (input mask), lookup/list check.",
+"**Verification** checks data was entered correctly: double entry (e.g. type password twice), visual check against the source.",
+"**Referential integrity**: a foreign key value must match an existing primary key — stops 'orphan' records. Cascade update/delete keeps tables consistent."]},
+{h:"Queries, forms & reports",b:[
+"Query types: select, **parameter** (asks the user for a value), multi-table, calculated field, update/delete/append.",
+"Criteria: `AND`, `OR`, `Between 10 And 20`, `Like \"S*\"` (wildcard), `>`, `<>`.",
+"$ SELECT FirstName, Surname\nFROM Customer\nWHERE Town = \"Wakefield\"\nORDER BY Surname;",
+"**Forms**: user-friendly data entry (combo boxes, buttons, clear labels). **Reports**: formatted output, grouping and totals. A **navigation/menu form** ties the system together."]},
+{h:"Testing & evaluation",b:[
+"Test plan columns: test no., purpose, test data, expected result, actual result, action taken.",
+"Test data: **normal** (valid), **extreme/boundary** (on the edges of the valid range), **erroneous** (invalid, should be rejected).",
+"Evaluate against the client's requirements: does it meet each one? Usability, efficiency, robustness and improvements you'd make with more time."]}
+],
+cards:[
+["Primary key","A field that uniquely identifies each record in a table."],
+["Foreign key","A field in one table that is the primary key of another, linking the two tables."],
+["Composite key","A primary key made of two or more fields combined."],
+["1NF","Atomic values, no repeating groups, every table has a primary key."],
+["2NF","1NF + no partial dependencies on part of a composite key."],
+["3NF","2NF + no transitive dependencies (non-key fields depend only on the key)."],
+["Referential integrity","Every foreign key value must match an existing primary key value, so no orphan records."],
+["Validation vs verification","Validation: is the data sensible/allowed? Verification: was it entered/copied correctly?"],
+["Range check","Validation that data falls between a minimum and maximum, e.g. age 16–19."],
+["Boundary (extreme) test data","Values on the edges of the valid range, e.g. 16 and 19 for a 16–19 range."],
+["Update anomaly","When the same data is stored in several places, changing one copy leaves the others out of date."],
+["Junction (link) table","A table used to break a many-to-many relationship into two one-to-many relationships."],
+["Data dictionary","Documentation of each field: name, data type, size, format, validation, description, key."],
+["Parameter query","A query that asks the user to type a value to search on when it runs."]],
+quiz:[
+["What is the main purpose of normalisation?",["Make tables bigger","Reduce data redundancy and anomalies","Encrypt the data","Speed up typing"],1,"Normalisation removes duplicated data and the problems it causes."],
+["A field in one table that links to the primary key in another is a…",["Composite key","Candidate key","Foreign key","Index"],2,"Foreign keys create relationships between tables."],
+["Checking an age is between 16 and 19 is a…",["Presence check","Range check","Format check","Length check"],1,"A range check tests values against a minimum and maximum."],
+["For a valid range of 16–19, the value 19 is…",["Normal data","Boundary/extreme data","Erroneous data","Invalid data"],1,"19 is valid but on the edge of the range."],
+["A non-key field depending on another non-key field breaks…",["1NF","2NF","3NF","Referential integrity"],2,"That is a transitive dependency, which 3NF removes."],
+["A many-to-many relationship should be resolved by…",["Deleting one table","Adding a junction (link) table","Using a composite field","Turning off referential integrity"],1,"The link table holds both foreign keys."],
+["Which SQL keyword filters records?",["SELECT","FROM","WHERE","ORDER BY"],2,"WHERE sets the criteria."],
+["Typing a new password twice is an example of…",["Validation","Verification","Normalisation","Encryption"],1,"Double entry is a verification method."],
+["The criteria Like \"S*\" returns values that…",["End in S","Contain S anywhere","Start with S","Are exactly S*"],2,"* is a wildcard for any characters after S."]],
+exam:[
+{q:"Explain why referential integrity should be enforced between the Customer and Booking tables.",m:3,cmd:"Explain",pts:["It stops a booking being entered for a CustomerID that doesn't exist (1)","so there are no orphan records / data stays consistent (1)","and with cascade delete/update, changes to a customer are applied to their bookings (1)."]},
+{q:"Describe the difference between validation and verification, giving an example of each.",m:4,cmd:"Describe",pts:["Validation checks data is reasonable/allowed by rules (1), e.g. range check on age 16–19 (1).","Verification checks data has been entered accurately/matches the source (1), e.g. double entry of email address or visual check (1)."]},
+{q:"Explain how you would use normal, extreme and erroneous test data to test a field that accepts a quantity from 1 to 50.",m:6,cmd:"Explain",pts:["Normal: e.g. 25 (1) — should be accepted, proves the field works for typical input (1).","Extreme/boundary: 1 and 50 (1) — should be accepted; checks the rule uses >= / <= correctly (1).","Erroneous: e.g. 0, 51, 'ten' (1) — should be rejected with a clear error message (1)."]}]
+},
+{id:"it3",code:"IT U3",title:"Using Social Media in Business",assess:"Assignment · internal",exam:false,
+notes:[
+{h:"Platforms & business uses",b:[
+"Platforms suit different audiences: Instagram & TikTok (visual, younger), LinkedIn (professional/B2B, recruitment), Facebook (broad, groups, events), YouTube (video/tutorials), X (news, quick updates), Pinterest (inspiration).",
+"Business uses: **brand awareness**, promoting products, **customer service**, building **engagement** and loyalty, market research, recruitment, sharing news with stakeholders."]},
+{h:"Benefits & risks",b:[
+"Benefits: low cost, huge **reach**, **targeted ads** (age, location, interests), two-way communication, instant feedback, potential to go **viral**, built-in analytics.",
+"Risks: negative comments and **reputational damage**, time/staff cost, account hacking, legal problems, inconsistent brand voice, hard to measure return on investment."]},
+{h:"Planning social media use",b:[
+"Start from the business requirements and **SMART objectives** (e.g. increase Instagram followers by 15% in 3 months).",
+"Define the **target audience** (demographics, interests) and pick platforms they actually use.",
+"Content types: images, short video, stories, polls, live streams, **user-generated content** (UGC), competitions.",
+"A **content calendar** plans what to post, where and when. **Scheduling tools** (e.g. Meta Business Suite, Hootsuite, Buffer) post automatically.",
+"A **social media policy** sets rules for staff: who can post, tone, how to deal with complaints, what is never shared."]},
+{h:"Legal & ethical issues",b:[
+"**UK GDPR**: get consent for collecting data (competition entries, mailing lists).",
+"**Copyright**: don't use images or music you don't have rights to.",
+"**ASA / CAP Code**: adverts must be obviously identifiable (e.g. **#ad** on paid influencer posts) and not misleading.",
+"Accessibility: **alt text** on images, captions on videos, readable colour contrast."]},
+{h:"Measuring success",b:[
+"**Reach** = number of unique people who saw content. **Impressions** = total number of times it was shown.",
+"**Engagement** = likes, comments, shares, saves, clicks.",
+"= Engagement rate = engagements ÷ reach (or followers) × 100",
+"= Click-through rate (CTR) = clicks ÷ impressions × 100",
+"Also track follower growth, conversions (sales/sign-ups) and **sentiment**; use insights to adjust the plan."]}
+],
+cards:[
+["Reach vs impressions","Reach = unique people who saw it. Impressions = total times it was displayed (one person can count several times)."],
+["Engagement rate","Engagements ÷ reach (or followers) × 100."],
+["Click-through rate (CTR)","Clicks ÷ impressions × 100."],
+["User-generated content (UGC)","Content made by customers, e.g. reviews or photos tagged with the brand."],
+["Content calendar","A schedule of what will be posted, on which platform, and when."],
+["ASA / CAP Code","UK advertising rules — ads must be identifiable (e.g. #ad) and not misleading."],
+["Social media policy","Company rules for how staff use and represent the business on social media."],
+["Targeted advertising","Paid ads shown only to chosen groups, e.g. by age, location or interests."],
+["Sentiment","Whether comments/mentions are positive, negative or neutral about the brand."],
+["Influencer marketing","Paying or gifting people with large followings to promote a product."],
+["SMART objective","Specific, Measurable, Achievable, Realistic/Relevant, Time-bound."]],
+quiz:[
+["Total number of times a post was displayed is…",["Reach","Impressions","Engagement","Followers"],1,"Impressions count every display, including repeats."],
+["A post reached 2,000 people and got 100 engagements. Engagement rate?",["2%","5%","20%","50%"],1,"100 ÷ 2,000 × 100 = 5%."],
+["Which platform is best for B2B networking and recruitment?",["TikTok","Pinterest","LinkedIn","Snapchat"],2,"LinkedIn is the professional network."],
+["Under the CAP Code a paid influencer post should be…",["Hidden as a normal post","Clearly labelled, e.g. #ad","Only shown to under-18s","Posted at night"],1,"Ads must be obviously identifiable."],
+["Customers posting photos of a café's cakes and tagging it is…",["UGC","PPC","SEO","A DDoS"],0,"User-generated content."],
+["A document that plans posts by date and platform is a…",["Social media policy","Content calendar","Data dictionary","Marketing budget"],1,"A content calendar schedules what goes out when."],
+["Which is a RISK of social media for a business?",["Low cost","Two-way communication","Negative public comments","Analytics"],2,"Negative comments can damage reputation."]],
+exam:[
+{q:"Explain how a small independent café could use social media to increase customer engagement.",m:4,cmd:"Explain",pts:["Post daily specials/behind-the-scenes on Instagram (1) to give followers a reason to interact and visit (1).","Run a competition, e.g. share & tag a friend (1) which increases reach and comments (1).","Reply quickly to comments/reviews (1) builds loyalty and shows good customer service (1)."]},
+{q:"Justify the choice of two social media platforms for a business targeting 18–24 year olds.",m:6,cmd:"Justify",pts:["TikTok: very high use among 18–24s; short, entertaining video suits product demos; algorithm can push content to non-followers (viral reach).","Instagram: strong 18–24 use; visual brand building; Stories/Reels; shopping features and targeted ads.","Justification must link features to the audience and the business objectives — and say why other platforms (e.g. Facebook, LinkedIn) are less suitable."]},
+{q:"Assess the risks to a business of using social media, and how they could be reduced.",m:8,cmd:"Assess",pts:["Negative comments/viral complaints → reply politely and quickly; have a complaints procedure in the policy.","Staff posting inappropriately → social media policy and training; limit who has login access.","Account hacking → strong passwords, 2FA, limited admin roles.","Legal breaches (copyright, GDPR, ASA) → use own/licensed images, consent for data, label ads.","Time and cost with unclear return → SMART objectives and analytics to measure ROI.","Conclusion: which risk is most serious for this business and whether benefits outweigh risks."]}]
+}]},
+{id:"biz",name:"BTEC Business",color:"--biz",full:"Pearson BTEC Level 3 National Extended Certificate in Business (single)",units:[
+{id:"b1",code:"BUS U1",title:"Exploring Business",assess:"Assignment · internal",exam:false,
+notes:[
+{h:"Purpose, sectors & ownership",b:[
+"Aims: survival, **profit**, growth, market share, providing a service, social/ethical aims.",
+"Sectors by activity: **primary** (raw materials), **secondary** (manufacturing), **tertiary** (services). By ownership: private, public, voluntary/not-for-profit.",
+"**Sole trader**: one owner, keeps all profit, **unlimited liability**.",
+"**Partnership**: 2+ owners share skills and capital; usually unlimited liability (an LLP gives limited liability).",
+"**Private limited company (Ltd)**: owned by shareholders, **limited liability**, shares not sold to the public.",
+"**Public limited company (plc)**: shares traded on the stock exchange — raises lots of capital but risk of takeover and more regulation.",
+"Also: **social enterprise** (profit reinvested in a social aim), charity, franchise, cooperative."]},
+{h:"Stakeholders",b:[
+"**Internal**: owners/shareholders, managers, employees. **External**: customers, suppliers, lenders, government, local community, pressure groups.",
+"Stakeholders can **conflict**: e.g. shareholders want higher profit, employees want higher pay, the community wants less pollution.",
+"**Mendelow's matrix** maps stakeholders by power and interest to decide how much to involve them."]},
+{h:"Structure & functional areas",b:[
+"**Hierarchical (tall)**: many levels, narrow **span of control**, long **chain of command** — clear roles but slow communication.",
+"**Flat**: few levels, wide span of control — quicker decisions, more responsibility for staff.",
+"**Matrix**: staff in project teams drawn from different departments.",
+"Centralised (decisions at the top) vs decentralised (decisions delegated).",
+"Functional areas: HR, finance, marketing, sales, operations/production, customer service, R&D, IT, admin — they must work together."]},
+{h:"The business environment",b:[
+"**PESTLE**: Political, Economic, Social, Technological, Legal, Environmental external factors.",
+"**SWOT**: internal Strengths & Weaknesses, external Opportunities & Threats.",
+"**Porter's Five Forces**: rivalry, threat of new entrants, buyer power, supplier power, threat of substitutes.",
+"Economic factors: interest rates (cost of borrowing), inflation, exchange rates, unemployment, consumer confidence."]},
+{h:"Markets & competition",b:[
+"Market structures: highly competitive, **oligopoly** (few large firms), **monopoly** (one dominant firm — UK legal definition: 25%+ market share).",
+"**Demand** falls as price rises; **supply** rises as price rises; equilibrium price is where they meet.",
+"Firms compete on price, quality, brand, customer service, location, innovation."]},
+{h:"Innovation & enterprise",b:[
+"**Product innovation** (new/improved products) vs **process innovation** (better ways of producing).",
+"Benefits: competitive advantage, new markets, higher prices. Risks: cost of **R&D**, failure, copying by rivals.",
+"Protect ideas with **intellectual property**: patents, trademarks, copyright, design rights.",
+"Entrepreneur traits: risk-taking, creativity, resilience, self-motivation, leadership."]}
+],
+cards:[
+["Unlimited liability","The owner is personally responsible for all business debts — personal possessions can be taken."],
+["Limited liability","Owners can only lose the money they invested in the business."],
+["Ltd vs plc","Ltd: shares not sold to the public. plc: shares traded publicly on a stock exchange."],
+["Social enterprise","A business with social or environmental aims that reinvests most profit into those aims."],
+["Stakeholder","Any person or group with an interest in, or affected by, a business."],
+["Span of control","The number of staff directly managed by one manager."],
+["Chain of command","The line of authority from the top of an organisation to the bottom."],
+["PESTLE","Political, Economic, Social, Technological, Legal, Environmental."],
+["SWOT","Strengths, Weaknesses (internal); Opportunities, Threats (external)."],
+["Oligopoly","A market dominated by a few large firms, e.g. UK supermarkets."],
+["Porter's Five Forces","Rivalry, new entrants, buyer power, supplier power, substitutes."],
+["Process innovation","A new or improved way of producing or delivering a product."]],
+quiz:[
+["Which business type gives limited liability?",["Sole trader","Ordinary partnership","Private limited company","All of them"],2,"Ltd and plc shareholders have limited liability."],
+["Shares of which business are traded on the stock exchange?",["Ltd","plc","Sole trader","Charity"],1,"Public limited companies."],
+["Which is an EXTERNAL stakeholder?",["Manager","Employee","Supplier","Shareholder"],2,"Suppliers are outside the business."],
+["A tall structure usually has…",["Wide spans of control","Many levels and narrow spans of control","No managers","Only one level"],1,"Tall = many layers, narrow spans."],
+["Rising interest rates fit into which PESTLE factor?",["Political","Economic","Social","Legal"],1,"Interest rates are economic."],
+["In SWOT, 'a new competitor opening nearby' is a…",["Strength","Weakness","Opportunity","Threat"],3,"External and negative = threat."],
+["A market dominated by a few big firms is…",["Monopoly","Oligopoly","Perfect competition","Monopsony"],1,"Oligopoly."],
+["A manufacturer introduces robots to speed up production. This is…",["Product innovation","Process innovation","Diversification","Franchising"],1,"It changes how things are made."]],
+exam:[
+{q:"Explain one advantage and one disadvantage of a sole trader converting to a private limited company.",m:4,cmd:"Explain",pts:["Advantage: limited liability (1) so personal assets are protected if the business fails (1). Or easier to raise finance by selling shares to friends/family (1)(1).","Disadvantage: must register with Companies House and publish accounts (1) so more paperwork/cost and less privacy (1). Or profits shared with shareholders / loss of control (1)(1)."]},
+{q:"Analyse how two external factors (PESTLE) could affect a UK supermarket chain.",m:6,cmd:"Analyse",pts:["Economic: inflation raises supplier costs → higher prices or lower margins → customers trade down to discounters.","Social: trend to healthy/plant-based eating → change product range; opportunity for new own-brand lines.","Environmental: pressure to cut plastic packaging → costs of redesign but positive brand image.","Legal: minimum wage rises increase labour costs.","Each point needs a chain of reasoning: factor → effect → consequence for the business."]},
+{q:"Evaluate whether a flat structure is better than a hierarchical structure for a fast-growing tech start-up.",m:10,cmd:"Evaluate",pts:["Flat: quick decisions and communication, suits fast-changing tech; staff feel empowered → motivation and innovation.","Flat: lower management costs.","Flat drawbacks: managers have wide spans of control → overloaded; unclear roles as the firm grows.","Hierarchical: clear roles, promotion paths and control — useful as headcount rises.","Hierarchical drawbacks: slow decision-making, communication distorted through many layers.","Judgement: flat suits early stage; may need more layers (or matrix teams) as it grows — depends on size, culture and skills of staff."]}]
+},
+{id:"b2",code:"BUS U2",title:"Developing a Marketing Campaign",assess:"Set task · external",exam:true,
+notes:[
+{h:"Role & aims of marketing",b:[
+"Marketing identifies and satisfies customer needs profitably.",
+"Aims: brand awareness, increase sales or **market share**, launch a product, enter a new market, reposition a brand.",
+"Objectives should be **SMART**: Specific, Measurable, Achievable, Realistic, Time-bound.",
+"**B2C** (business to consumer) vs **B2B** (business to business) marketing."]},
+{h:"Market research",b:[
+"**Primary** (field) research: surveys, interviews, focus groups, observation, test marketing — specific and up to date but costly and slow.",
+"**Secondary** (desk) research: ONS/government statistics, Mintel reports, internal sales data, competitor websites — cheap and quick but may be out of date or not specific.",
+"**Quantitative** = numbers/statistics. **Qualitative** = opinions, reasons, feelings.",
+"Sampling: random, quota, stratified. Watch out for **bias**, small samples and reliability/validity."]},
+{h:"Segmentation, targeting & positioning",b:[
+"Segmentation: **demographic** (age, gender, income), **geographic**, **psychographic** (lifestyle, values), **behavioural** (usage, loyalty).",
+"A **market map** plots brands on two features (e.g. price vs quality) to find gaps.",
+"**USP** (unique selling point): what makes the product stand out from competitors."]},
+{h:"The marketing mix",b:[
+"**4Ps**: Product, Price, Place, Promotion. **7Ps** add People, Process, Physical evidence (important for services).",
+"Pricing: **penetration** (low to enter market), **skimming** (high at launch, then lower), competitive, cost-plus, psychological (£9.99), premium.",
+"**Product life cycle**: development → introduction → growth → maturity → decline; extension strategies (new versions, new markets, rebranding).",
+"**Boston Matrix**: stars (high growth, high share), cash cows (low growth, high share), question marks (high growth, low share), dogs (low growth, low share).",
+"**Ansoff Matrix**: market penetration (lowest risk), product development, market development, diversification (highest risk)."]},
+{h:"Promotion & the campaign",b:[
+"**AIDA**: Attention, Interest, Desire, Action.",
+"**Above the line** (mass media: TV, radio, press, cinema) vs **below the line** (targeted: social media, email, sales promotions, PR, sponsorship, direct mail).",
+"Digital: SEO, pay-per-click, social media, influencers, email marketing.",
+"A campaign plan includes: aims & objectives, target market, mix, media & timings, **budget**, and how success will be measured (**KPIs**).",
+"Set-task tip: **justify** every choice with evidence from the case study and research."]}
+],
+cards:[
+["SMART objective","Specific, Measurable, Achievable, Realistic, Time-bound."],
+["Primary vs secondary research","Primary: collected first-hand for this purpose. Secondary: already exists (published or internal data)."],
+["Qualitative vs quantitative","Qualitative: opinions and reasons. Quantitative: numerical data."],
+["Psychographic segmentation","Dividing a market by lifestyle, attitudes, values or interests."],
+["Penetration pricing","Low initial price to gain market share quickly."],
+["Price skimming","High launch price for early adopters, lowered later."],
+["Cash cow (Boston Matrix)","High market share in a low-growth market — generates cash."],
+["Question mark (Boston Matrix)","Low market share in a high-growth market — needs investment, uncertain future."],
+["Ansoff: diversification","New product in a new market — highest risk."],
+["AIDA","Attention, Interest, Desire, Action."],
+["Above vs below the line","Above: mass media (TV, radio, press). Below: targeted methods (social, email, PR, promotions)."],
+["USP","Unique selling point — the feature that makes a product stand out."],
+["7Ps","Product, Price, Place, Promotion, People, Process, Physical evidence."]],
+quiz:[
+["A focus group is…",["Secondary, quantitative","Primary, qualitative","Secondary, qualitative","Primary, always quantitative"],1,"Collected first-hand; gathers opinions."],
+["Selling a new games console at a high launch price, lowering it later, is…",["Penetration","Skimming","Cost-plus","Competitive"],1,"Skimming targets early adopters."],
+["Low market share in a fast-growing market is a…",["Star","Cash cow","Question mark","Dog"],2,"Question marks need investment to grow share."],
+["Which Ansoff strategy is lowest risk?",["Diversification","Market development","Product development","Market penetration"],3,"Existing product, existing market."],
+["Dividing customers by where they live is…",["Demographic","Geographic","Behavioural","Psychographic"],1,"Geographic segmentation."],
+["Which is below-the-line promotion?",["TV advert","National newspaper ad","Email newsletter","Cinema advert"],2,"Email is targeted, not mass media."],
+["In AIDA, the 'D' stands for…",["Design","Delivery","Desire","Demand"],2,"Attention, Interest, Desire, Action."],
+["ONS statistics used to find population by age are…",["Primary research","Secondary research","Test marketing","Observation"],1,"Already published data."]],
+exam:[
+{q:"Explain two benefits of using primary research before launching a new product.",m:4,cmd:"Explain",pts:["Specific to the product/target market (1) so the business gets answers to exactly its questions (1).","Up to date (1) reflecting current tastes so decisions are less risky (1).","Owned only by the business (1) so competitors don't have the information (1)."]},
+{q:"Justify the most suitable pricing strategy for a new budget gym chain opening in a town with two existing premium gyms.",m:6,cmd:"Justify",pts:["Penetration pricing: low monthly fee to attract members from rivals and build a customer base quickly.","Fits a budget brand and price-sensitive target market (students, young workers).","Gyms have high fixed costs → need high volume of members to cover them.","Could combine with psychological pricing (£19.99) or no-contract offers.","Why not skimming/premium: wouldn't match brand or compete with established premium gyms.","Risk: hard to raise prices later; must keep costs low."]},
+{q:"Evaluate the use of social media as the main promotional method for a new product aimed at people over 60.",m:10,cmd:"Evaluate",pts:["For: growing numbers of over-60s use Facebook/YouTube; cheap; targeted ads by age/interest.","For: easy to measure (reach, clicks); share video demos; word of mouth via sharing to family.","Against: lower usage than younger groups; some may distrust online ads or lack digital confidence.","Against: may miss less-connected customers — local press, radio, TV, direct mail may reach more of the segment.","Mixed approach: social + traditional media; use market research to check where the segment gets information.","Judgement: suitable as part of the campaign but probably not as the only main method — depends on product, budget and research findings."]}]
+},
+{id:"b3",code:"BUS U3",title:"Personal and Business Finance",assess:"Written exam · external",exam:true,
+notes:[
+{h:"Personal finance",b:[
+"Functions of money: medium of exchange, store of value, unit of account, standard of deferred payment.",
+"Accounts & products: current account, **overdraft** (arranged/unarranged), savings account, **ISA** (tax-free interest), loan, **mortgage** (repayment vs interest-only), credit card, store card, payday loan.",
+"**APR** = annual cost of borrowing including fees — compare loans with it. **AER** = annual return on savings including compounding.",
+"Payslip: **gross pay** − deductions (income tax, National Insurance, pension, student loan) = **net pay**.",
+"Risk vs reward: higher potential return usually means higher risk (e.g. shares vs savings account)."]},
+{h:"Financial organisations & protection",b:[
+"Banks (owned by shareholders), **building societies** (mutual — owned by members), credit unions, insurance companies, pension providers.",
+"**FCA** (Financial Conduct Authority) regulates financial firms and how they treat customers.",
+"**Financial Ombudsman Service** settles complaints between consumers and financial businesses for free.",
+"**FSCS** compensates savers (up to a limit per person, per bank) if a bank fails.",
+"Consumer protection laws include the Consumer Credit Act 1974 and Consumer Rights Act 2015."]},
+{h:"Costs, revenue & break-even",b:[
+"**Fixed costs** don't change with output (rent, salaries). **Variable costs** change with output (materials).",
+"= Total cost = fixed costs + (variable cost per unit × quantity)",
+"= Revenue = selling price × quantity",
+"= Contribution per unit = selling price − variable cost per unit",
+"= Break-even point (units) = fixed costs ÷ contribution per unit",
+"= Margin of safety = actual (or budgeted) sales − break-even sales",
+"Limitations: assumes all output is sold, costs and prices stay constant, single product."]},
+{h:"Cash flow",b:[
+"Cash flow forecast rows: inflows (receipts), outflows (payments), net cash flow, opening balance, closing balance.",
+"= Net cash flow = total inflows − total outflows",
+"= Closing balance = opening balance + net cash flow (closing becomes next month's opening)",
+"Cash ≠ profit: a profitable firm can fail if customers pay late.",
+"Improve cash flow: chase trade receivables, delay payments to suppliers, overdraft, **factoring**, sale and leaseback, cut stock levels."]},
+{h:"Sources of finance",b:[
+"**Internal**: owner's capital, **retained profit**, selling assets.",
+"**External short-term**: overdraft, trade credit, factoring. **Long-term**: bank loan, mortgage, share issue, venture capital, business angels, crowdfunding, leasing, hire purchase, grants.",
+"Choose by: amount, cost (interest/fees), time period, control (share issues dilute ownership), risk."]},
+{h:"Financial statements & ratios",b:[
+"**Statement of comprehensive income** (income statement): revenue − cost of sales = **gross profit**; gross profit − expenses = **net profit**.",
+"**Statement of financial position** (balance sheet): non-current assets + current assets − liabilities = net assets = capital/equity.",
+"= Straight-line depreciation per year = (cost − residual value) ÷ useful life (years)",
+"= Gross profit margin = gross profit ÷ revenue × 100",
+"= Net profit margin = net profit ÷ revenue × 100",
+"= Mark-up = gross profit ÷ cost of sales × 100",
+"= ROCE = net/operating profit ÷ capital employed × 100",
+"= Current ratio = current assets ÷ current liabilities (around 1.5–2 : 1 is often seen as healthy)",
+"= Liquid capital (acid test) ratio = (current assets − inventory) ÷ current liabilities"]}
+],
+cards:[
+["Break-even point formula","Fixed costs ÷ (selling price − variable cost per unit)."],
+["Contribution per unit","Selling price − variable cost per unit."],
+["Margin of safety","Actual sales − break-even sales."],
+["Gross profit margin","Gross profit ÷ revenue × 100."],
+["Net profit margin","Net profit ÷ revenue × 100."],
+["Mark-up","Gross profit ÷ cost of sales × 100."],
+["ROCE","Net (operating) profit ÷ capital employed × 100."],
+["Current ratio","Current assets ÷ current liabilities."],
+["Acid test (liquid capital) ratio","(Current assets − inventory) ÷ current liabilities."],
+["APR","Annual Percentage Rate — yearly cost of borrowing including interest and fees."],
+["AER","Annual Equivalent Rate — yearly interest on savings including compounding."],
+["Factoring","Selling unpaid invoices to a factor for immediate cash (less a fee)."],
+["Building society","Mutual organisation owned by its members (savers and borrowers), not shareholders."],
+["Financial Ombudsman Service","Free service that settles disputes between consumers and financial firms."],
+["Straight-line depreciation","(Cost − residual value) ÷ years of useful life."],
+["Closing balance","Opening balance + net cash flow."]],
+quiz:[
+["Fixed costs £12,000; price £20; variable cost £8. Break-even point?",["600 units","1,000 units","1,500 units","2,400 units"],1,"12,000 ÷ (20 − 8) = 1,000 units."],
+["Revenue £50,000; cost of sales £30,000. Gross profit margin?",["20%","40%","60%","66.7%"],1,"GP = £20,000. 20,000 ÷ 50,000 × 100 = 40%."],
+["Gross profit £20,000; cost of sales £30,000. Mark-up?",["40%","50%","66.7%","150%"],2,"20,000 ÷ 30,000 × 100 = 66.7%."],
+["Current assets £30,000; current liabilities £15,000. Current ratio?",["0.5 : 1","1 : 1","1.5 : 1","2 : 1"],3,"30,000 ÷ 15,000 = 2 : 1."],
+["Opening balance £2,000; inflows £8,000; outflows £9,500. Closing balance?",["£500","−£1,500","£3,500","£19,500"],0,"Net cash flow = −£1,500. 2,000 − 1,500 = £500."],
+["Machine costs £10,000, residual value £2,000, life 4 years. Annual straight-line depreciation?",["£2,000","£2,500","£3,000","£8,000"],0,"(10,000 − 2,000) ÷ 4 = £2,000."],
+["Which body settles complaints between consumers and banks?",["FCA","Bank of England","Financial Ombudsman Service","HMRC"],2,"The Financial Ombudsman Service."],
+["Which figure lets you compare the true cost of two loans?",["AER","APR","Base rate","Net pay"],1,"APR includes interest and fees."],
+["Which is an internal source of finance?",["Bank loan","Retained profit","Crowdfunding","Venture capital"],1,"Retained profit comes from within the business."]],
+exam:[
+{q:"A business has fixed costs of £18,000 per month, sells at £15 per unit and has variable costs of £6 per unit. It expects to sell 2,500 units. Calculate the break-even point and the margin of safety.",m:4,cmd:"Calculate",pts:["Contribution = 15 − 6 = £9 (1)","BEP = 18,000 ÷ 9 = 2,000 units (1)","Margin of safety = 2,500 − 2,000 (1) = 500 units (1)"]},
+{q:"Explain two ways a business could improve its cash flow.",m:4,cmd:"Explain",pts:["Chase trade receivables / offer discount for early payment (1) so cash comes in sooner (1).","Negotiate longer credit terms with suppliers (1) so cash goes out later (1).","Factoring (1) — immediate cash from invoices, though a fee is lost (1). Arrange overdraft (1) to cover short-term gaps (1)."]},
+{q:"Assess whether a bank loan or crowdfunding is more suitable for a small business raising £40,000 to open a second shop.",m:8,cmd:"Assess",pts:["Bank loan: owner keeps full control; fixed repayments help budgeting; interest and fees add cost; may need security/collateral and a credit check.","Crowdfunding: no repayments for reward-based schemes; publicity and evidence of demand; equity crowdfunding gives away part ownership; campaign may fail to hit target; takes time and marketing effort.","Consider: the firm's credit history, current interest rates, how quickly money is needed, whether the business has a loyal customer base.","Conclusion with a justified decision — e.g. loan if cash flow can cover repayments, crowdfunding if the brand has a strong community."]}]
+}]},
+{id:"soton",name:"Southampton FY · Entry Maths",color:"--soton",full:"The maths Southampton expects before the Foundation Year starts: GCSE grade 6, plus their maths diagnostic test, based on the university's Pre-Maths Skills list",units:[
+{id:"m1",code:"MATHS 1",title:"Number Skills",assess:"Core · diagnostic test",exam:true,
+notes:[
+{h:"Decimals & rounding",b:[
+"Round to **decimal places** (d.p.) by looking at the next digit: 5 or more rounds up. 3.14159 → 3.142 (3 d.p.).",
+"**Significant figures** count from the first non-zero digit: 0.004072 → 0.00407 (3 s.f.).",
+"Positive powers are repeated multiplication: 10³ = 10 × 10 × 10 = 1000; 2⁵ = 32."]},
+{h:"Negative numbers",b:[
+"Multiplying or dividing: **same signs give a positive**, different signs give a negative. (−4) × (−3) = 12; (−12) ÷ 4 = −3.",
+"Subtracting a negative is adding: 5 − (−3) = 8.",
+"Adding a negative is subtracting: 7 + (−9) = −2."]},
+{h:"Factors",b:[
+"**Factors** of a number divide it exactly: the factors of 24 are 1, 2, 3, 4, 6, 8, 12, 24.",
+"**Prime factorisation** writes a number as primes multiplied: 60 = 2² × 3 × 5.",
+"**HCF** = highest common factor; **LCM** = lowest common multiple. For 12 and 18: HCF 6, LCM 36."]},
+{h:"Fractions",b:[
+"Add or subtract with a **common denominator**: 2/3 + 1/4 = 8/12 + 3/12 = 11/12.",
+"Multiply tops together and bottoms together: 2/3 × 3/5 = 6/15 = 2/5.",
+"Divide by flipping the second fraction and multiplying (**keep, change, flip**): 3/4 ÷ 1/2 = 3/4 × 2/1 = 3/2.",
+"Mixed number to improper fraction: 2¾ = (2 × 4 + 3)/4 = 11/4.",
+"**Cancel** by dividing top and bottom by the same factor: 18/24 = 3/4."]},
+{h:"Order of operations & estimating",b:[
+"**BIDMAS**: Brackets, Indices (powers and roots), Division and Multiplication, Addition and Subtraction.",
+"= 3 + 4 × 2² = 3 + 4 × 4 = 19",
+"Watch the sign: −3² = −9, but (−3)² = 9.",
+"**Estimate** by rounding every number to 1 significant figure: 49.6 × 0.21 ≈ 50 × 0.2 = 10."]},
+{h:"Percentages",b:[
+"= x% of A = (x ÷ 100) × A",
+"= Percentage change = change ÷ original × 100",
+"Use a **multiplier**: increase by 15% → × 1.15; decrease by 20% → × 0.8."]},
+{h:"SI units & standard form",b:[
+"SI base units: mass in **kilograms (kg)**, length in **metres (m)**, time in **seconds (s)**.",
+"1 m = 100 cm = 1000 mm; 1 km = 1000 m; 1 kg = 1000 g.",
+"Areas convert by the square and volumes by the cube: 1 m² = 10 000 cm²; 1 m³ = 1 000 000 cm³.",
+"**Scientific (standard) notation** is a × 10ⁿ with 1 ≤ a < 10: 45 000 = 4.5 × 10⁴; 0.0032 = 3.2 × 10⁻³."]}
+],
+cards:[
+["−7 × −3","21 (same signs give a positive)"],["5 − (−4)","9 (subtracting a negative is adding)"],["2/3 + 1/4","11/12"],["3/4 ÷ 1/2","3/2 (keep, change, flip)"],
+["BIDMAS","Brackets, Indices, Division and Multiplication, Addition and Subtraction"],["−3² vs (−3)²","−9 vs 9"],["Prime factorisation of 60","2² × 3 × 5"],
+["Multiplier for a 15% increase","1.15"],["Percentage change","change ÷ original × 100"],["SI base units of mass, length, time","kilogram (kg), metre (m), second (s)"],
+["1 m² in cm²","10 000 cm²"],["0.0032 in standard form","3.2 × 10⁻³"],["3.14159 to 3 d.p.","3.142"]],
+quiz:[
+["Work out 3 + 4 × 2²",["28","19","196","22"],1,"Indices first: 2² = 4, then 4 × 4 = 16, then 3 + 16 = 19."],
+["(−6) × (−4) ÷ (−3) = ?",["8","−8","−24","24"],1,"(−6) × (−4) = 24, then 24 ÷ (−3) = −8."],
+["2/5 + 1/3 = ?",["3/8","11/15","3/15","2/15"],1,"6/15 + 5/15 = 11/15."],
+["4/9 ÷ 2/3 = ?",["8/27","2/3","3/2","1/3"],1,"4/9 × 3/2 = 12/18 = 2/3."],
+["0.004072 to 3 significant figures",["0.004","0.00407","0.0041","0.004070"],1,"Count from the 4: 4, 0, 7. The next digit is 2, so round down."],
+["A £80 jacket is reduced by 15%. New price?",["£65","£68","£12","£92"],1,"80 × 0.85 = £68."],
+["2.5 m in millimetres",["25 mm","250 mm","2500 mm","25 000 mm"],2,"1 m = 1000 mm, so 2.5 × 1000 = 2500 mm."],
+["45 000 in standard form",["45 × 10³","4.5 × 10⁴","4.5 × 10³","0.45 × 10⁵"],1,"The front number must be between 1 and 10: 4.5 × 10⁴."],
+["Best estimate of 49.6 × 0.21",["1","10","100","0.1"],1,"≈ 50 × 0.2 = 10."]],
+exam:[
+{q:"Without a calculator, work out 2⅓ ÷ 1¾. Give your answer as a fraction in its simplest form.",m:3,cmd:"Calculate",pts:["Convert to improper fractions: 7/3 ÷ 7/4 (1)","Flip and multiply: 7/3 × 4/7 (1)","= 28/21 = 4/3 (1)"]},
+{q:"The price of a laptop rises from £450 to £522. Calculate the percentage increase.",m:2,cmd:"Calculate",pts:["Increase = 522 − 450 = £72 (1)","72 ÷ 450 × 100 = 16% (1)"]},
+{q:"A tank holds 0.6 m³ of water. Convert this to cm³ and write it in standard form.",m:2,cmd:"Calculate",pts:["1 m³ = 1 000 000 cm³, so 0.6 × 1 000 000 = 600 000 cm³ (1)","= 6 × 10⁵ cm³ (1)"]}]
+},
+{id:"m2",code:"MATHS 2",title:"Algebra Essentials",assess:"Core · diagnostic test",exam:true,
+notes:[
+{h:"Simplifying & substituting",b:[
+"**Collect like terms**: 3x + 2y − x + 5y = 2x + 7y.",
+"**Substitute** using brackets so signs stay right: if x = −2, then 3x² − x = 3(4) − (−2) = 14.",
+"Letters follow the power rules too: x × x = x²; 2a × 3a = 6a²."]},
+{h:"Brackets & factorising",b:[
+"Single bracket: 3(2x − 5) = 6x − 15.",
+"**Double brackets**: multiply every term by every term. (x + 3)(x − 5) = x² − 5x + 3x − 15 = x² − 2x − 15.",
+"= (a + b)² = a² + 2ab + b²   (not a² + b²)",
+"**Factorise** by taking out the HCF: 6x² + 9x = 3x(2x + 3).",
+"**Difference of two squares**: x² − 25 = (x + 5)(x − 5)."]},
+{h:"Linear equations",b:[
+"Do the same to both sides until x is alone: 5x − 7 = 18 → 5x = 25 → x = 5.",
+"Unknown on both sides: collect the x terms on one side first. 7x + 3 = 2x + 23 → 5x = 20 → x = 4.",
+"With fractions, multiply through by the denominator first: (x + 4)/3 = 5 → x + 4 = 15 → x = 11.",
+"**Word problems**: call the unknown x, write an equation, solve it, then answer the question in words."]},
+{h:"Linear inequalities",b:[
+"Solve them like equations: 3x + 2 < 14 → 3x < 12 → x < 4.",
+"**Multiplying or dividing by a negative flips the sign**: −2x ≥ 6 → x ≤ −3.",
+"On a number line, use an open circle for < or > and a filled circle for ≤ or ≥."]},
+{h:"Rearranging formulae",b:[
+"Use inverse operations, undoing things in reverse BIDMAS order.",
+"= v = u + at  →  t = (v − u) / a",
+"With squares and roots: A = πr² → r = √(A/π); T = 2π√(L/g) → L = gT²/(4π²).",
+"If the new subject appears twice, collect those terms on one side and **factorise** it out: ax + b = cx → x(a − c) = −b → x = b/(c − a)."]},
+{h:"Algebraic fractions",b:[
+"**Cancel only whole factors**: (x² − 9)/(x + 3) = (x + 3)(x − 3)/(x + 3) = x − 3.",
+"Add with a common denominator: 1/x + 2/y = (y + 2x)/(xy).",
+"Multiply and divide like number fractions: (2/x) ÷ (4/x²) = (2/x) × (x²/4) = x/2."]}
+],
+cards:[
+["Expand (x + 3)(x − 5)","x² − 2x − 15"],["(a + b)²","a² + 2ab + b²"],["Factorise 6x² + 9x","3x(2x + 3)"],["Factorise x² − 25","(x + 5)(x − 5), the difference of two squares"],
+["Solve 5x − 7 = 18","x = 5"],["−2x ≥ 6","x ≤ −3 (dividing by a negative flips the sign)"],["Make t the subject of v = u + at","t = (v − u)/a"],
+["Make r the subject of A = πr²","r = √(A/π)"],["Simplify (x² − 9)/(x + 3)","x − 3"],["1/x + 2/y","(y + 2x)/(xy)"],["If x = −2, find 3x² − x","14"],
+["The new subject appears twice?","Collect those terms on one side and factorise it out"]],
+quiz:[
+["Expand and simplify (2x − 1)(x + 4)",["2x² + 7x − 4","2x² + 8x − 4","2x² − 7x − 4","2x² + 9x + 4"],0,"2x² + 8x − x − 4 = 2x² + 7x − 4."],
+["Solve 7x + 3 = 2x + 23",["x = 4","x = 5","x = 2.9","x = 20"],0,"5x = 20, so x = 4."],
+["Solve 3 − 2x > 11",["x > −4","x < −4","x > 4","x < 4"],1,"−2x > 8. Divide by −2 and flip the sign: x < −4."],
+["Make r the subject of V = (1/3)πr²h",["r = √(3V/(πh))","r = 3V/(πh)","r = √(V/(3πh))","r = (3V/π)²h"],0,"3V = πr²h → r² = 3V/(πh) → take the square root."],
+["Factorise x² + 2x − 15",["(x + 5)(x − 3)","(x − 5)(x + 3)","(x + 15)(x − 1)","(x + 3)(x + 5)"],0,"Two numbers that multiply to −15 and add to 2: +5 and −3."],
+["Simplify 2/x − 1/(2x)",["1/x","3/(2x)","1/(2x)","1/x²"],1,"4/(2x) − 1/(2x) = 3/(2x)."],
+["If a = 3 and b = −2, find a² − 2ab",["21","−3","3","15"],0,"9 − 2(3)(−2) = 9 + 12 = 21."],
+["A number is doubled and 7 is added, giving 31. What is the number?",["12","19","24","14"],0,"2x + 7 = 31 → 2x = 24 → x = 12."]],
+exam:[
+{q:"Make x the subject of y = (3x + 2)/(x − 1).",m:4,cmd:"Rearrange",pts:["Multiply by (x − 1): y(x − 1) = 3x + 2 (1)","Expand: xy − y = 3x + 2 (1)","Collect the x terms: xy − 3x = y + 2, so x(y − 3) = y + 2 (1)","x = (y + 2)/(y − 3) (1)"]},
+{q:"Solve (x + 2)/3 − (x − 1)/4 = 2.",m:3,cmd:"Solve",pts:["Multiply every term by 12: 4(x + 2) − 3(x − 1) = 24 (1)","4x + 8 − 3x + 3 = 24, so x + 11 = 24 (1)","x = 13 (1)"]},
+{q:"Simplify fully (x² − 4x)/(x² − 16).",m:3,cmd:"Simplify",pts:["Numerator: x(x − 4) (1)","Denominator: (x + 4)(x − 4) (1)","Cancel (x − 4): x/(x + 4) (1)"]}]
+},
+{id:"m3",code:"MATHS 3",title:"Geometry & Straight Lines",assess:"Core · diagnostic test",exam:true,
+notes:[
+{h:"Areas & circles",b:[
+"= Circle: area = πr²    circumference = 2πr = πd",
+"= Triangle: area = ½ × base × perpendicular height",
+"Rectangle = length × width; parallelogram = base × height; trapezium = ½(a + b)h.",
+"**Compound shapes**: split into simple shapes, find each area, then add them (or subtract any holes)."]},
+{h:"Cylinders & scaling",b:[
+"= Cylinder volume = πr²h",
+"= Cylinder surface area = 2πr² + 2πrh   (two circles + the curved side)",
+"If lengths scale by k, **areas scale by k²** and **volumes by k³**. Double the length → 4 × the area and 8 × the volume."]},
+{h:"Coordinates & straight lines",b:[
+"Points are written (x, y): along first, then up.",
+"= Gradient m = (y₂ − y₁) ÷ (x₂ − x₁)",
+"= Straight line: y = mx + c   (m = gradient, c = y-intercept)",
+"Midpoint of (x₁, y₁) and (x₂, y₂) = ((x₁ + x₂)/2, (y₁ + y₂)/2).",
+"**Parallel** lines have the same gradient."]},
+{h:"Pythagoras & similar triangles",b:[
+"= Pythagoras: a² + b² = c²   (c = hypotenuse, opposite the right angle)",
+"Finding a shorter side: a = √(c² − b²).",
+"Distance between two points = √((x₂ − x₁)² + (y₂ − y₁)²).",
+"**Similar triangles** have equal angles and sides in the same ratio. Scale factor k = new side ÷ matching original side."]}
+],
+cards:[
+["Area of a circle","πr²"],["Circumference of a circle","2πr (or πd)"],["Area of a triangle","½ × base × perpendicular height"],["Area of a trapezium","½(a + b)h"],
+["Volume of a cylinder","πr²h"],["Surface area of a closed cylinder","2πr² + 2πrh"],["Lengths × 3: what happens to area and volume?","Area × 9, volume × 27"],
+["Gradient between two points","(y₂ − y₁) ÷ (x₂ − x₁)"],["In y = mx + c","m = gradient, c = y-intercept"],["Pythagoras' theorem","a² + b² = c² (c is the hypotenuse)"],
+["Parallel lines","Same gradient"],["Similar triangles","Same angles; sides in the same ratio (scale factor)"],["Distance between two points","√((x₂ − x₁)² + (y₂ − y₁)²)"]],
+quiz:[
+["A right-angled triangle has shorter sides 6 cm and 8 cm. Hypotenuse?",["10 cm","14 cm","48 cm","√28 cm"],0,"√(36 + 64) = √100 = 10 cm."],
+["Gradient of the line through (2, 1) and (5, 10)?",["3","1/3","9","−3"],0,"(10 − 1) ÷ (5 − 2) = 9 ÷ 3 = 3."],
+["What is the y-intercept of y = 4 − 2x?",["4","−2","2","−4"],0,"Rewrite it as y = −2x + 4, so c = 4."],
+["Area of a circle with radius 5 cm, in terms of π",["10π cm²","25π cm²","5π cm²","100π cm²"],1,"πr² = π × 25."],
+["A cylinder has radius 3 cm and height 10 cm. Volume?",["30π cm³","90π cm³","60π cm³","300π cm³"],1,"π × 3² × 10 = 90π cm³."],
+["A real object is twice as long as its model. How many times bigger is its volume?",["2","4","6","8"],3,"Volume scales by k³ = 2³ = 8."],
+["Which line is parallel to y = 3x − 7?",["y = −3x + 1","y = 3x + 2","y = (1/3)x","y = 7 − x"],1,"Parallel lines share the gradient 3."],
+["Triangle ABC is similar to PQR. AB = 4, PQ = 10 and BC = 6. Find QR.",["12","15","16","24"],1,"Scale factor 10 ÷ 4 = 2.5, so QR = 6 × 2.5 = 15."]],
+exam:[
+{q:"Find the equation of the straight line through (1, 3) and (4, 12).",m:3,cmd:"Calculate",pts:["Gradient = (12 − 3)/(4 − 1) = 3 (1)","Substitute (1, 3): 3 = 3(1) + c, so c = 0 (1)","y = 3x (1)"]},
+{q:"A closed cylinder has radius 4 cm and height 9 cm. Calculate its total surface area in terms of π.",m:3,cmd:"Calculate",pts:["Two circles: 2 × π × 4² = 32π (1)","Curved surface: 2π × 4 × 9 = 72π (1)","Total = 104π cm² (1)"]},
+{q:"A 5 m ladder leans against a vertical wall with its foot 1.4 m from the wall. How high up the wall does it reach?",m:3,cmd:"Calculate",pts:["h² + 1.4² = 5² (1)","h² = 25 − 1.96 = 23.04 (1)","h = 4.8 m (1)"]}]
+},
+{id:"m4",code:"MATHS 4",title:"Powers, Logs & Equations",assess:"Extension · early FY",exam:false,
+notes:[
+{h:"Rules for powers",b:[
+"= aᵐ × aⁿ = aᵐ⁺ⁿ    aᵐ ÷ aⁿ = aᵐ⁻ⁿ    (aᵐ)ⁿ = aᵐⁿ",
+"= a⁰ = 1    a⁻ⁿ = 1/aⁿ    a^(1/n) = ⁿ√a    a^(m/n) = (ⁿ√a)ᵐ",
+"For a fractional power, take the root first: 8^(2/3) = (∛8)² = 2² = 4.",
+"A **negative power** means the reciprocal: 2⁻³ = 1/8; (2/3)⁻² = 9/4."]},
+{h:"Logarithms",b:[
+"= log_a(x) = y  ⇔  aʸ = x    (a log asks 'what power?')",
+"log₂ 32 = 5 because 2⁵ = 32; log₁₀ 1000 = 3.",
+"= log(xy) = log x + log y    log(x/y) = log x − log y    log(xᵏ) = k log x",
+"log_a a = 1 and log_a 1 = 0.",
+"Solve aˣ = b by taking logs of both sides: 3ˣ = 20 → x = log 20 ÷ log 3 ≈ 2.73."]},
+{h:"Simultaneous equations",b:[
+"**Elimination**: make one letter's coefficients match, then add or subtract the equations.",
+"**Substitution**: rearrange one equation for a letter and put it into the other.",
+"Example: 2x + y = 7 and x − y = 2. Adding gives 3x = 9, so x = 3 and y = 1.",
+"Always check your answers in both original equations."]},
+{h:"Quadratic equations",b:[
+"Standard form: ax² + bx + c = 0.",
+"**Factorise**: find two numbers that multiply to c and add to b. x² − 5x + 6 = (x − 2)(x − 3), so x = 2 or 3.",
+"**Roots and factors**: if (x − 2) is a factor then x = 2 is a root, and the other way round.",
+"When a ≠ 1: 2x² + 7x + 3 = (2x + 1)(x + 3).",
+"= Quadratic formula: x = (−b ± √(b² − 4ac)) / 2a",
+"The **discriminant** b² − 4ac tells you the roots: > 0 two roots, = 0 one repeated root, < 0 no real roots."]}
+],
+cards:[
+["aᵐ × aⁿ","aᵐ⁺ⁿ"],["(aᵐ)ⁿ","aᵐⁿ"],["a⁰","1"],["a⁻ⁿ","1/aⁿ"],["a^(1/n)","ⁿ√a"],["8^(2/3)","4"],["log_a x = y means…","aʸ = x"],["log₂ 32","5"],
+["log x + log y","log(xy)"],["log(xᵏ)","k log x"],["Quadratic formula","x = (−b ± √(b² − 4ac)) / 2a"],["Discriminant < 0","No real roots"],
+["(x − 2) is a factor, so…","x = 2 is a root"],["Elimination method","Match one letter's coefficients, then add or subtract the equations"]],
+quiz:[
+["Simplify x⁵ × x⁻²",["x³","x⁷","x⁻¹⁰","x^2.5"],0,"Add the powers: 5 + (−2) = 3."],
+["16^(3/4) = ?",["8","12","6","64"],0,"⁴√16 = 2, then 2³ = 8."],
+["(1/5)⁻² = ?",["−25","1/25","25","−10"],2,"Flip it and square it: 5² = 25."],
+["log₃ 81 = ?",["3","4","27","9"],1,"3⁴ = 81."],
+["log 5 + log 4 − log 2 = ?",["log 7","log 10","log 18","log 22"],1,"log(5 × 4 ÷ 2) = log 10."],
+["Solve x + y = 10 and x − y = 4",["x = 7, y = 3","x = 6, y = 4","x = 3, y = 7","x = 14, y = −4"],0,"Add them: 2x = 14, so x = 7 and y = 3."],
+["Solve x² − 7x + 12 = 0",["x = 3 or 4","x = −3 or −4","x = 2 or 6","x = 12 or 1"],0,"(x − 3)(x − 4) = 0."],
+["How many real roots does x² + 2x + 5 = 0 have?",["0","1","2","Infinitely many"],0,"b² − 4ac = 4 − 20 = −16, which is negative."]],
+exam:[
+{q:"Solve the simultaneous equations 3x + 2y = 16 and 5x − 4y = 1.",m:4,cmd:"Solve",pts:["Double the first: 6x + 4y = 32 (1)","Add it to the second: 11x = 33 (1)","x = 3 (1)","Substitute: 9 + 2y = 16, so y = 3.5 (1)"]},
+{q:"Solve 2x² − 3x − 4 = 0, giving your answers to 2 decimal places.",m:3,cmd:"Solve",pts:["a = 2, b = −3, c = −4, so x = (3 ± √(9 + 32)) / 4 (1)","√41 ≈ 6.403 (1)","x ≈ 2.35 or x ≈ −0.85 (1)"]},
+{q:"Solve 5^(2x) = 40, giving x to 3 significant figures.",m:3,cmd:"Solve",pts:["Take logs: 2x log 5 = log 40 (1)","2x = log 40 ÷ log 5 = 2.292… (1)","x ≈ 1.15 (1)"]}]
+},
+{id:"m5",code:"MATHS 5",title:"Trig, Radians & Circles",assess:"Extension · early FY",exam:false,
+notes:[
+{h:"SOH CAH TOA",b:[
+"Label the sides from the angle θ: **hypotenuse** (longest, opposite the right angle), **opposite**, **adjacent**.",
+"= sin θ = O/H    cos θ = A/H    tan θ = O/A",
+"Missing side: rearrange, e.g. O = H sin θ. Missing angle: use the inverse, e.g. θ = sin⁻¹(O/H).",
+"Exact values to know: sin 30° = ½, cos 60° = ½, tan 45° = 1, sin 90° = 1, cos 0° = 1."]},
+{h:"Radians",b:[
+"A **radian** is the angle at the centre of a circle when the arc length equals the radius.",
+"= π radians = 180°    1 radian ≈ 57.3°",
+"= Degrees → radians: × π/180    Radians → degrees: × 180/π",
+"Common values: 30° = π/6, 45° = π/4, 60° = π/3, 90° = π/2, 360° = 2π.",
+"With θ in radians: arc length s = rθ and sector area = ½r²θ."]},
+{h:"Equation of a circle",b:[
+"= Centre (a, b), radius r:  (x − a)² + (y − b)² = r²",
+"Centre at the origin: x² + y² = r².",
+"Read it off, remembering the signs flip: (x − 3)² + (y + 1)² = 16 has centre (3, −1) and radius 4.",
+"To check a point lies on the circle, substitute it in and see if both sides match."]}
+],
+cards:[
+["sin θ","Opposite ÷ hypotenuse"],["cos θ","Adjacent ÷ hypotenuse"],["tan θ","Opposite ÷ adjacent"],["sin 30°","½"],["tan 45°","1"],["π radians","180°"],
+["90° in radians","π/2"],["60° in radians","π/3"],["Degrees → radians","Multiply by π/180"],["Arc length","s = rθ (θ in radians)"],
+["Circle with centre (a, b) and radius r","(x − a)² + (y − b)² = r²"],["Centre and radius of x² + y² = 49","Centre (0, 0), radius 7"]],
+quiz:[
+["A right-angled triangle has opposite = 5 and hypotenuse = 10. Find θ.",["30°","45°","60°","90°"],0,"sin θ = 5/10 = ½, so θ = 30°."],
+["The hypotenuse is 12 cm and the angle is 60°. Find the adjacent side.",["6 cm","10.4 cm","24 cm","6√2 cm"],0,"A = H cos 60° = 12 × ½ = 6 cm."],
+["Convert 135° to radians",["3π/4","2π/3","5π/6","π/4"],0,"135 × π/180 = 3π/4."],
+["Convert 5π/6 radians to degrees",["150°","120°","300°","105°"],0,"5π/6 × 180/π = 150°."],
+["Centre and radius of (x + 2)² + (y − 5)² = 9?",["(2, −5), r = 9","(−2, 5), r = 3","(−2, 5), r = 9","(2, −5), r = 3"],1,"The signs flip for the centre, and r = √9 = 3."],
+["Arc length for radius 6 cm and angle π/3?",["2π cm","6π cm","π cm","18π cm"],0,"s = rθ = 6 × π/3 = 2π cm."],
+["Which angle has tan θ = 1?",["30°","45°","60°","90°"],1,"Opposite equals adjacent at 45°."],
+["Equation of the circle with centre (0, 0) that passes through (3, 4)?",["x² + y² = 7","x² + y² = 25","x² + y² = 5","(x − 3)² + (y − 4)² = 25"],1,"r² = 3² + 4² = 25."]],
+exam:[
+{q:"A ramp rises 1.2 m over a horizontal distance of 4.5 m. Calculate the angle between the ramp and the ground, to 1 decimal place.",m:3,cmd:"Calculate",pts:["tan θ = 1.2 ÷ 4.5 (1)","θ = tan⁻¹(0.2667) (1)","θ ≈ 14.9° (1)"]},
+{q:"Find the centre and radius of the circle x² + y² − 6x + 4y − 12 = 0.",m:4,cmd:"Calculate",pts:["Complete the square: (x − 3)² − 9 + (y + 2)² − 4 − 12 = 0 (1)","(x − 3)² + (y + 2)² = 25 (1)","Centre (3, −2) (1)","Radius 5 (1)"]},
+{q:"A sector has radius 8 cm and angle 45°. Find its arc length and its area in terms of π.",m:4,cmd:"Calculate",pts:["45° = π/4 radians (1)","Arc length = 8 × π/4 = 2π cm (1)","Area = ½ × 8² × π/4 (1)","= 8π cm² (1)"]}]
+}]}
+];
+
+const CMDS=[["Calculate","Work out a number — show your working."],["Describe","Give a clear account of features or steps; no reasons needed."],["Explain","Give a point, then why/how (because… so…)."],["Analyse","Break it down; show chains of cause and effect."],["Discuss","Look at different sides of an issue with reasons."],["Assess","Weigh up importance/impact and reach a judgement."],["Evaluate","Weigh strengths & weaknesses using evidence, then conclude."],["Justify","Give reasons/evidence that support a choice."],["Solve","Find the value(s) that make it true. Show each step."],["Simplify","Write it in its simplest form by cancelling and collecting terms."],["Rearrange","Change the subject of the formula."]];
+
+
+/* ============ STATE ============ */
+const BASE={}; COURSES.forEach(c=>c.units.forEach(u=>{u.course=c;BASE[u.id]=u}));
+const COURSE=Object.fromEntries(COURSES.map(c=>[c.id,c]));
+const LS="dogtag-revision-v1", LSP="dogtag-packs-v1";
+const DAY=864e5, GAPS=[0,1,3,7,14,30];
+let P={cards:{},quiz:{},exam:{},days:{},updated:0};
+try{const s=localStorage.getItem(LS); if(s) P=Object.assign(P,JSON.parse(s));}catch(e){}
+P.days=P.days||{}; P.gone=P.gone||{}; P.wrong=P.wrong||{};
+const IN_CLAUDE=!!(window.claude&&window.claude.use);
+let PACKS=[];
+try{const s=localStorage.getItem(LSP); if(s) PACKS=(JSON.parse(s)||[]).filter(p=>!P.gone[p.id]);}catch(e){}
+let DB=null, UID=null, docRef=null, SAMPLE=null, LIMITS=null, writing=false, dirty=false, timer=null;
+const syncEl=document.getElementById("sync");
+function setSync(cls,title){syncEl.className="sync "+cls;syncEl.title=title}
+
+function merge(a,b){
+  const out={cards:{},quiz:{},exam:{},wrong:{},days:{},updated:Math.max(a.updated||0,b.updated||0)};
+  for(const k of ["cards","exam","wrong"]){
+    const A=a[k]||{},B=b[k]||{};
+    new Set([...Object.keys(A),...Object.keys(B)]).forEach(id=>{const x=A[id],y=B[id];out[k][id]=!x?y:!y?x:((y.t||0)>(x.t||0)?y:x)});
+  }
+  const QA=a.quiz||{},QB=b.quiz||{};
+  new Set([...Object.keys(QA),...Object.keys(QB)]).forEach(id=>{
+    const x=QA[id]||{},y=QB[id]||{},later=(y.t||0)>(x.t||0)?y:x;
+    out.quiz[id]={best:Math.max(x.best||0,y.best||0),last:later.last,n:Math.max(x.n||0,y.n||0),t:later.t||0}});
+  const DA=a.days||{},DB_=b.days||{};
+  new Set([...Object.keys(DA),...Object.keys(DB_)]).forEach(d=>out.days[d]=Math.max(DA[d]||0,DB_[d]||0));
+  const GA=a.gone||{},GB=b.gone||{};out.gone=Object.assign({},GA);for(const k in GB)out.gone[k]=Math.max(GA[k]||0,GB[k]||0);
+  return out;
+}
+function persistLocal(){try{localStorage.setItem(LS,JSON.stringify(P))}catch(e){}}
+function persistPacks(){try{localStorage.setItem(LSP,JSON.stringify(PACKS))}catch(e){}}
+function save(){
+  P.updated=Date.now(); persistLocal(); updateTop();
+  if(!docRef) return;
+  dirty=true; setSync("busy","Saving…");
+  clearTimeout(timer); timer=setTimeout(flush,1200);
+}
+async function flush(){
+  if(!docRef||writing||!dirty) return;
+  writing=true; dirty=false;
+  try{await docRef.set(JSON.parse(JSON.stringify(P)));setSync("on","Synced to your account")}
+  catch(e){if(e&&e.code==="unavailable"){dirty=true;setTimeout(flush,1500+Math.random()*1500)}else setSync("","Not synced — saved on this device")}
+  writing=false; if(dirty) flush();
+}
+function packsCol(){return DB&&UID?DB.collection("data/users/"+UID):null}
+async function initRuntime(){
+  if(!window.claude||!window.claude.use) return;
+  claude.use("sample").then(async s=>{SAMPLE=s;if(s){try{LIMITS=await s.limits()}catch(e){LIMITS=null}} if(view.name==="import")render()});
+  try{
+    const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!db||!user) return;
+    const uid=await user.id(); if(!uid) return;
+    DB=db; UID=uid; docRef=db.doc("data/users/"+uid+"/progress");
+    setSync("busy","Syncing…");
+    const snap=await docRef.get();
+    if(snap.exists){P=merge(P,snap.data());persistLocal()}
+    dirty=true; await flush();
+    // packs: union of remote + local-only
+    try{
+      const qs=await packsCol().get();
+      const all=qs.docs.filter(d=>d.id.startsWith("pack-"));
+      for(const d of all){if(P.gone[d.id]){try{await packsCol().doc(d.id).delete()}catch(e){}}}
+      const remote=all.filter(d=>!P.gone[d.id]).map(d=>d.data());
+      const ids=new Set(remote.map(p=>p.id));
+      const localOnly=PACKS.filter(p=>!ids.has(p.id));
+      for(const p of localOnly){try{await packsCol().doc(p.id).set(p)}catch(e){}}
+      PACKS=[...remote.map(p=>JSON.parse(JSON.stringify(p))),...localOnly]; persistPacks();
+    }catch(e){}
+    docRef.onSnapshot(s=>{
+      if(!s.exists||s.metadata.hasPendingWrites) return;
+      const d=s.data(); if((d.updated||0)<=P.updated) return;
+      P=merge(P,d); persistLocal(); PACKS=PACKS.filter(p=>!P.gone[p.id]); persistPacks(); setSync("on","Synced to your account"); updateTop();
+      if(view.name==="home") render();
+    },()=>setSync("","Not synced — saved on this device"));
+    updateTop(); if(view.name==="home"||view.name==="unit") render();
+  }catch(e){docRef=null;setSync("","Saved on this device only")}
+}
+
+/* ============ CONTENT ACCESS ============ */
+function customUnit(p){return {id:p.id,code:"MY SLIDES",title:p.title,assess:"Imported slides",exam:false,course:COURSE[p.courseId]||COURSES[0],notes:[],cards:[],quiz:[],exam:[],custom:p}}
+function isTopic(p){return !p.unitId||(!BASE[p.unitId]&&!PACKS.some(x=>x.id===p.unitId))}
+function unitsOf(c){return [...c.units,...PACKS.filter(p=>isTopic(p)&&p.courseId===c.id).map(customUnit)]}
+function allUnits(){return COURSES.flatMap(unitsOf)}
+function getUnit(id){if(BASE[id])return BASE[id];const p=PACKS.find(x=>x.id===id&&isTopic(x));return p?customUnit(p):null}
+function sources(u){
+  const list=[]; if(!u.custom) list.push({id:u.id,notes:u.notes,cards:u.cards,quiz:u.quiz,exam:u.exam});
+  (u.custom?[u.custom,...PACKS.filter(p=>p.unitId===u.id)]:PACKS.filter(p=>p.unitId===u.id)).forEach(p=>list.push({id:p.id,pack:p,notes:p.notes||[],cards:p.cards||[],quiz:p.quiz||[],exam:p.exam||[]}));
+  return list;
+}
+function cardsOf(u){const out=[];sources(u).forEach(s=>s.cards.forEach((c,i)=>out.push({k:s.id+":"+i,f:c[0],b:c[1],u,pack:s.pack})));return out}
+function quizOf(u){return sources(u).flatMap(s=>s.quiz)}
+function examOf(u){const out=[];sources(u).forEach(s=>s.exam.forEach((e,i)=>out.push(Object.assign({},e,{k:s.id+":"+i,pack:s.pack}))));return out}
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+function fmt(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<b class="kt">$1</b>').replace(/`([^`]+)`/g,"<code>$1</code>")}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function isDue(k){const r=P.cards[k];return !r||r.d<=Date.now()}
+function unitStats(u){
+  const cs=cardsOf(u);let mastered=0,due=0;
+  cs.forEach(c=>{const r=P.cards[c.k];if(r&&r.b>=3)mastered++;if(isDue(c.k))due++});
+  return {mastered,due,total:cs.length,pct:cs.length?Math.round(mastered/cs.length*100):0,quiz:P.quiz[u.id]};
+}
+function allDue(){return allUnits().flatMap(u=>cardsOf(u).filter(c=>isDue(c.k)))}
+function dayKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function addXP(n){if(!n)return;const k=dayKey();P.days[k]=(P.days[k]||0)+n;toast("+"+n+" XP")}
+function totalXP(){return Object.values(P.days).reduce((a,b)=>a+b,0)}
+function streak(){let n=0;const d=new Date();if(!P.days[dayKey(d)])d.setDate(d.getDate()-1);while(P.days[dayKey(d)]){n++;d.setDate(d.getDate()-1)}return n}
+function levelInfo(){const x=totalXP(),L=Math.floor(Math.sqrt(x/25))+1,lo=25*(L-1)**2,hi=25*L*L;return {x,L,toNext:hi-x,pct:Math.round((x-lo)/(hi-lo)*100)}}
+function updateTop(){const li=levelInfo();$("#streakPill").textContent="🔥 "+streak();$("#xpPill").textContent="⚡ Lv "+li.L}
+let toastT;function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),1100)}
+function rateCard(c,ok){
+  const r=P.cards[c.k]||{b:0},b=ok?Math.min((r.b||0)+1,5):0;
+  P.cards[c.k]={b,d:Date.now()+(ok?GAPS[b]*DAY:0),t:Date.now()};
+  addXP(ok?2:1); save();
+}
+function setC(u){document.documentElement.style.setProperty("--c",`var(${u.course.color})`)}
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv=document.createElement("canvas");cv.id="confetti";document.body.appendChild(cv);
+  const ctx=cv.getContext("2d"),W=cv.width=innerWidth,H=cv.height=innerHeight,cs=getComputedStyle(document.documentElement);
+  const cols=["--it","--biz","--soton","--gold","--hot"].map(v=>cs.getPropertyValue(v).trim());
+  const ps=Array.from({length:110},()=>({x:W/2,y:H*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*12-4,r:Math.random()*6+4,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6}));
+  let t=0;(function f(){ctx.clearRect(0,0,W,H);ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=.2;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore()});
+    if(++t<90)requestAnimationFrame(f);else cv.remove()})();
+}
+
+/* ============ VIEWS ============ */
+let view={name:"home"};
+const app=$("#app");
+$("#home").onclick=()=>go({name:"home"});
+function go(v){view=v;render();scrollTo(0,0)}
+function render(){
+  document.documentElement.style.removeProperty("--c");
+  updateTop();
+  ({home:renderHome,unit:renderUnit,review:renderReview,import:renderImport,sync:renderSync,mistakes:renderMistakes})[view.name]();
+}
+function ring(p,label){return `<span class="ring" style="--p:${p}"><b>${label??p+"%"}</b></span>`}
+
+function renderHome(){
+  const due=allDue().length, li=levelInfo(), st=streak(), mist=liveWrong().length;
+  const d=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  let h=`<section class="hero">
+  <div><div class="eyebrow">${esc(d)}</div><h1>Ready, <span class="tag">DOGTAG</span>?</h1></div>
+  <div class="stats">
+    <div class="stat s-due"><b>${due}</b><span>cards due</span></div>
+    <div class="stat s-streak"><b>${st}</b><span>day streak${st?"":" — start one today"}</span></div>
+    <div class="stat s-lvl"><b>Lv ${li.L}</b><span>${li.x} XP · ${li.toNext} to next level</span><i class="xpbar"><i style="width:${li.pct}%"></i></i></div>
+  </div>
+  <div class="actions">
+    <button class="big-go" id="revAll" ${due?"":"disabled"}><b>▶ Review ${Math.min(due,30)} due cards</b><span>${due?"Mixed from all three courses. Right answers come back later.":"Nothing due. Pick a unit below to learn something new."}</span></button>
+    ${IN_CLAUDE?`<button class="big-imp" id="impBtn"><b>＋ Import slides</b><span>Paste or upload PowerPoint and get notes, cards and a quiz</span></button>`
+      :`<button class="big-imp" id="syncBtn"><b>⇄ Sync &amp; slides</b><span>Copy progress between devices, or add slides imported in the Claude version</span></button>`}
+  </div>
+  <div class="row">${mist?`<button class="btn small" id="mistBtn" style="--c:var(--bad)">❌ Fix ${mist} mistake${mist>1?"s":""}</button>`:""}${IN_CLAUDE?`<button class="btn ghost small" id="syncBtn">⇄ Sync with the offline app</button>`:""}</div></section>`;
+  COURSES.forEach(c=>{
+    h+=`<section class="course" style="--c:var(${c.color})"><header class="course-h"><span class="blob"></span><h2>${esc(c.name)}</h2><span class="course-sub">${esc(c.full)}</span></header><div class="tiles">`;
+    unitsOf(c).forEach(u=>{
+      const s=unitStats(u), extra=PACKS.filter(p=>p.unitId===u.id).length;
+      h+=`<button class="tile" data-u="${u.id}"><div class="tile-top"><span class="code">${esc(u.code)}</span>${ring(s.pct)}</div>
+      <h3>${esc(u.title)}</h3>
+      <div class="tile-foot"><span class="chip ${u.exam?"exam":""}">${esc(u.assess)}</span><span>${s.mastered}/${s.total} cards</span><span>Quiz ${s.quiz?s.quiz.best+"%":"—"}</span>${liveWrong(u.id).length?`<span style="color:var(--bad);font-weight:700">❌ ${liveWrong(u.id).length}</span>`:""}${extra?`<span class="chip new">+${extra} slides</span>`:""}</div></button>`;
+    });
+    h+=`</div></section>`;
+  });
+  h+=IN_CLAUDE?`<div class="foot"><span>Progress and imported slides save to your Claude account. Use <b>Sync with the offline app</b> to send them to the installed app.</span></div>`
+   :`<div class="foot"><span>Works offline. Progress is saved on this device; use <b>Sync &amp; slides</b> to copy it to your other devices.</span></div>`;
+  app.innerHTML=h;
+  app.querySelectorAll(".tile").forEach(b=>b.onclick=()=>go({name:"unit",id:b.dataset.u,tab:"notes"}));
+  $("#revAll").onclick=()=>startReview(shuffle(allDue()).slice(0,30));
+  if($("#impBtn"))$("#impBtn").onclick=()=>openImport("");
+  $("#syncBtn").onclick=()=>go({name:"sync"});
+  if($("#mistBtn"))$("#mistBtn").onclick=startGlobalMistakes;
+}
+
+function renderUnit(){
+  const u=getUnit(view.id); if(!u){go({name:"home"});return}
+  setC(u); const s=unitStats(u);
+  const tabs=[["notes","📖","Notes"],["cards","🃏","Cards"],["quiz","⚡","Quiz"],["exam","✍️","Exam"]];
+  app.innerHTML=`<section class="banner"><div class="txt"><div class="eyebrow">${esc(u.course.name)}</div><h1>${esc(u.title)}</h1>
+  <div class="row"><span class="chip">${esc(u.code)}</span><span class="chip">${esc(u.assess)}</span></div></div>${ring(s.pct)}</section>
+  <div class="tabs" role="tablist">${tabs.map(([k,i,l])=>`<button role="tab" data-t="${k}" aria-selected="${view.tab===k}"><span aria-hidden="true">${i}</span>${l}</button>`).join("")}</div>
+  <div class="panel" id="panel"></div>`;
+  app.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{view.tab=b.dataset.t;view.sub=null;renderUnit()});
+  ({notes:tabNotes,cards:tabCards,quiz:tabQuiz,exam:tabExam})[view.tab](u,$("#panel"));
+}
+
+function noteHTML(notes){return notes.map((n,i)=>`<article class="note"><h3><span class="n">${String(i+1).padStart(2,"0")}</span>${esc(n.h)}</h3><ul>${n.b.map(x=>
+  x.startsWith("= ")?`<li class="formula">${esc(x.slice(2))}</li>`:
+  x.startsWith("$ ")?`<li class="codeblock"><pre>${esc(x.slice(2))}</pre></li>`:`<li>${fmt(x)}</li>`).join("")}</ul></article>`).join("")}
+function tabNotes(u,el){
+  let h=`<div class="legend"><span><b class="kt">Highlighted</b> = key terms · boxed = formulas &amp; code</span>${IN_CLAUDE?`<button class="btn small" id="impHere">＋ Import slides here</button>`:""}</div>`;
+  sources(u).forEach(s=>{
+    if(s.pack){const p=s.pack;
+      h+=`<div class="packhead" data-p="${p.id}"><span><b>📎 ${esc(p.title)}</b></span><span class="row"><span class="status">Imported ${new Date(p.created).toLocaleDateString("en-GB")}</span><button class="btn ghost small" data-del>Remove</button></span>
+      <p>${s.cards.length} cards · ${s.quiz.length} quiz questions · ${s.exam.length} exam questions added to this ${u.custom?"topic":"unit"}</p></div>`;
+      if(p.summary) h+=`<div class="tldr"><b>TL;DR</b>${esc(p.summary)}</div>`;
+    }
+    h+=noteHTML(s.notes);
+  });
+  el.innerHTML=h;
+  if($("#impHere"))$("#impHere").onclick=()=>openImport(u.id);
+  el.querySelectorAll(".packhead").forEach(ph=>{
+    ph.querySelector("[data-del]").onclick=ev=>{
+      const box=ev.target.parentElement;
+      box.innerHTML=`<span class="status">Remove these slides and their cards?</span><button class="btn danger small" data-yes>Remove</button><button class="btn ghost small" data-no>Keep</button>`;
+      box.querySelector("[data-no]").onclick=()=>renderUnit();
+      box.querySelector("[data-yes]").onclick=async()=>{await deletePack(ph.dataset.p); if(u.custom) go({name:"home"}); else renderUnit()};
+    };
+  });
+}
+
+function tabCards(u,el){
+  if(!view.sub){
+    const s=unitStats(u), cs=cardsOf(u);
+    el.innerHTML=`<div class="done"><div class="big">${s.due}</div><p>of ${s.total} cards due · ${s.mastered} mastered</p>
+    <div class="row center"><button class="btn" id="dueOnly" ${s.due?"":"disabled"}>Study due cards</button><button class="btn ghost" id="allC">Study all ${s.total}</button></div>
+    <p class="hint">Tap the card to flip. “Got it” brings it back in 1, 3, 7, 14, then 30 days. Keyboard: space flips, 1 = again, 2 = got it.</p></div>`;
+    $("#dueOnly").onclick=()=>startCards(shuffle(cs.filter(c=>isDue(c.k))));
+    $("#allC").onclick=()=>startCards(shuffle(cs));
+    return;
+  }
+  cardSession(el);
+}
+function newSession(deck){return {deck,n:deck.length,pos:0,flipped:false,right:0,missed:new Set()}}
+function startCards(deck){view.sub=newSession(deck);renderUnit()}
+function startReview(deck){view={name:"review",sub:newSession(deck)};render();scrollTo(0,0)}
+function renderReview(){
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">All courses</div><h1>Due card review</h1></section><div class="panel" id="panel"></div>`;
+  cardSession($("#panel"));
+}
+function cardSession(el){
+  const S=view.sub;
+  if(S.pos>=S.deck.length){
+    el.innerHTML=`<div class="done"><div class="big">${S.right}/${S.n}</div><p>known first time this round</p>
+    <button class="btn" id="fin">${view.name==="review"?"Back home":"Back to cards"}</button></div>`;
+    if(S.n&&S.right/S.n>=.7)confetti();
+    $("#fin").onclick=()=>{if(view.name==="review")go({name:"home"});else{view.sub=null;renderUnit()}};
+    return;
+  }
+  const c=S.deck[S.pos];
+  if(view.name==="review")setC(c.u);
+  el.innerHTML=`<div class="fc-top"><span class="count">${Math.min(S.pos+1,S.n)} / ${S.n}${S.deck.length>S.n?` (+${S.deck.length-S.n} retry)`:""}</span><span class="track"><i style="width:${Math.round(S.pos/S.deck.length*100)}%"></i></span><span class="count">${esc(c.u.code)}</span></div>
+  <button class="flip ${S.flipped?"flipped":""}" id="card" aria-label="${S.flipped?"Answer showing, tap to flip back":"Tap to reveal answer"}"><span class="flip-inner">
+    <span class="face front"><span class="side">${c.pack?"📎 From your slides":"Term / question"}</span><span class="big">${esc(c.f)}</span><span class="from">tap to flip</span></span>
+    <span class="face back"><span class="side">Answer</span><span>${esc(c.b)}</span></span>
+  </span></button>
+  <div class="fc-actions" ${S.flipped?"":"hidden"}><button class="again" id="ag">Again</button><button class="gotit" id="ok">Got it ✓</button></div>
+  ${S.flipped?"":`<p class="hint">Think of the answer, then tap the card</p>`}`;
+  $("#card").onclick=()=>{S.flipped=!S.flipped;
+    $("#card").classList.toggle("flipped",S.flipped);el.querySelector(".fc-actions").hidden=!S.flipped;const h=el.querySelector(".hint");if(h)h.remove()};
+  $("#ag").onclick=()=>{S.missed.add(c.k);rateCard(c,false);S.deck.push(c);next()};
+  $("#ok").onclick=()=>{rateCard(c,true);if(!S.missed.has(c.k))S.right++;next()};
+  function next(){S.pos++;S.flipped=false;cardSession(el)}
+}
+
+/* ============ QUIZ: random generation + mistakes ============ */
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+const sgn=n=>n<0?"− "+Math.abs(n):"+ "+n;
+const lin=(k,c)=>`${k===1?"":k===-1?"−":neg(k)}x${c?" "+sgn(c):""}`;           // for "x + 3" / "x − 3"
+const neg=n=>n<0?"−"+Math.abs(n):String(n);        // unicode minus
+function frac(n,d){if(d<0){n=-n;d=-d}const g=gcd(n,d);n/=g;d/=g;return d===1?neg(n):neg(n)+"/"+d}
+function piFrac(deg){const g=gcd(deg,180),n=deg/g,d=180/g;return (n===1?"":n)+"π"+(d===1?"":"/"+d)}
+function hashStr(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)}
+// build [stem, options, 0, why] with unique distractors
+function mk(stem,correct,ds,why){
+  correct=String(correct);const seen=new Set([correct]),opts=[correct];
+  for(const d of ds){const s=String(d);if(!seen.has(s)&&opts.length<4){seen.add(s);opts.push(s)}}
+  let bump=1;while(opts.length<4){const s=correct.replace(/[−-]?\d+/,m=>neg(+m.replace("−","-")+bump));bump=bump>0?-bump:-bump+1;if(!seen.has(s)){seen.add(s);opts.push(s)}if(Math.abs(bump)>9)break}
+  return [stem,opts,0,why];
+}
+const MATHGEN={
+m1:[
+()=>{const a=ri(2,9),b=ri(2,6),c=ri(2,4),ans=a+b*c*c;return mk(`Work out ${a} + ${b} × ${c}²`,ans,[(a+b)*c*c,a+b*c*2,(a+b*c)**2],`Indices first: ${c}² = ${c*c}. Then ${b} × ${c*c} = ${b*c*c}, then + ${a} = ${ans}.`)},
+()=>{const c=ri(2,5),q=ri(2,6),a=ri(2,6),b=q*c;const ans=-(a*b)/c;return mk(`(−${a}) × (−${b}) ÷ (−${c}) = ?`,neg(ans),[String(-ans),neg(-a*b),String(a*b)],`(−${a}) × (−${b}) = ${a*b} (same signs), then ÷ (−${c}) = ${neg(ans)}.`)},
+()=>{const P=pick([40,60,80,120,150,200,240]),r=pick([5,10,15,20,25,30,40]),up=Math.random()<.5,ans=P*(1+(up?r:-r)/100);
+  return mk(`£${P} is ${up?"increased":"decreased"} by ${r}%. What is the new amount?`,"£"+ans,["£"+(P*r/100),"£"+(P*(1+(up?-r:r)/100)),"£"+(up?P+r:P-r)],`Multiplier ${up?1+r/100:1-r/100}: ${P} × ${up?1+r/100:1-r/100} = £${ans}.`)},
+()=>{const b=pick([2,3,4,5,6]),d=pick([3,4,5,7,8].filter(x=>x!==b)),a=ri(1,b-1),c=ri(1,d-1);
+  return mk(`${a}/${b} + ${c}/${d} = ?`,frac(a*d+c*b,b*d),[frac(a+c,b+d),frac(a*c,b*d),frac(a*d+c*b,b+d)],`Common denominator ${b*d}: ${a*d}/${b*d} + ${c*b}/${b*d} = ${frac(a*d+c*b,b*d)}.`)},
+()=>{const b=pick([2,3,4,5,6]),d=pick([2,3,4,5,7]),a=ri(1,b+2),c=ri(1,d-1);
+  return mk(`${a}/${b} ÷ ${c}/${d} = ?`,frac(a*d,b*c),[frac(a*c,b*d),frac(b*c,a*d),frac(a*d,b*d)],`Keep, change, flip: ${a}/${b} × ${d}/${c} = ${frac(a*d,b*c)}.`)},
+()=>{const m=ri(11,99)/10,e=pick([-5,-4,-3,-2,-1,2,3,4,5,6]),big=e>0;const val=(m*10**e);const shown=big?Math.round(val).toLocaleString("en-GB"):val.toFixed(Math.abs(e)+1);
+  return mk(`Write ${shown} in standard form`,`${m} × 10${sup(e)}`,[`${m} × 10${sup(e+1)}`,`${m} × 10${sup(e-1)}`,`${Math.round(m*10)} × 10${sup(e-1)}`],`The front number must be between 1 and 10, so ${m} × 10${sup(e)}.`)},
+()=>{const t=pick([["m","cm",100],["m","mm",1000],["km","m",1000],["kg","g",1000],["m²","cm²",10000]]),x=pick([0.4,1.5,2.5,3.2,0.75,6]);const f=v=>(+v.toFixed(4)).toLocaleString("en-GB",{maximumFractionDigits:4});
+  return mk(`Convert ${x} ${t[0]} to ${t[1]}`,f(x*t[2])+" "+t[1],[f(x*t[2]/10)+" "+t[1],f(x*t[2]*10)+" "+t[1],f(x*100)+" "+t[1]],`1 ${t[0]} = ${f(t[2])} ${t[1]}, so ${x} × ${f(t[2])} = ${f(x*t[2])}.`)}
+],
+m2:[
+()=>{const a=ri(2,9),x=ri(-6,9)||3,b=ri(-12,15)||3,c=a*x+b;return mk(`Solve ${lin(a,b)} = ${neg(c)}`,`x = ${neg(x)}`,[`x = ${frac(c+b,a)}`,`x = ${neg(c-b)}`,`x = ${neg(x+1)}`,`x = ${neg(-x)}`,`x = ${neg(x-1)}`],`${a}x = ${neg(c)} ${sgn(-b)} = ${neg(c-b)}, so x = ${neg(x)}.`)},
+()=>{const x=ri(-5,8)||2,a=ri(4,9),c=ri(1,a-1),b=ri(-9,9)||4,d=(a-c)*x+b;return mk(`Solve ${lin(a,b)} = ${lin(c,d)}`,`x = ${neg(x)}`,[`x = ${frac(d+b,a-c)}`,`x = ${frac(d-b,a+c)}`,`x = ${neg(-x)}`,`x = ${neg(x+1)}`,`x = ${neg(x-1)}`],`${a-c}x = ${neg(d-b)}, so x = ${neg(x)}.`)},
+()=>{const p=ri(-7,7)||2,q=ri(-7,7)||-3;const term=(n,s)=>n===0?"":(n<0?" − ":" + ")+(Math.abs(n)===1&&s?"":Math.abs(n))+s;
+  const ans=`x²${term(p+q,"x")}${term(p*q,"")}`;return mk(`Expand (x ${sgn(p)})(x ${sgn(q)})`,ans,[`x²${term(p*q,"x")}${term(p+q,"")}`,`x²${term(-(p+q),"x")}${term(p*q,"")}`,`x²${term(p+q,"x")}${term(-p*q,"")}`,`x²${term(p+q+1,"x")}${term(p*q,"")}`,`x²${term(p*q,"")}`].filter(o=>!/[+−] 0/.test(o)),`Multiply every term: x² ${sgn(q)}x ${sgn(p)}x ${sgn(p*q)} = ${ans}.`.replace(/([+−]) 1x/g,"$1 x"))},
+()=>{const r1=ri(-6,6)||1,r2=ri(-6,6)||-2,b=-(r1+r2),c=r1*r2;const term=(n,s)=>n===0?"":(n<0?" − ":" + ")+(Math.abs(n)===1&&s?"":Math.abs(n))+s;
+  return mk(`Factorise x²${term(b,"x")}${term(c,"")}`,`(x ${sgn(-r1)})(x ${sgn(-r2)})`,[`(x ${sgn(r1)})(x ${sgn(r2)})`,`(x ${sgn(-r1)})(x ${sgn(r2)})`,`(x ${sgn(c)})(x ${sgn(1)})`],`Two numbers that multiply to ${neg(c)} and add to ${neg(b)}: ${neg(-r1)} and ${neg(-r2)}.`)},
+()=>{const k=ri(2,6),m=k*(ri(-4,6)||2),gt=Math.random()<.5;return mk(`Solve −${k}x ${gt?">":"<"} ${neg(m)}`,`x ${gt?"<":">"} ${neg(-m/k)}`,[`x ${gt?">":"<"} ${neg(-m/k)}`,`x ${gt?"<":">"} ${neg(m/k)}`,`x ${gt?">":"<"} ${neg(m/k)}`],`Divide by −${k} and flip the sign: x ${gt?"<":">"} ${neg(-m/k)}.`)},
+()=>{const a=ri(-5,5)||2,b=ri(-5,5)||-3,ans=a*a-2*a*b;return mk(`If a = ${neg(a)} and b = ${neg(b)}, find a² − 2ab`,neg(ans),[neg(a*a+2*a*b),neg(-a*a-2*a*b),neg(2*a-2*a*b)],`(${neg(a)})² − 2(${neg(a)})(${neg(b)}) = ${a*a} ${sgn(-2*a*b)} = ${neg(ans)}.`)}
+],
+m3:[
+()=>{const t=pick([[3,4,5],[5,12,13],[8,15,17],[6,8,10],[7,24,25]]),k=pick([1,1,2,3]),[a,b,c]=t.map(x=>x*k),hyp=Math.random()<.6;
+  return hyp?mk(`A right-angled triangle has shorter sides ${a} cm and ${b} cm. Find the hypotenuse.`,c+" cm",[(a+b)+" cm",`√${a+b} cm`,(c+1)+" cm"],`√(${a*a} + ${b*b}) = √${c*c} = ${c} cm.`)
+    :mk(`A right-angled triangle has hypotenuse ${c} cm and one side ${a} cm. Find the other side.`,b+" cm",[(c-a)+" cm",`√${c*c+a*a} cm`,(b+1)+" cm"],`√(${c*c} − ${a*a}) = √${b*b} = ${b} cm.`)},
+()=>{const m=ri(-4,5)||2,x1=ri(-3,4),y1=ri(-5,5),dx=ri(1,4),x2=x1+dx,y2=y1+m*dx;return mk(`Gradient of the line through (${neg(x1)}, ${neg(y1)}) and (${neg(x2)}, ${neg(y2)})?`,neg(m),[frac(dx,m*dx),neg(-m),neg(m*dx)],`(${neg(y2)} − ${y1<0?"("+neg(y1)+")":y1}) ÷ (${neg(x2)} − ${x1<0?"("+neg(x1)+")":x1}) = ${neg(m*dx)} ÷ ${dx} = ${neg(m)}.`)},
+()=>{const m=ri(-4,5)||3,c=ri(-6,6),x1=ri(-2,3),x2=x1+ri(1,3);const eq=(mm,cc)=>`y = ${mm===1?"":mm===-1?"−":neg(mm)}x${cc===0?"":" "+sgn(cc)}`;
+  return mk(`Equation of the line through (${neg(x1)}, ${neg(m*x1+c)}) and (${neg(x2)}, ${neg(m*x2+c)})?`,eq(m,c),[eq(m,-c),eq(-m,c),eq(m,c+1),eq(m+1,c),eq(m,c-2)],`Gradient = ${neg(m)}. Substituting a point gives c = ${neg(c)}.`)},
+()=>{const r=ri(2,9),area=Math.random()<.5;return area?mk(`Area of a circle with radius ${r} cm, in terms of π`,`${r*r}π cm²`,[`${2*r}π cm²`,`${r}π cm²`,`${4*r*r}π cm²`],`πr² = π × ${r*r}.`):mk(`Circumference of a circle with radius ${r} cm, in terms of π`,`${2*r}π cm`,[`${r*r}π cm`,`${r}π cm`,`${4*r}π cm`],`2πr = 2 × π × ${r}.`)},
+()=>{const r=ri(2,6),h=ri(3,12);return mk(`Volume of a cylinder with radius ${r} cm and height ${h} cm?`,`${r*r*h}π cm³`,[`${2*r*h}π cm³`,`${r*h}π cm³`,`${2*r*r+2*r*h}π cm³`],`πr²h = π × ${r*r} × ${h} = ${r*r*h}π.`)},
+()=>{const k=ri(2,5),vol=Math.random()<.5;return mk(`Every length of a shape is multiplied by ${k}. What happens to its ${vol?"volume":"area"}?`,`× ${vol?k**3:k*k}`,[`× ${k}`,`× ${vol?k*k:k**3}`,`× ${2*k}`],`${vol?"Volume":"Area"} scales by k${vol?"³":"²"} = ${vol?k**3:k*k}.`)}
+],
+m4:[
+()=>{const a=ri(-4,9)||2,b=ri(-5,7)||3,t=ri(0,2);
+  const X=n=>`x${sup(n)}`,ex=(n)=>[X(n+1),X(n-1),X(n+2),X(-n),`2${X(n)}`];
+  if(t===0)return mk(`Simplify ${X(a)} × ${X(b)}`,X(a+b),[X(a*b),X(a-b),...ex(a+b)],`Add the powers: ${neg(a)} + ${b<0?"("+neg(b)+")":b} = ${neg(a+b)}.`);
+  if(t===1){let bb=b===a?a+1:b;if(bb===0)bb=3;return mk(`Simplify ${X(a)} ÷ ${X(bb)}`,X(a-bb),[X(a+bb),X(bb-a),X(a*bb),...ex(a-bb)],`Subtract the powers: ${neg(a)} − ${bb<0?"("+neg(bb)+")":bb} = ${neg(a-bb)}.`)}
+  return mk(`Simplify (${X(a)})${sup(b)}`,X(a*b),[X(a+b),X(a-b),X(-a*b),...ex(a*b)],`Multiply the powers: ${neg(a)} × ${b<0?"("+neg(b)+")":b} = ${neg(a*b)}.`)},
+()=>{const r=pick([2,3,4,5]),n=pick(r===2?[3,4,5]:[2,3]),base=r**n,m=pick([1,2,3].filter(x=>x!==n)),ans=r**m,negp=Math.random()<.3;
+  return negp?mk(`${base}^(−${m}/${n}) = ?`,`1/${ans}`,[`−${ans}`,String(ans),`−1/${ans}`],`Root first: ${n===2?"√":n===3?"∛":n+"th root of "}${base} = ${r}. Then ${r}${sup(m)} = ${ans}, and the negative power flips it to 1/${ans}.`)
+    :mk(`${base}^(${m}/${n}) = ?`,String(ans),[String(+(base*m/n).toFixed(2)),String(r*m),String(r**(m+1))],`Root first: ${n===2?"√":n===3?"∛":n+"th root of "}${base} = ${r}. Then ${r}${sup(m)} = ${ans}.`)},
+()=>{const b=pick([2,3,4,5,10]),k=ri(2,b===10?5:b===2?7:4);return mk(`log${sub(b)} ${(b**k).toLocaleString("en-GB")} = ?`,String(k),[String(k+1),String(b*k),String((b**k)/b)],`${b}${sup(k)} = ${(b**k).toLocaleString("en-GB")}, so the log is ${k}.`)},
+()=>{const x=ri(-4,6),y=ri(-4,6),a=ri(1,4),b=ri(1,4),c=ri(1,4),d=-ri(1,4);const e1=a*x+b*y,e2=c*x+d*y;const t=(k,v)=>(k===1?"":k===-1?"−":neg(k))+v;
+  return mk(`Solve ${t(a,"x")} + ${t(b,"y")} = ${neg(e1)} and ${t(c,"x")} − ${t(-d,"y")} = ${neg(e2)}`,`x = ${neg(x)}, y = ${neg(y)}`,[`x = ${neg(y)}, y = ${neg(x)}`,`x = ${neg(-x)}, y = ${neg(y)}`,`x = ${neg(x)}, y = ${neg(y+1)}`],`Eliminate one letter, solve, then substitute back: x = ${neg(x)}, y = ${neg(y)}. Check both equations.`)},
+()=>{const r1=ri(-6,6)||3,r2=ri(-6,6)||-2;const b=-(r1+r2),c=r1*r2;const term=(n,s)=>n===0?"":(n<0?" − ":" + ")+(Math.abs(n)===1&&s?"":Math.abs(n))+s;
+  const roots=r1===r2?`x = ${neg(r1)} only`:`x = ${neg(Math.min(r1,r2))} or ${neg(Math.max(r1,r2))}`;
+  return mk(`Solve x²${term(b,"x")}${term(c,"")} = 0`,roots,[r1===r2?`x = ${neg(-r1)} only`:`x = ${neg(-Math.max(r1,r2))} or ${neg(-Math.min(r1,r2))}`,`x = ${neg(b)} or ${neg(c)}`,`x = ${neg(c)} only`],`Factorise: (x ${sgn(-r1)})(x ${sgn(-r2)}) = 0.`)},
+()=>{const a=ri(1,3),b=ri(-8,8),c=ri(-6,8),D=b*b-4*a*c;const term=(n,s)=>n===0?"":(n<0?" − ":" + ")+(Math.abs(n)===1&&s?"":Math.abs(n))+s;
+  const ans=D>0?"2":D===0?"1":"0";return mk(`How many real roots does ${a===1?"":a}x²${term(b,"x")}${term(c,"")} = 0 have?`,ans,["0","1","2","Infinitely many"].filter(x=>x!==ans),`b² − 4ac = ${b*b} − ${4*a*c<0?"("+neg(4*a*c)+")":4*a*c} = ${neg(D)}, which is ${D>0?"positive":D===0?"zero":"negative"}.`)}
+],
+m5:[
+()=>{const d=pick([30,45,60,90,120,135,150,180,210,240,270,300,315,360]),toRad=Math.random()<.5;
+  return toRad?mk(`Convert ${d}° to radians`,piFrac(d),[piFrac(d===180?90:d===90?45:d/2),piFrac(d+30),piFrac(d===360?270:2*d>360?d-30:2*d)],`${d} × π/180 = ${piFrac(d)}.`)
+    :mk(`Convert ${piFrac(d)} radians to degrees`,d+"°",[(d===180?90:d/2)+"°",(d+30)+"°",(d===360?270:Math.min(2*d,720))+"°"],`${piFrac(d)} × 180/π = ${d}°.`)},
+()=>{const t=pick([["sin 30°","½"],["cos 60°","½"],["tan 45°","1"],["sin 90°","1"],["cos 0°","1"],["sin 0°","0"],["cos 90°","0"],["tan 0°","0"]]);return mk(`Exact value of ${t[0]}?`,t[1],["½","1","0","√3/2","√2/2"].filter(x=>x!==t[1]),`${t[0]} = ${t[1]}.`)},
+()=>{const a=ri(-6,6),b=ri(-6,6),r=ri(2,9);const part=(v,l)=>v===0?`${l}²`:`(${l} ${sgn(-v)})²`;
+  return mk(`Centre and radius of ${part(a,"x")} + ${part(b,"y")} = ${r*r}?`,`(${neg(a)}, ${neg(b)}), r = ${r}`,[`(${neg(-a)}, ${neg(-b)}), r = ${r}`,`(${neg(a)}, ${neg(b)}), r = ${r*r}`,`(${neg(-a)}, ${neg(-b)}), r = ${r*r}`],`The signs flip for the centre, and r = √${r*r} = ${r}.`)},
+()=>{const r=ri(2,12),d=pick([30,45,60,90,120,180]),num=r*d,g=gcd(num,180),n=num/g,den=180/g;const ans=(n===1?"":n)+"π"+(den===1?"":"/"+den)+" cm";
+  return mk(`Arc length for radius ${r} cm and angle ${piFrac(d)}?`,ans,[`${r*d}π cm`,`${frac(r*r*d,360)}π cm`.replace(/^1π/,"π"),`${frac(r*d,90)}π cm`.replace(/^1π/,"π"),`${r}π cm`,`${2*r}π cm`,`${r*r}π cm`].map(x=>x.replace(/^1π/,"π")),`s = rθ = ${r} × ${piFrac(d)} = ${ans}.`)},
+()=>{const H=2*ri(2,9),use=pick(["sin 30°","cos 60°"]);return mk(`The hypotenuse is ${H} cm. Find the side ${use.startsWith("sin")?"opposite":"adjacent to"} the ${use.slice(4)} angle.`,`${H/2} cm`,[`${H*2} cm`,`${H} cm`,`${H/2+1} cm`],`${use.startsWith("sin")?"O = H sin":"A = H cos"} ${use.slice(4)} = ${H} × ½ = ${H/2} cm.`)}
+]};
+function sup(n){const m={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};return String(n).split("").map(c=>m[c]||c).join("")}
+function sub(n){const m={"0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉"};return String(n).split("").map(c=>m[c]||c).join("")}
+
+function cardQuestions(u,n){
+  const cs=cardsOf(u);if(cs.length<4)return [];
+  let pool=cs;if(pool.length<4)pool=u.course.units.flatMap(cardsOf);
+  return shuffle(cs).slice(0,n).map(c=>{
+    const others=shuffle(pool.filter(o=>o.k!==c.k));
+    const termFirst=!/^[\d−(-]/.test(c.f)&&c.f.length<45&&Math.random()<.5;
+    if(termFirst){
+      const ds=others.map(o=>o.f).filter(f=>f!==c.f).slice(0,3);
+      return {k:"gen:"+hashStr("t"+c.k),raw:[`Which term matches this?\n“${c.b}”`,[c.f,...ds],0,`${c.f}: ${c.b}`]};
+    }
+    const ds=others.map(o=>o.b).filter(b=>b!==c.b).slice(0,3);
+    return {k:"gen:"+hashStr("d"+c.k),raw:[c.f+(/[?…]$/.test(c.f)?"":" — which is right?"),[c.b,...ds],0,`${c.f}: ${c.b}`]};
+  }).filter(q=>q.raw[1].length===4);
+}
+function bankQuestions(u){const out=[];sources(u).forEach(s=>s.quiz.forEach((q,i)=>out.push({k:"bank:"+s.id+":"+i,raw:q})));return out}
+function buildQuiz(u,total=12){
+  const gens=MATHGEN[u.id]||[],out=[],stems=new Set();
+  const add=q=>{if(q&&!stems.has(q.raw[0])&&out.length<total){stems.add(q.raw[0]);out.push(q)}};
+  if(gens.length){
+    shuffle(gens).concat(shuffle(gens)).slice(0,6).forEach(g=>{try{const raw=g();add({k:"gen:"+hashStr(raw[0]),raw})}catch(e){}});
+    shuffle(bankQuestions(u)).slice(0,3).forEach(add);
+  }else shuffle(bankQuestions(u)).slice(0,6).forEach(add);
+  cardQuestions(u,total).forEach(add);
+  shuffle(bankQuestions(u)).forEach(add);
+  return shuffle(out).map(q=>({...q,u:u.id}));
+}
+function toSession(list){return list.map(q=>({k:q.k,u:q.u,raw:q.raw,s:q.raw[0],o:shuffle(q.raw[1].map((t,j)=>({t:String(t),c:j===q.raw[2]}))),e:q.raw[3]}))}
+function liveWrong(filterU){return Object.entries(P.wrong||{}).filter(([k,w])=>w&&!w.fixed&&w.q&&(!filterU||w.u===filterU)).map(([k,w])=>({k,u:w.u,raw:w.q,n:w.n||1,t:w.t}))}
+function recordAnswer(q,ok){
+  P.wrong=P.wrong||{};const w=P.wrong[q.k];
+  if(!ok)P.wrong[q.k]={u:q.u,q:q.raw,n:(w&&!w.fixed?w.n||1:0)+1,t:Date.now()};
+  else if(w&&!w.fixed)P.wrong[q.k]=Object.assign({},w,{fixed:Date.now(),t:Date.now()});
+}
+(function prune(){const cut=Date.now()-60*DAY;for(const [k,w] of Object.entries(P.wrong||{}))if(w&&w.fixed&&w.fixed<cut)delete P.wrong[k]})();
+
+function tabQuiz(u,el){
+  if(view.sub){quizSession(el,view.sub,()=>{view.sub=null;renderUnit()});return}
+  const q=P.quiz[u.id],wrong=liveWrong(u.id);
+  el.innerHTML=`<div class="quizhub">
+   <div class="done"><div class="eyebrow">🎲 New random quiz</div><div class="big">${q?q.best+"%":"—"}</div><p>best score${q?` · last ${q.last}% · ${q.n} attempt${q.n>1?"s":""}`:""}</p>
+    <button class="btn" id="go">Start a new quiz</button><p class="hint">${MATHGEN[u.id]?"Fresh numbers every time, plus questions from your notes and cards.":"A different mix every time, built from this unit's notes and flashcards."} +5 XP per correct answer.</p></div>
+   <div class="done mistakes"><div class="eyebrow">❌ Mistakes to fix</div><div class="big" style="color:var(--bad)">${wrong.length}</div><p>${wrong.length?"Questions you got wrong. Get one right and it leaves the list.":"Nothing here yet. Questions you get wrong in a quiz land here."}</p>
+    <button class="btn" id="retry" style="--c:var(--bad)" ${wrong.length?"":"disabled"}>Retry mistakes</button></div>
+  </div>
+  ${wrong.length?`<details class="cmdwords"><summary>See your ${wrong.length} mistake${wrong.length>1?"s":""}</summary><ol class="wronglist">${wrong.sort((a,b)=>b.t-a.t).map(w=>`<li><b>${esc(w.raw[0])}</b><br><span class="status">Answer:</span> ${esc(w.raw[1][w.raw[2]])}${w.n>1?` <span class="chip" style="color:var(--bad);border-color:var(--bad)">wrong ×${w.n}</span>`:""}</li>`).join("")}</ol></details>`:""}`;
+  $("#go").onclick=()=>{view.sub={mode:"quiz",unit:u.id,qs:toSession(buildQuiz(u)),pos:0,score:0,picked:null,combo:0};renderUnit()};
+  $("#retry").onclick=()=>{view.sub={mode:"mistakes",qs:toSession(shuffle(wrong).slice(0,20)),pos:0,score:0,picked:null,combo:0};renderUnit()};
+}
+function startGlobalMistakes(){const w=liveWrong();view={name:"mistakes",sub:{mode:"mistakes",qs:toSession(shuffle(w).slice(0,20)),pos:0,score:0,picked:null,combo:0}};render();scrollTo(0,0)}
+function renderMistakes(){
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">All courses</div><h1>Fix your mistakes</h1></section><div class="panel" id="panel"></div>`;
+  quizSession($("#panel"),view.sub,()=>go({name:"home"}));
+}
+function quizSession(el,S,onExit){
+  if(S.pos>=S.qs.length){
+    const pct=S.qs.length?Math.round(S.score/S.qs.length*100):0,left=S.qs.length-S.score;
+    if(!S.saved){S.saved=true;
+      if(S.mode==="quiz"){const old=P.quiz[S.unit]||{best:0,n:0};P.quiz[S.unit]={best:Math.max(old.best,pct),last:pct,n:old.n+1,t:Date.now()};S.newBest=pct>old.best&&old.n>0}
+      save();if(pct>=70)confetti()}
+    el.innerHTML=S.mode==="quiz"
+      ?`<div class="done"><div class="big">${pct}%</div><p>${S.score} of ${S.qs.length} correct${S.newBest?" · new best 🎉":""}</p>${left?`<p>${left} question${left>1?"s":""} added to <b>Mistakes</b>.</p>`:""}
+        <div class="row center"><button class="btn" id="again">New quiz</button>${left?`<button class="btn" id="fix" style="--c:var(--bad)">Fix mistakes now</button>`:""}<button class="btn ghost" id="back">Done</button></div></div>`
+      :`<div class="done"><div class="big">${S.score}/${S.qs.length}</div><p>mistakes fixed${left?` · ${left} still to fix`:" · all cleared 🎉"}</p>
+        <div class="row center">${left?`<button class="btn" id="fix" style="--c:var(--bad)">Go again</button>`:""}<button class="btn ghost" id="back">Done</button></div></div>`;
+    $("#back").onclick=onExit;
+    const ag=$("#again");if(ag)ag.onclick=()=>{const u=getUnit(S.unit);Object.assign(S,{qs:toSession(buildQuiz(u)),pos:0,score:0,picked:null,combo:0,saved:false});quizSession(el,S,onExit)};
+    const fx=$("#fix");if(fx)fx.onclick=()=>{const w=S.unit&&S.mode==="quiz"?liveWrong(S.unit):view.name==="mistakes"?liveWrong():liveWrong(view.id);
+      Object.assign(S,{mode:"mistakes",qs:toSession(shuffle(w).slice(0,20)),pos:0,score:0,picked:null,combo:0,saved:false});quizSession(el,S,onExit)};
+    return;
+  }
+  const q=S.qs[S.pos],L="ABCDEF",qu=getUnit(q.u);
+  if(view.name==="mistakes"&&qu)setC(qu);
+  el.innerHTML=`<div class="q"><div class="fc-top"><span class="count">${S.mode==="mistakes"?"❌ ":""}Q${S.pos+1} / ${S.qs.length}</span><span class="track"><i style="width:${Math.round(S.pos/S.qs.length*100)}%"></i></span><span class="combo">${S.combo>=2?"🔥 "+S.combo+" in a row":view.name==="mistakes"&&qu?esc(qu.code):""}</span></div>
+  <p class="stem">${esc(q.s).replace(/\n/g,"<br>")}</p>
+  <div class="opts">${q.o.map((o,j)=>{let cls="";if(S.picked!==null){if(o.c)cls="right";else if(j===S.picked)cls="wrong"}
+    return `<button class="opt ${cls}" data-j="${j}" ${S.picked!==null?"disabled":""}><span class="k">${L[j]}</span><span>${esc(o.t)}</span></button>`}).join("")}</div>
+  ${S.picked!==null?`<div class="explain">${q.o[S.picked].c?(S.mode==="mistakes"?"<b>Fixed ✓</b>":"<b>Correct.</b>"):"<b class=\"x\">Not quite.</b>"} ${esc(q.e||"")}${!q.o[S.picked].c?`<br><span class="status">Saved to Mistakes</span>`:""}</div><div class="qnav"><button class="btn" id="nx">${S.pos+1<S.qs.length?"Next →":"See score"}</button></div>`:""}</div>`;
+  el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{S.picked=+b.dataset.j;const ok=q.o[S.picked].c;recordAnswer(q,ok);
+    if(ok){S.score++;S.combo++;addXP(S.mode==="mistakes"?8:5)}else S.combo=0;save();quizSession(el,S,onExit)});
+  const nx=$("#nx");if(nx){nx.onclick=()=>{S.pos++;S.picked=null;quizSession(el,S,onExit)};nx.focus({preventScroll:true})}
+}
+
+const drafts={};
+function tabExam(u,el){
+  const ex=examOf(u);
+  el.innerHTML=`<details class="cmdwords"><summary>Command words: what each question wants</summary><dl>${CMDS.map(([w,d])=>`<dt>${w}</dt><dd>${d}</dd>`).join("")}</dl></details>`+
+  ex.map((e,i)=>{const r=P.exam[e.k];
+    return `<article class="eq" data-i="${i}"><div class="qline"><span class="qtext">${i+1}. ${esc(e.q)}</span><span class="marks">${e.m} marks</span></div>
+    <span class="status">${esc(e.cmd)}${e.pack?" · 📎 from your slides":""}${r?` · last self-mark ${r.g}/${e.m}`:""}</span>
+    <textarea id="ans-${esc(e.k)}" placeholder="Write or plan your answer here (kept while this page is open)">${esc(drafts[e.k]||"")}</textarea>
+    <div><button class="btn ghost small" data-show>Show mark scheme</button></div>
+    <div class="scheme" hidden><b>Mark scheme points</b><ul>${e.pts.map(p=>p.includes("\n")?`<li class="codeblock"><pre>${esc(p)}</pre></li>`:`<li>${esc(p)}</li>`).join("")}</ul></div>
+    <div class="selfmark" hidden><span>Self-mark:</span>${Array.from({length:e.m+1},(_,g)=>`<button data-g="${g}" aria-pressed="${!!r&&r.g===g}">${g}</button>`).join("")}</div></article>`}).join("");
+  el.querySelectorAll(".eq").forEach(card=>{
+    const e=ex[+card.dataset.i];
+    card.querySelector("textarea").oninput=ev=>drafts[e.k]=ev.target.value;
+    card.querySelector("[data-show]").onclick=ev=>{card.querySelector(".scheme").hidden=false;card.querySelector(".selfmark").hidden=false;ev.target.parentElement.hidden=true};
+    card.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{const first=!P.exam[e.k];P.exam[e.k]={g:+b.dataset.g,o:e.m,t:Date.now()};if(first)addXP(+b.dataset.g+2);save();
+      card.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x===b));
+      card.querySelector(".status").textContent=`${e.cmd}${e.pack?" · 📎 from your slides":""} · last self-mark ${b.dataset.g}/${e.m}`});
+  });
+}
+
+/* ============ SLIDE IMPORT ============ */
+const imp={target:"",newName:"",newCourse:"it",text:"",images:[],pptx:[],status:"idle",msg:"",chars:0,result:null,ctl:null};
+function openImport(target){if(imp.status!=="working"){imp.target=target||imp.target;}go({name:"import"})}
+function targetLabel(t){if(t.startsWith("new:"))return "a new topic in "+COURSE[t.slice(4)].name;const u=getUnit(t);return u?u.code+" "+u.title:""}
+function renderImport(){
+  const imgMax=LIMITS&&LIMITS.images?LIMITS.images.maxCount:0;
+  const opts=COURSES.map(c=>`<optgroup label="${esc(c.name)}">${unitsOf(c).map(u=>`<option value="${u.id}" ${imp.target===u.id?"selected":""}>${esc(u.code)} · ${esc(u.title)}</option>`).join("")}<option value="new:${c.id}" ${imp.target==="new:"+c.id?"selected":""}>＋ New topic in ${esc(c.name)}</option></optgroup>`).join("");
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">Slide importer</div><h1>Turn slides into revision</h1>
+  <p>Paste your PowerPoint content or upload the .pptx file. Claude strips out the filler and builds condensed notes, flashcards, a quiz and exam questions from it.</p></section>
+  <div class="step"><h2><span class="num">1</span>Where should it go?</h2>
+    <select id="tgt"><option value="">Choose a unit…</option>${opts}</select>
+    <label class="lbl" id="nameWrap" ${imp.target.startsWith("new:")?"":"hidden"}>Topic name (optional, Claude will name it otherwise)<input type="text" id="tname" value="${esc(imp.newName)}" placeholder="e.g. Week 3 – Networks"></label>
+  </div>
+  <div class="step"><h2><span class="num">2</span>Add your slides</h2>
+    <div class="drop" id="drop"><textarea id="ptext" placeholder="Paste here (Ctrl+V / ⌘V).\n\n• In PowerPoint, select the text on your slides (or Ctrl+A in Outline view) and copy it\n• Or copy slide thumbnails / screenshots and paste them as images\n• Or drag a .pptx file onto this box">${esc(imp.text)}</textarea></div>
+    <div class="row"><label class="btn ghost small" style="cursor:pointer">Upload .pptx${imgMax?" or images":""}<input type="file" id="file" accept=".pptx${imgMax?",image/png,image/jpeg,image/webp,image/gif":""}" multiple hidden></label>
+    <span class="status">${imgMax?`Up to ${imgMax} slide images per import.`:"Text and .pptx files supported."}</span></div>
+    <div class="attach" id="attach"></div>
+  </div>
+  <div class="step"><h2><span class="num">3</span>Condense it</h2><div class="gen" id="gen"></div></div>`;
+  const tgt=$("#tgt");
+  tgt.onchange=()=>{imp.target=tgt.value;$("#nameWrap").hidden=!imp.target.startsWith("new:");drawGen()};
+  $("#tname").oninput=e=>imp.newName=e.target.value;
+  const ta=$("#ptext");
+  ta.oninput=()=>{imp.text=ta.value;drawGen()};
+  ta.addEventListener("paste",e=>{
+    const files=[...(e.clipboardData?.files||[])].filter(f=>f.type.startsWith("image/"));
+    if(files.length){
+      if(!imgMax){imp.msg="Pasting slide images isn't available here, so paste the slide text or upload the .pptx file instead.";drawGen();return}
+      const plain=e.clipboardData.getData("text/plain");
+      if(!plain)e.preventDefault();
+      addImages(files);
+    }
+  });
+  const drop=$("#drop");
+  drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over")});
+  drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
+  drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");handleFiles([...e.dataTransfer.files])});
+  $("#file").onchange=e=>{handleFiles([...e.target.files]);e.target.value=""};
+  drawAttach();drawGen();
+}
+function addImages(files){
+  const max=LIMITS&&LIMITS.images?LIMITS.images.maxCount:0;
+  for(const f of files){if(imp.images.length>=max){imp.msg=`That's the limit of ${max} images per import. Import the rest separately.`;break}imp.images.push({file:f,url:URL.createObjectURL(f)})}
+  drawAttach();drawGen();
+}
+async function handleFiles(files){
+  const imgs=files.filter(f=>f.type.startsWith("image/")), decks=files.filter(f=>/\.pptx$/i.test(f.name));
+  const other=files.filter(f=>!imgs.includes(f)&&!decks.includes(f));
+  if(imgs.length){if(LIMITS&&LIMITS.images)addImages(imgs);else imp.msg="Images aren't supported here. Upload the .pptx file or paste the text."}
+  for(const f of decks){
+    try{const text=await readPptx(f);imp.pptx.push({name:f.name,text,slides:(text.match(/--- Slide /g)||[]).length})}
+    catch(e){imp.msg=`Couldn't read ${f.name}. If it's an old .ppt file, save it as .pptx first.`}
+  }
+  if(other.some(f=>/\.ppt$/i.test(f.name)))imp.msg="Old .ppt files can't be read. In PowerPoint use File → Save As → .pptx, then upload that.";
+  drawAttach();drawGen();
+}
+function drawAttach(){
+  const el=$("#attach");if(!el)return;
+  el.innerHTML=imp.pptx.map((p,i)=>`<span class="att"><span>📊 ${esc(p.name)} · ${p.slides} slides</span><button data-rp="${i}" aria-label="Remove">✕</button></span>`).join("")+
+    imp.images.map((m,i)=>`<span class="att"><img src="${m.url}" alt="Slide image ${i+1}"><span>Image ${i+1}</span><button data-ri="${i}" aria-label="Remove">✕</button></span>`).join("");
+  el.querySelectorAll("[data-rp]").forEach(b=>b.onclick=()=>{imp.pptx.splice(+b.dataset.rp,1);drawAttach();drawGen()});
+  el.querySelectorAll("[data-ri]").forEach(b=>b.onclick=()=>{imp.images.splice(+b.dataset.ri,1);drawAttach();drawGen()});
+}
+function slideText(){return [imp.text.trim(),...imp.pptx.map(p=>`[File: ${p.name}]\n${p.text}`)].filter(Boolean).join("\n\n").slice(0,90000)}
+function drawGen(){
+  const el=$("#gen");if(!el)return;
+  const has=slideText().length>20||imp.images.length;
+  if(imp.status==="working"){
+    el.innerHTML=`<div class="spinner"><i></i><span>${imp.chars?`Writing your revision pack… ${imp.chars.toLocaleString()} characters`:"Reading your slides… this can take up to a minute"}</span></div><button class="btn ghost small" id="stop">Stop</button>`;
+    $("#stop").onclick=()=>imp.ctl&&imp.ctl.abort();return;
+  }
+  if(imp.status==="done"&&imp.result){
+    const r=imp.result;
+    el.innerHTML=`<div><b style="font-family:var(--f-display);font-size:1.25rem">${esc(r.title)}</b></div>${r.summary?`<div class="tldr" style="margin:0"><b>TL;DR</b>${esc(r.summary)}</div>`:""}
+    <div class="counts"><span>${r.notes.length} note sections</span><span>${r.cards.length} flashcards</span><span>${r.quiz.length} quiz Qs</span><span>${r.exam.length} exam Qs</span></div>
+    <p class="status">Will be saved to ${esc(targetLabel(imp.target))}</p>
+    <div class="row"><button class="btn" id="savePack">Save to my revision</button><button class="btn ghost" id="redo">Try again</button><button class="btn ghost" id="discard">Discard</button></div>`;
+    $("#savePack").onclick=savePackFromImport;
+    $("#redo").onclick=()=>{imp.status="idle";generate()};
+    $("#discard").onclick=()=>{imp.status="idle";imp.result=null;drawGen()};
+    return;
+  }
+  const noAI=!SAMPLE;
+  el.innerHTML=`${imp.msg?`<p class="err">${esc(imp.msg)}</p>`:""}
+  ${noAI?`<p class="status">Waiting for Claude to connect… If this doesn't change, open this page in the Claude app or claude.ai while signed in.</p>`:""}
+  <button class="btn" id="genBtn" style="--c:var(--it)" ${!has||!imp.target||noAI?"disabled":""}>✨ Condense into revision</button>
+  <p class="status">${!imp.target?"Pick where it should go first. ":""}${!has?"Add some slides first. ":""}Uses your own Claude usage; the first time, Claude asks you to allow it.</p>`;
+  $("#genBtn").onclick=generate;
+}
+async function readPptx(file){
+  if(!window.JSZip) throw new Error("no zip");
+  const zip=await JSZip.loadAsync(file);
+  const A="http://schemas.openxmlformats.org/drawingml/2006/main";
+  const txt=xml=>{const d=new DOMParser().parseFromString(xml,"application/xml");return [...d.getElementsByTagNameNS(A,"p")].map(p=>[...p.getElementsByTagNameNS(A,"t")].map(t=>t.textContent).join("")).filter(s=>s.trim()).join("\n")};
+  const num=n=>+n.match(/(\d+)\.xml$/)[1];
+  const slides=Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>num(a)-num(b));
+  const out=[];
+  for(const n of slides){
+    const i=num(n); let notes="";
+    const rels=zip.file(`ppt/slides/_rels/slide${i}.xml.rels`);
+    if(rels){const m=(await rels.async("string")).match(/Target="\.\.\/notesSlides\/(notesSlide\d+\.xml)"/);
+      if(m&&zip.file("ppt/notesSlides/"+m[1]))notes=txt(await zip.file("ppt/notesSlides/"+m[1]).async("string")).split("\n").filter(l=>!/^\d+$/.test(l.trim())).join(" ")}
+    const t=txt(await zip.file(n).async("string"));
+    if(t||notes) out.push(`--- Slide ${i} ---\n${t}${notes?`\n[Speaker notes] ${notes}`:""}`);
+  }
+  if(!out.length) throw new Error("empty");
+  return out.join("\n\n");
+}
+function buildPrompt(){
+  const t=imp.target, isNew=t.startsWith("new:"), course=isNew?COURSE[t.slice(4)]:getUnit(t).course, u=isNew?null:getUnit(t);
+  return `You are turning a student's lesson slides into condensed revision material.
+Student: UK sixth-form student doing ${course.full}. Topic: ${u?u.code+" "+u.title:(imp.newName||"(work it out from the slides)")}.
+Goal: make the content quick and easy to learn. Compress hard: cut filler, repetition, titles and admin, but keep every examinable fact, definition, formula, process and example. Use short, plain sentences.
+${imp.images.length?`${imp.images.length} slide image(s) are attached: read all text, diagrams and tables in them.\n`:""}Reply with ONLY one JSON object in exactly this shape:
+{"title":"short topic title, max 6 words",
+ "summary":"one-sentence TL;DR of the whole deck",
+ "notes":[{"h":"section heading","b":["bullet","bullet"]}],
+ "cards":[["front: a term or short question","back: answer in max 25 words"]],
+ "quiz":[{"q":"question","options":["A","B","C","D"],"answer":0,"why":"one-sentence explanation"}],
+ "exam":[{"q":"exam-style question","marks":4,"cmd":"Explain","points":["mark scheme point"]}]}
+Rules: 3-7 note sections with 2-6 bullets each, each bullet max 30 words; wrap key terms in **double asterisks**; a bullet that is only a formula starts with "= ". 8-20 cards. 5-10 quiz questions with exactly 4 options, "answer" is the 0-based index of the correct option, wrong options must be plausible. 2-3 exam questions using BTEC command words (Describe, Explain, Analyse, Assess, Evaluate, Justify, Calculate) with 2-9 marks and one point per mark. Use only information from the slides; you may add a brief example only where a slide is unclear.
+
+SLIDES:
+<<<
+${slideText()||"(see attached images)"}
+>>>`;
+}
+const ERR={not_granted:"Claude wasn't allowed for this page. Reload and choose Allow to use the importer.",rate_limited:"You've hit a usage limit. Try again in a little while.",prompt_too_large:"That's too much at once. Import the deck in two halves.",invalid_json:"Claude's answer came back in the wrong format. Press the button to try again.",image_rejected:"One of the images couldn't be read. Remove it or use a PNG/JPEG.",refused:"Claude couldn't process these slides. Try pasting the text instead.",session_expired:"You've been signed out. Sign in to claude.ai again.",sampling_disabled:"Claude isn't available for this account.",empty_completion:"Nothing came back. Try again with a bit less content."};
+function clean(d){
+  d=d&&typeof d==="object"?d:{};
+  const s=x=>typeof x==="string"?x.trim():"";const arr=x=>Array.isArray(x)?x:[];
+  const notes=arr(d.notes).map(n=>({h:s(n&&n.h)||"Notes",b:arr(n&&n.b).map(s).filter(Boolean)})).filter(n=>n.b.length);
+  const cards=arr(d.cards).map(c=>Array.isArray(c)?[s(c[0]),s(c[1])]:[s(c&&c.front),s(c&&c.back)]).filter(c=>c[0]&&c[1]);
+  const quiz=arr(d.quiz).map(q=>{const o=arr(q&&q.options).map(s).filter(Boolean),a=Number(q&&q.answer);return o.length>=2&&Number.isInteger(a)&&a>=0&&a<o.length&&s(q.q)?[s(q.q),o,a,s(q.why)]:null}).filter(Boolean);
+  const exam=arr(d.exam).map(e=>({q:s(e&&e.q),m:Math.max(1,Math.min(20,Math.round(Number(e&&e.marks))||4)),cmd:s(e&&e.cmd)||"Explain",pts:arr(e&&e.points).map(s).filter(Boolean)})).filter(e=>e.q&&e.pts.length);
+  return {title:(s(d.title)||"Imported slides").slice(0,60),summary:s(d.summary),notes,cards,quiz,exam};
+}
+async function generate(){
+  if(!SAMPLE||imp.status==="working")return;
+  imp.status="working";imp.msg="";imp.chars=0;imp.ctl=new AbortController();drawGen();
+  const opts={signal:imp.ctl.signal,cache:false,onText:({text})=>{imp.chars=text.length;const sp=document.querySelector(".spinner span");if(sp)sp.textContent=`Writing your revision pack… ${imp.chars.toLocaleString()} characters`}};
+  if(imp.images.length)opts.images=imp.images.map(m=>m.file);
+  try{
+    const r=clean(await SAMPLE.json(buildPrompt(),opts));
+    if(!r.cards.length&&!r.notes.length)throw {code:"empty_completion"};
+    if(imp.target.startsWith("new:")&&imp.newName.trim())r.title=imp.newName.trim().slice(0,60);
+    imp.result=r;imp.status="done";
+  }catch(e){imp.status="idle";imp.msg=e&&e.code==="cancelled"?"":(ERR[e&&e.code]||"Something went wrong reaching Claude. Try again.")}
+  imp.ctl=null; if(view.name==="import")drawGen();
+}
+async function savePackFromImport(){
+  const r=imp.result,t=imp.target,isNew=t.startsWith("new:");
+  const p=Object.assign({id:"pack-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),
+    unitId:isNew?null:t,courseId:isNew?t.slice(4):getUnit(t).course.id},r);
+  PACKS.push(p);persistPacks();
+  const col=packsCol();
+  if(col){try{await col.doc(p.id).set(JSON.parse(JSON.stringify(p)))}catch(e){toast(e&&e.code==="quota_exceeded"?"Storage full — saved on this device only":"Saved on this device; sync failed")}}
+  addXP(10);save();setTimeout(()=>toast("Saved · use Sync to send it to the offline app"),1200);
+  imp.text="";imp.images=[];imp.pptx=[];imp.result=null;imp.status="idle";imp.newName="";
+  go({name:"unit",id:p.unitId||p.id,tab:"notes"});
+}
+async function deletePack(id){
+  // also remove packs attached to a custom topic being deleted
+  const gone=PACKS.filter(p=>p.id===id||p.unitId===id).map(p=>p.id);
+  PACKS=PACKS.filter(p=>!gone.includes(p.id));persistPacks();
+  gone.forEach(g=>P.gone[g]=Date.now());save();
+  const col=packsCol();
+  if(col)for(const g of gone){try{await col.doc(g).delete()}catch(e){}}
+}
+
+
+/* ============ SYNC CODES ============ */
+const SYNC_PREFIX="DOGTAG1:";
+function b64e(str){const by=new TextEncoder().encode(str);let bin="";for(let i=0;i<by.length;i+=0x8000)bin+=String.fromCharCode.apply(null,by.subarray(i,i+0x8000));return btoa(bin)}
+function b64d(b){const bin=atob(b),by=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);return new TextDecoder().decode(by)}
+function makeCode(){return SYNC_PREFIX+b64e(JSON.stringify({v:1,at:Date.now(),progress:P,packs:PACKS.filter(p=>!P.gone[p.id])}))}
+function readCode(s){
+  s=String(s||"").replace(/\s+/g,"");
+  const i=s.indexOf(SYNC_PREFIX); if(i<0) throw new Error("prefix");
+  const d=JSON.parse(b64d(s.slice(i+SYNC_PREFIX.length)));
+  if(!d||d.v!==1||typeof d.progress!=="object") throw new Error("shape");
+  return d;
+}
+function cleanStored(p){
+  const s=x=>typeof x==="string"?x:"",arr=x=>Array.isArray(x)?x:[];
+  return {id:p.id,created:+p.created||Date.now(),unitId:typeof p.unitId==="string"?p.unitId:null,courseId:COURSE[p.courseId]?p.courseId:"it",
+    title:s(p.title).slice(0,60)||"Imported slides",summary:s(p.summary),
+    notes:arr(p.notes).map(n=>({h:s(n&&n.h)||"Notes",b:arr(n&&n.b).map(s).filter(Boolean)})).filter(n=>n.b.length),
+    cards:arr(p.cards).filter(c=>Array.isArray(c)&&s(c[0])&&s(c[1])).map(c=>[c[0],c[1]]),
+    quiz:arr(p.quiz).filter(q=>Array.isArray(q)&&s(q[0])&&Array.isArray(q[1])&&q[1].length>=2&&Number.isInteger(q[2])&&q[2]>=0&&q[2]<q[1].length).map(q=>[q[0],q[1].map(String),q[2],s(q[3])]),
+    exam:arr(p.exam).filter(e=>e&&s(e.q)&&Array.isArray(e.pts)).map(e=>({q:e.q,m:Math.max(1,Math.min(20,Math.round(+e.m)||4)),cmd:s(e.cmd)||"Explain",pts:e.pts.map(String)}))};
+}
+async function applyCode(d){
+  P=merge(P,d.progress||{});
+  const have=new Set(PACKS.map(p=>p.id)),added=[];
+  (Array.isArray(d.packs)?d.packs:[]).forEach(p=>{
+    if(p&&typeof p.id==="string"&&/^pack-[a-z0-9]+$/.test(p.id)&&!have.has(p.id)&&!P.gone[p.id]){const c=cleanStored(p);PACKS.push(c);have.add(c.id);added.push(c)}});
+  PACKS=PACKS.filter(p=>!P.gone[p.id]);
+  PACKS.forEach(p=>{if(p.unitId&&!BASE[p.unitId]&&!PACKS.some(x=>x.id===p.unitId&&!x.unitId))p.unitId=null});
+  persistPacks(); save();
+  const col=packsCol();
+  if(col){for(const p of added){try{await col.doc(p.id).set(JSON.parse(JSON.stringify(p)))}catch(e){}}}
+  return added.length;
+}
+function renderSync(){
+  const n=PACKS.length;
+  app.innerHTML=`<section class="imp-h"><div class="eyebrow">Sync</div><h1>${IN_CLAUDE?"Sync with the offline app":"Sync &amp; slides"}</h1>
+  <p>${IN_CLAUDE?"Send your progress and imported slides to the installed app, or bring progress from the app back here."
+    :"Your progress is saved on this device. A sync code copies it to your other devices, and brings in slides you imported in the Claude version."}</p></section>
+  <div class="step"><h2><span class="num">1</span>Send from this ${IN_CLAUDE?"page":"device"}</h2>
+    <p class="status">One code holding your progress${n?` and ${n} imported slide pack${n>1?"s":""}`:""}. Paste it on the other device.</p>
+    <div class="row"><button class="btn" id="copyCode" style="--c:var(--it)">Copy sync code</button><span class="status" id="copyMsg"></span></div>
+    <textarea id="codeOut" rows="4" readonly hidden></textarea></div>
+  <div class="step"><h2><span class="num">2</span>Receive on this ${IN_CLAUDE?"page":"device"}</h2>
+    <textarea id="codeIn" rows="4" placeholder="Paste a code that starts with DOGTAG1:"></textarea>
+    <div class="row"><button class="btn" id="mergeBtn" style="--c:var(--soton)">Merge in</button><span class="status" id="mergeMsg"></span></div>
+    <p class="status">Nothing gets wiped. Each card keeps its most recent result, quiz bests are kept, and new slide packs are added.</p></div>
+  <div class="step"><h2><span class="num">3</span>${IN_CLAUDE?"Getting slides into the offline app":"Adding new slides"}</h2>
+    <p class="status">${IN_CLAUDE?"Import slides on this page as usual, then come here, tap <b>Copy sync code</b>, open the offline app → <b>Sync &amp; slides</b> and paste it."
+      :"Slide importing needs Claude, so do it in the Claude version of DOGTAG Revision (online). Then tap <b>Sync with the offline app</b> there, copy the code, and paste it above."}</p></div>`;
+  $("#copyCode").onclick=()=>{
+    const code=makeCode(),out=$("#codeOut"),msg=$("#copyMsg");
+    const fallback=()=>{out.hidden=false;out.value=code;out.focus();out.select();msg.textContent="Copy the selected code"};
+    try{navigator.clipboard.writeText(code).then(()=>{msg.textContent="Copied ✓ ("+Math.ceil(code.length/1024)+" KB)"},fallback)}catch(e){fallback()}
+  };
+  $("#mergeBtn").onclick=async()=>{
+    const msg=$("#mergeMsg");
+    let d;try{d=readCode($("#codeIn").value)}catch(e){msg.textContent="That doesn't look like a full sync code. Copy it again and paste the whole thing.";return}
+    const added=await applyCode(d);
+    $("#codeIn").value="";
+    msg.textContent="Merged ✓"+(added?` · ${added} new slide pack${added>1?"s":""} added`:"");
+    addXP(0);
+  };
+}
+
+document.addEventListener("keydown",e=>{
+  if(/TEXTAREA|INPUT|SELECT/.test(e.target.tagName))return;
+  const card=$("#card");if(!card)return;
+  if(e.key===" "){e.preventDefault();card.click()}
+  else if(e.key==="1"&&$("#card.flipped"))$("#ag").click();
+  else if(e.key==="2"&&$("#card.flipped"))$("#ok").click();
+});
+
+render();
+initRuntime();
+</script>
+<div class="notch" aria-hidden="true"></div>
+<script>
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+</script>
+</body>
+</html>
