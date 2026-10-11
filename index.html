@@ -904,12 +904,140 @@ exam:[
 }]}
 ];
 
+const NEW_UNITS=[
+{id:"it6",code:"IT U6",title:"Website Development",assess:"Assignment · internal",exam:false,
+notes:[
+{h:"Purpose & principles of websites",b:[
+"Websites can **inform**, **sell (e-commerce)**, **promote**, **entertain**, **educate** or support **social interaction**. Start from the **client requirements** and the **target audience**.",
+"**Usability**: easy navigation, consistent layout, readable text, fast loading, clear calls to action.",
+"**Accessibility** (WCAG): **alt text** on images, good **colour contrast**, keyboard navigation, captions, resizable text, meaningful link text.",
+"**Front end** = what runs in the browser (HTML, CSS, JavaScript). **Back end** = server-side code and databases.",
+"**SEO** (search engine optimisation): meaningful **title** and **meta description**, headings, keywords, fast pages, mobile-friendly design."]},
+{h:"How the web works",b:[
+"**Client–server model**: the browser (client) requests pages; the **web server** sends them back.",
+"**DNS** turns a domain name (e.g. example.com) into an **IP address**.",
+"**HTTP/HTTPS** transfers pages; HTTPS encrypts the data with TLS.",
+"**Web hosting** stores the site on a server; choices include shared hosting, VPS and cloud hosting.",
+"Browsers render pages differently, so test in several (**cross-browser compatibility**)."]},
+{h:"HTML",b:[
+"HTML gives **structure** using tags: `<h1>`–`<h6>`, `<p>`, `<a href>`, `<img src alt>`, `<ul>/<ol>/<li>`, `<table>`, `<form>`.",
+"**Semantic elements** describe meaning: `<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`. They help accessibility and SEO.",
+"$ <!DOCTYPE html>\n<html lang=\"en\">\n  <head><title>My Site</title></head>\n  <body>\n    <h1>Welcome</h1>\n    <img src=\"logo.png\" alt=\"Company logo\">\n  </body>\n</html>",
+"Validate HTML with the **W3C validator** to find errors."]},
+{h:"CSS",b:[
+"CSS controls **presentation**: colours, fonts, layout. Keep it in an **external stylesheet** so every page shares one style.",
+"Selectors: element (`p`), **class** (`.menu`), **id** (`#header`). Classes can be reused; an id is unique per page.",
+"**Box model**: content → padding → border → margin.",
+"**Responsive design**: flexible layouts (flexbox/grid) and **media queries** so pages work on phones, tablets and desktops.",
+"$ @media (max-width: 600px) {\n  nav { display: none; }\n}"]},
+{h:"JavaScript & interactivity",b:[
+"JavaScript adds **interactivity**: responding to **events** (click, submit), changing the page through the **DOM**, form **validation**, image sliders.",
+"$ document.getElementById(\"btn\").addEventListener(\"click\", () => {\n  alert(\"Thanks!\");\n});",
+"Client-side validation gives instant feedback, but the server must still check data for security."]},
+{h:"Design, testing & legal",b:[
+"Design documents: **site map** (page structure), **wireframes/storyboards** (layout), **test plan**, asset list.",
+"File formats: **JPEG** (photos, lossy), **PNG** (transparency, lossless), **SVG** (scalable vector), **GIF** (simple animation). Optimise images for speed.",
+"Testing: functionality (links, forms), **usability** testing with users, cross-browser and mobile testing, accessibility checks, validation.",
+"Legal: **copyright** (only use assets you have rights to), **UK GDPR** (personal data from forms), **PECR** (cookie consent), **Equality Act 2010** (accessibility)."]}
+],
+cards:[
+["Client–server model","The browser (client) requests pages and the web server sends them back"],["DNS","Translates domain names into IP addresses"],
+["Front end vs back end","Front end runs in the browser (HTML/CSS/JS); back end runs on the server (code + databases)"],["Semantic HTML","Tags that describe meaning, e.g. <nav>, <main>, <article>, <footer>"],
+["alt text","A text description of an image for screen readers and when images don't load"],["CSS class vs id","A class can be reused on many elements; an id must be unique on a page"],
+["Box model","Content, then padding, then border, then margin"],["Media query","CSS that applies only at certain screen sizes, for responsive design"],
+["DOM","Document Object Model: the page structure JavaScript can read and change"],["SEO","Search engine optimisation: helping a site rank higher in search results"],
+["Site map","A diagram showing all the pages of a site and how they link"],["Wireframe","A simple layout sketch of a page without final styling"],
+["PNG vs JPEG","PNG: lossless, supports transparency. JPEG: lossy, best for photos"],["WCAG","Web Content Accessibility Guidelines"]],
+quiz:[
+["Which tag is used to create a hyperlink?",["<link>","<a>","<href>","<nav>"],1,"<a href=\"…\"> creates a link."],
+["Which turns a domain name into an IP address?",["HTTP","DNS","CSS","FTP"],1,"The Domain Name System."],
+["What does CSS mainly control?",["Page structure","Presentation and layout","Server databases","Domain names"],1,"HTML structures, CSS styles."],
+["Which image format supports transparency and is lossless?",["JPEG","PNG","MP3","BMP only"],1,"PNG."],
+["In the CSS box model, what sits directly outside the padding?",["Margin","Border","Content","Outline"],1,"Content → padding → border → margin."],
+["Which improves accessibility most directly?",["Autoplaying video","Adding alt text to images","Using only colour to show errors","Tiny fixed fonts"],1,"Screen readers read alt text aloud."],
+["What does a media query help create?",["A database","A responsive layout","A domain name","An SSL certificate"],1,"Styles change with screen size."],
+["Which law covers cookie consent banners?",["Computer Misuse Act","PECR","Equality Act","Copyright Act"],1,"Privacy and Electronic Communications Regulations."],
+["JavaScript reacting to a button press is handling an…",["Element","Event","Attribute","Selector"],1,"e.g. a click event."]],
+exam:[
+{q:"Explain two ways a website designer can make a site accessible to users with visual impairments.",m:4,cmd:"Explain",pts:["Add alt text to images (1) so screen readers can describe them (1).","Use strong colour contrast / resizable text (1) so content is readable for users with low vision (1).","Use semantic HTML and headings (1) so screen readers can navigate the page structure (1)."]},
+{q:"Describe the client–server process that happens when a user types a web address into a browser.",m:4,cmd:"Describe",pts:["The browser asks DNS to turn the domain name into an IP address (1)","The browser sends an HTTP/HTTPS request to the web server at that IP (1)","The server finds the page/files and sends a response back (1)","The browser renders the HTML, CSS and JavaScript to display the page (1)"]},
+{q:"Explain why a business website should be designed to be responsive.",m:4,cmd:"Explain",pts:["Many users browse on phones/tablets (1), so the layout must adapt to different screen sizes (1).","Better usability keeps visitors on the site (1), increasing sales/enquiries (1).","Search engines favour mobile-friendly sites (1), improving SEO/ranking (1)."]},
+{q:"Evaluate the use of JavaScript to validate form inputs on a website.",m:6,cmd:"Evaluate",pts:["Gives instant feedback to users, improving usability and reducing errors.","Reduces unnecessary requests to the server.","Can be bypassed/disabled, so it's not secure on its own: server-side validation is still needed.","Adds complexity and must be tested across browsers.","Supported conclusion: useful for usability but must be combined with server-side checks."]}]
+},
+{id:"b8",code:"BUS U8",title:"Recruitment & Selection",assess:"Assignment · internal",exam:false,
+notes:[
+{h:"Why recruitment matters",b:[
+"Effective recruitment brings in staff with the right **skills and attitudes**, improving productivity, customer service and **business success**.",
+"Poor recruitment leads to high **labour turnover**, extra recruitment and training costs, low morale and damage to reputation.",
+"Recruitment links to **workforce planning**: identifying how many staff, with which skills, are needed and when."]},
+{h:"Recruitment methods",b:[
+"**Internal recruitment**: promoting or moving existing staff. Cheaper and quicker, motivates staff, the person already knows the business; but limits fresh ideas and leaves another vacancy.",
+"**External recruitment**: job websites, social media, **recruitment agencies**, Jobcentre Plus, newspapers, **headhunting**. Wider pool and new ideas, but costlier and slower.",
+"**Job analysis** identifies the tasks and skills a role needs."]},
+{h:"Recruitment documents",b:[
+"**Job description**: job title, purpose, duties and responsibilities, who the person reports to, location, hours, pay.",
+"**Person specification**: the skills, qualifications, experience and qualities needed, split into **essential** and **desirable** criteria.",
+"**Job advert**: must be clear, attractive and legal (no discriminatory wording).",
+"Applicants send **application forms**, **CVs** and **covering letters**. Application forms make comparison easier because everyone gives the same information."]},
+{h:"Selection methods",b:[
+"**Shortlisting**: compare applicants with the person specification and choose who to interview.",
+"**Interviews**: one-to-one or **panel**; **structured** (same questions for everyone, fairer) or unstructured.",
+"Question types: **open** (draw out detail), **closed** (facts, yes/no), **probing** (follow-up), **situational/competency** ('Tell me about a time when…').",
+"Other methods: **assessment centres**, **aptitude** and **psychometric tests**, presentations, **references**, **work trials**."]},
+{h:"Legal & ethical considerations",b:[
+"**Equality Act 2010**: no discrimination on **protected characteristics** (age, disability, gender reassignment, marriage and civil partnership, pregnancy and maternity, race, religion or belief, sex, sexual orientation).",
+"**Employment Rights Act 1996**: written statement of terms (contract) from day one.",
+"**Right to work** checks; **DBS checks** for work with children or vulnerable adults.",
+"**UK GDPR / Data Protection Act 2018**: applicants' data must be stored securely and only kept as long as needed.",
+"Ethics: fairness, transparency, giving feedback to unsuccessful candidates."]},
+{h:"Interview skills & reflection",b:[
+"Interviewer: prepare questions linked to the person spec, put the candidate at ease, listen actively, take notes, score fairly.",
+"Interviewee: research the business, prepare examples, dress appropriately, positive **body language**, ask good questions.",
+"**Reflection**: review what went well and what to improve using feedback, a **SWOT analysis** and a **personal development plan** with SMART targets."]}
+],
+cards:[
+["Internal recruitment","Filling a vacancy with an existing employee"],["External recruitment","Filling a vacancy with someone from outside the business"],
+["Job description","Document listing a job's title, duties, responsibilities and conditions"],["Person specification","The skills, qualifications and qualities needed, split into essential and desirable"],
+["Shortlisting","Choosing which applicants to interview by comparing them to the person spec"],["Structured interview","Every candidate is asked the same questions, making it fairer to compare them"],
+["Open question","A question that encourages a detailed answer, e.g. 'Tell me about…'"],["Probing question","A follow-up question that digs deeper into an answer"],
+["Psychometric test","A test of personality traits or thinking ability"],["Equality Act 2010","Makes it unlawful to discriminate on protected characteristics"],
+["DBS check","Criminal record check for jobs with children or vulnerable adults"],["Headhunting","Approaching a person working elsewhere to offer them a job"],
+["Assessment centre","A day of group tasks, tests and interviews to assess candidates"]],
+quiz:[
+["Which document lists the qualities and qualifications a candidate needs?",["Job description","Person specification","Contract","Job advert"],1,"Essential and desirable criteria."],
+["A benefit of internal recruitment is…",["A wider pool of applicants","Fresh ideas from outside","Lower cost and quicker hiring","No vacancy left behind"],2,"The person is already known and trained."],
+["'Tell me about a time you resolved a conflict' is a…",["Closed question","Competency/situational question","Leading question","Hypothetical salary question"],1,"It asks for a real example."],
+["Which law protects applicants from discrimination?",["Data Protection Act","Equality Act 2010","Computer Misuse Act","Consumer Rights Act"],1,"Covers protected characteristics."],
+["Which is a protected characteristic?",["Hair colour","Religion or belief","Favourite sport","Postcode"],1,"One of the nine."],
+["A structured interview is fairer because…",["It is shorter","Everyone is asked the same questions","There are no questions","Only one person interviews"],1,"Candidates can be compared consistently."],
+["A teaching assistant job will require a…",["DBS check","Driving test","Psychometric test by law","Credit check"],0,"Work with children requires a DBS check."],
+["Choosing applicants to interview is called…",["Induction","Shortlisting","Headhunting","Appraisal"],1,"Comparing against the person spec."]],
+exam:[
+{q:"Explain one advantage and one disadvantage of using a recruitment agency.",m:4,cmd:"Explain",pts:["Advantage: agency has expertise and a pool of candidates (1), saving the business time on advertising and shortlisting (1).","Disadvantage: agency fees are expensive (1), often a percentage of salary, raising recruitment costs (1)."]},
+{q:"Explain how a person specification helps a business select the right candidate.",m:4,cmd:"Explain",pts:["Sets out essential and desirable criteria (1)","so applicants can be shortlisted objectively against the same standards (1)","Helps create interview questions linked to the criteria (1)","reducing the risk of a poor appointment / discrimination claims (1)"]},
+{q:"Assess the importance of following the Equality Act 2010 during recruitment and selection.",m:8,cmd:"Assess",pts:["Legal: discrimination can lead to employment tribunal claims, compensation and fines.","Reputation: unfair practices damage the employer brand and put off applicants/customers.","A wider talent pool and diverse workforce bring new ideas and better decisions.","Practical steps: non-discriminatory adverts, structured interviews, reasonable adjustments.","Judgement: essential for legal, ethical and business reasons."]},
+{q:"Evaluate the use of interviews as the main method of selecting new employees.",m:8,cmd:"Evaluate",pts:["Allow two-way communication; assess communication skills and personality; candidate learns about the job.","Can be unreliable: nerves, interviewer bias, first impressions, some candidates 'perform' well.","Structured/panel interviews improve fairness.","Other methods (tests, assessment centres, work trials, references) give extra evidence.","Conclusion: useful but best combined with other methods depending on the role."]}]
+}];
+(function regroupYears(){
+  const it=COURSES.find(c=>c.id==="it"),bz=COURSES.find(c=>c.id==="biz");if(!it||!bz)return;
+  const U=id=>[...it.units,...bz.units,...NEW_UNITS].find(u=>u.id===id);
+  const grouped=[
+    {id:"it12",name:"BTEC IT · Year 12",tab:"IT Y12",color:"--it",full:"Pearson BTEC Level 3 National Extended Certificate in Information Technology: Year 12 units (Unit 1 exam, Unit 3 assignment)",units:[U("it1"),U("it3")]},
+    {id:"it13",name:"BTEC IT · Year 13",tab:"IT Y13",color:"--it",full:"Pearson BTEC Level 3 National Extended Certificate in Information Technology: Year 13 units (Unit 2 set task, Unit 6 Website Development)",units:[U("it2"),U("it6")]},
+    {id:"biz12",name:"BTEC Business · Year 12",tab:"Bus Y12",color:"--biz",full:"Pearson BTEC Level 3 National Extended Certificate in Business: Year 12 units (Unit 1 Exploring Business, Unit 2 Marketing Campaign set task)",units:[U("b1"),U("b2")]},
+    {id:"biz13",name:"BTEC Business · Year 13",tab:"Bus Y13",color:"--biz",full:"Pearson BTEC Level 3 National Extended Certificate in Business: Year 13 units (Unit 3 Personal & Business Finance exam, Unit 8 Recruitment & Selection)",units:[U("b3"),U("b8")]}];
+  COURSES.splice(COURSES.indexOf(it),1);COURSES.splice(COURSES.indexOf(bz),1);
+  COURSES.unshift(...grouped);
+  const s=COURSES.find(c=>c.id==="soton");if(s)s.tab="Soton";
+})();
+const COURSE_ALIAS={it:"it12",biz:"biz12"};
 const CMDS=[["Calculate","Work out a number — show your working."],["Describe","Give a clear account of features or steps; no reasons needed."],["Explain","Give a point, then why/how (because… so…)."],["Analyse","Break it down; show chains of cause and effect."],["Discuss","Look at different sides of an issue with reasons."],["Assess","Weigh up importance/impact and reach a judgement."],["Evaluate","Weigh strengths & weaknesses using evidence, then conclude."],["Justify","Give reasons/evidence that support a choice."],["Solve","Find the value(s) that make it true. Show each step."],["Simplify","Write it in its simplest form by cancelling and collecting terms."],["Rearrange","Change the subject of the formula."],["Compare","Give similarities and differences between two things."],["Write","Produce the code or answer asked for."]];
 
 
 /* ============ STATE ============ */
 const BASE={}; COURSES.forEach(c=>c.units.forEach(u=>{u.course=c;BASE[u.id]=u}));
 const COURSE=Object.fromEntries(COURSES.map(c=>[c.id,c]));
+function courseFor(id){const A=typeof COURSE_ALIAS!=="undefined"?COURSE_ALIAS:{};return COURSE[id]||COURSE[A[id]]||COURSES[0]}
 const APP=Object.assign({name:"DOGTAG Revision",mark:"DT",hello:"DOGTAG",ls:"dogtag",dataNs:"data",packsNs:"packs",slides:true},window.APP_CFG||{});
 const LS=APP.ls+"-revision-v1", LSP=APP.ls+"-packs-v1";
 document.title=APP.name;document.querySelector(".logo .mark").textContent=APP.mark;document.querySelector(".logo b").textContent=APP.name;
@@ -993,9 +1121,9 @@ async function initRuntime(){
 }
 
 /* ============ CONTENT ACCESS ============ */
-function customUnit(p){return {id:p.id,code:"MY SLIDES",title:p.title,assess:"Imported slides",exam:false,course:COURSE[p.courseId]||COURSES[0],notes:[],cards:[],quiz:[],exam:[],custom:p}}
+function customUnit(p){return {id:p.id,code:"MY SLIDES",title:p.title,assess:"Imported slides",exam:false,course:courseFor(p.courseId),notes:[],cards:[],quiz:[],exam:[],custom:p}}
 function isTopic(p){return !p.unitId||(!BASE[p.unitId]&&!PACKS.some(x=>x.id===p.unitId))}
-function unitsOf(c){return [...c.units,...PACKS.filter(p=>isTopic(p)&&p.courseId===c.id).map(customUnit)]}
+function unitsOf(c){return [...c.units,...PACKS.filter(p=>isTopic(p)&&courseFor(p.courseId).id===c.id).map(customUnit)]}
 function allUnits(){return COURSES.flatMap(unitsOf)}
 function getUnit(id){if(BASE[id])return BASE[id];const p=PACKS.find(x=>x.id===id&&isTopic(x));return p?customUnit(p):null}
 function sources(u){
@@ -1065,7 +1193,7 @@ function renderHome(){
     <div class="stat s-lvl"><b>Lv ${li.L}</b><span>${li.x} XP · ${li.toNext} to next level</span><i class="xpbar"><i style="width:${li.pct}%"></i></i></div>
   </div>
   <div class="actions">
-    <button class="big-go" id="revAll" ${due?"":"disabled"}><b>▶ Review ${Math.min(due,30)} due cards</b><span>${due?"Mixed from all three courses. Right answers come back later.":"Nothing due. Pick a unit below to learn something new."}</span></button>
+    <button class="big-go" id="revAll" ${due?"":"disabled"}><b>▶ Review ${Math.min(due,30)} due cards</b><span>${due?"Mixed from all your courses. Right answers come back later.":"Nothing due. Pick a unit below to learn something new."}</span></button>
     ${IN_CLAUDE?`<button class="big-imp" id="impBtn"><b>＋ Import slides</b><span>Paste or upload PowerPoint and get notes, cards and a quiz</span></button>`
       :`<button class="big-imp" id="syncBtn"><b>⇄ Sync${APP.slides?" &amp; slides":""}</b><span>${APP.slides?"Copy progress between devices, or add slides imported in the Claude version":"Live sync and backup codes for your progress"}</span></button>`}
   </div>
@@ -1524,7 +1652,7 @@ function renderFocus(){
   const watch=Object.entries(P.topics||{}).filter(([t,r])=>r&&!r.on&&r.w===1).map(([t,r])=>({...topicInfo(t),r})).filter(x=>x.u&&x.u.course.id===cid);
   app.innerHTML=`<section class="imp-h"><div class="eyebrow">🎯 Areas to work on</div><h1>${esc(c.name)}</h1>
    <p>Topics land here after you get 2 questions on them wrong (in quizzes, mistake retries or exam tests). Answer <b>4 in a row</b> correctly on a topic and it's cleared.</p></section>
-  <div class="subtabs" role="tablist">${COURSES.map(x=>{const n=activeTopics(x.id).length;return `<button role="tab" data-c="${x.id}" aria-selected="${x.id===cid}" style="--c:var(${x.color})">${esc(x.name.split(" · ")[0])}${n?` <span class="cnt">${n}</span>`:""}</button>`}).join("")}</div>
+  <div class="subtabs" role="tablist">${COURSES.map(x=>{const n=activeTopics(x.id).length;return `<button role="tab" data-c="${x.id}" aria-selected="${x.id===cid}" style="--c:var(${x.color})">${esc(x.tab||x.name.split(" · ")[0])}${n?` <span class="cnt">${n}</span>`:""}</button>`}).join("")}</div>
   <div class="panel">${list.length?list.map(t=>{
     const cards=cardsOf(t.u).filter(cd=>tagText(t.u,cd.f+" "+cd.b)===t.tid).slice(0,5);
     return `<article class="topic"><div class="topic-h"><div><div class="status">${esc(t.u.code)} · ${esc(t.u.title)}</div><h3>${esc(t.h)}</h3></div>
@@ -1962,7 +2090,7 @@ function readCode(s){
 }
 function cleanStored(p){
   const s=x=>typeof x==="string"?x:"",arr=x=>Array.isArray(x)?x:[];
-  return {id:p.id,created:+p.created||Date.now(),unitId:typeof p.unitId==="string"?p.unitId:null,courseId:COURSE[p.courseId]?p.courseId:"it",
+  return {id:p.id,created:+p.created||Date.now(),unitId:typeof p.unitId==="string"?p.unitId:null,courseId:courseFor(p.courseId).id,
     title:s(p.title).slice(0,60)||"Imported slides",summary:s(p.summary),
     notes:arr(p.notes).map(n=>({h:s(n&&n.h)||"Notes",b:arr(n&&n.b).map(s).filter(Boolean)})).filter(n=>n.b.length),
     cards:arr(p.cards).filter(c=>Array.isArray(c)&&s(c[0])&&s(c[1])).map(c=>[c[0],c[1]]),
