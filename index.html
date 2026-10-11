@@ -904,6 +904,185 @@ exam:[
 }]}
 ];
 
+const CYBER_UNIT={id:"it2c",code:"IT U2",title:"Cyber Security & Incident Management",assess:"Exam · 2h 15m · 90 marks",exam:true,
+notes:[
+{h:"A1.1 Internal threats",b:[
+"Internal threats come from **inside** the organisation and can be **deliberate (sabotage)** or **accidental**.",
+"**Theft or loss**: stealing hardware to sell, a laptop left on a train, a disgruntled employee damaging a server, a rival bribing staff for a client list, misusing **software licences**.",
+"**Accidental or deliberate damage**: fire, flood, power loss, terrorism, extreme weather and other disasters. Think about these when choosing where to build a data centre.",
+"**Unauthorised software** can break licence rules (fines), be incompatible, slow systems or bypass security and monitoring software.",
+"**Weak security / unsafe practices**: fix with door locks, passwords, **security vetting** of visitors, and blocking untrustworthy websites.",
+"**Accidental disclosure**: train staff, report all potential breaches, build a security culture, and **lock leavers' accounts immediately**."]},
+{h:"A1.2.1 Malware: viruses",b:[
+"**Malware** is any software written with malicious intent; a **virus** is one type of malware that attaches to files and spreads.",
+"**Boot sector**: infects files needed to boot the OS, so the device won't start (spread by USB sticks, downloads).",
+"**Web script**: hides in web pages, adverts and pop-ups and steals usernames and passwords. **Macro**: embedded in Word/Excel macros; alters or deletes files.",
+"**Rootkit**: lets criminals take **full remote control** of a computer. **Worm**: spreads **on its own** with no human action. **Trojan**: disguised as a genuine program.",
+"**Browser hijacker**: changes homepage/search settings and redirects to malicious sites. **Polymorphic**: **changes its code/appearance** to avoid antivirus detection. **Resident (TSR)**: hides in **memory** to dodge scans."]},
+{h:"A1.2.1 Spyware, adware, ransomware & bots",b:[
+"**Adware**: excessive pop-ups. Types: **PUPs** bundled with free software, legitimate, **abusive** and **deceptive** adware (hard to remove).",
+"**Spyware** collects data without consent: **keyloggers** (record keystrokes for passwords/PINs), **system monitors** (screenshots, sites, emails), **trackers**, **stalkerware**, **web beacons**, **tracking cookies**.",
+"Monitoring/tracking is only illegal **without consent**: the same tools can be used legitimately.",
+"**Ransomware** demands payment: **encryptors** (encrypt files, sell the key), **lockers** (lock the device), **scareware** (fake virus warnings), **leakware/doxware** (threatens to publish data).",
+"**Bots** perform automated tasks (spam, scanning, data gathering); many bots across many machines form a **botnet**."]},
+{h:"A1.2.2–A1.2.3 Hacking & sabotage",b:[
+"**Hacking** = gaining unauthorised access to a computer or data without the owner's permission.",
+"**DoS** floods one machine (often a web server) with traffic so it crashes. **DDoS** uses a **botnet** of many compromised computers to attack from many locations.",
+"**Cyberwarfare**: **espionage** (stealing secrets), **sabotage**, **economic attacks**, **infrastructure attacks** (transport, communications).",
+"**Data theft** (copy or remove data) and **data tampering**: **back-end** (editing a database) vs **front-end** (defacing a website).",
+"**Sabotage** includes **data destruction**, **fakes/deepfakes**, **data poisoning** (corrupting AI training data) and **targeted damage/hijacking** of IoT, autonomous devices, industrial processes and **critical national infrastructure** (energy, water, communications, transport)."]},
+{h:"A1.2.4 Social engineering",b:[
+"Social engineering uses **persuasion and trust** to trick people into unsafe actions.",
+"**Phishing** (email), **vishing** (voice/phone, sometimes AI voice deepfakes), **smishing** (SMS). Links lead to malware or fake login pages.",
+"**Spear phishing** is **personalised** to a target (uses their name); **whaling** targets **high-value people** such as CEOs.",
+"**DNS spoofing**: the attacker changes a DNS entry so a real domain points to a **fake website's IP address**, capturing logins.",
+"**Pretexting** uses a made-up scenario to create **urgency/panic**; **impersonation** pretends to be someone else (e.g. the bank)."]},
+{h:"A1.2.5 Physical security threats",b:[
+"Physical security stops **unauthorised physical access**: locks, movement sensors, key cards and phones.",
+"Ways around it: **tailgating** (following someone through a door), **forced entry**, **impersonation**, **coercion** (bribery, blackmail).",
+"Device threats: **unattended devices**, **shoulder surfing** (watching screens/PINs), and **stealing access devices** such as cards or USB keys.",
+"Lost mobile devices are a big risk if they hold sensitive data or are used for multi-factor authentication."]},
+{h:"A1.3–A1.4 Impact of threats & the changing landscape",b:[
+"**Operational loss**: manufacturing output, service availability, data availability (e.g. a supermarket can't sell without its price database).",
+"**Financial loss**: lost sales, cash-flow problems, insurance costs; **compensation** and refunds; **legal liability**: **ICO fines up to £17.5 million**, investigation and legal fees.",
+"**Reputational loss** (lost trust, bad reviews) and **intellectual property loss** (designs, trade secrets, strategy, test data).",
+"Threats change over time (AI phishing, IoT, critical infrastructure attacks). Up-to-date advice: **NCSC** (UK, 2016, part of GCHQ; '10 Steps to Cyber Security'), **OWASP** (Top 10 web app risks), **NIST** (US standards, NICE, NCCoE)."]},
+{h:"A2 Vulnerabilities, attack vectors & tools",b:[
+"**Ports**: well-known 0–1023 (FTP 21, SMTP 25, HTTP 80, HTTPS 443), registered 1024–49151, dynamic 49152–65535. Attackers **scan for open ports**, **fingerprint** systems and **spoof** traffic through open ports.",
+"**External storage** (USB, SD, external HDD/SSD) can be stolen or carry malware, so allow only authorised, encrypted devices.",
+"Organisational fixes: **password policies** (length, no personal info, no sharing, lockouts), **password managers**, correct **permissions/privileges** (read/write/execute; user/admin/guest accounts).",
+"Software/OS/IoT/cloud weaknesses: untrusted downloads (check HTTPS, trusted source, **hash check**, malware pre-scan), unpatched OS, **zero-day** flaws, **SQL injection**, default IoT passwords, weak encryption, third-party cloud providers.",
+"**Attack vector** = method used to exploit a vulnerability; all vectors together = the **attack surface**. Wireless vectors: Wi-Fi eavesdropping/deauthentication, Bluetooth (**BlueSmacking, BlueJacking, BlueSnarfing, BlueBugging**), NFC relay/**skimming**, RFID cloning.",
+"Tools: **port scanner** (open/closed/filtered), **network mapper**, **registry checker**, **website vulnerability scanner**, vulnerability management software, simulated phishing, **penetration testing**, third-party reviews.",
+"Passive risk management: **transfer** (to a third party), **avoid** (stop the activity), **accept** (cheaper than preventing)."]},
+{h:"A3 Legal responsibilities",b:[
+"**UK GDPR / Data Protection Act 2018** principles: lawfulness, fairness & transparency; purpose limitation; **data minimisation**; accuracy; **storage limitation**; integrity & confidentiality (security); accountability.",
+"Legal reasons to process data: **consent**, contract, **legitimate interest**, vital interests, legal obligation, public task/welfare.",
+"Rights: to be informed, **access** (a copy), rectification, **erasure (right to be forgotten)**, restrict processing, **data portability**, object, and object to automated decisions/**profiling**.",
+"**Computer Misuse Act 1990**: s1 unauthorised access (**up to 2 yrs**); s2 access with intent to commit further offences (**5 yrs**); s3 unauthorised acts to impair a computer, e.g. DoS (**10 yrs**); s3ZA serious damage, e.g. critical infrastructure (**14 yrs, life if national security**); s3A making/supplying tools such as a virus (**2 yrs**)."]},
+{h:"A4.1 Security measures",b:[
+"**Physical**: locks, card entry (NFC, RFID, QR, magnetic strip, chip), **biometrics**, CCTV, alarms, security staff, protected cabling, staff training.",
+"**Backups**: **full**, **differential** (changed since the last *full*), **incremental** (changed since the last backup of *any* type). Decide onsite/offsite/cloud and automated/manual.",
+"**RAID** mirrors disks against hardware failure but is **not a backup** (deletions copy across). **Archiving** stores old data and isn't a backup. **Hot site** = ready with data; **warm site** = ready but data must be loaded.",
+"Recovery: **file restore**, **image restore**, **full/bare-metal restore**. **Data resilience** = recovering quickly.",
+"**Antivirus**: **signature** detection, **heuristics** for new threats, **checksums** to spot changed files; warn, log, block, **quarantine**, delete. **Firewalls**: packet filtering, rules for ports, blocking IPs, application awareness.",
+"**Authentication**: login, password policy, biometrics, **MFA** (knowledge, possession, inherence, location, behaviour), **security tokens**, **Kerberos**, key exchange, **certificate-based** (TLS, PKI, Certificate Authority).",
+"**Access control**: **DAC** (users control their own files), **RBAC** (by job role), **RuBAC** (admin-set rules). Plus trusted computing, device tracking (GPS, phone-home), screen lock, lockout after failed logins, **remote wipe**."]},
+{h:"A4.2–A4.4 Encryption & protecting a WLAN",b:[
+"Storage encryption: safe password storage, **DRM**, file/folder/disk/device encryption.",
+"**Symmetric** = one shared key (e.g. **AES**); **asymmetric** = public + private key (e.g. **RSA**, used for digital signatures). **Diffie–Hellman** lets two parties agree a shared secret key.",
+"Communication: **HTTPS**, **VPN** (encrypted tunnel, hides IP), **E2EE** (even the provider can't read it), TOR, digital certificates.",
+"WLAN protection: **WPA2/WPA3** (AES; WPA3 is newer and stronger), **WPS** (easy setup, home only), **MAC filtering** (allow/block lists), **hide the SSID**, change default router passwords, VPNs, firewalls.",
+"Wireless threats: **unsecured access points** (sniffing), **piggybacking**, **evil twin / fake access point**.",
+"Secure design: **least privilege ('fewest privileges')**, assume the design becomes public, don't rely on secrecy, comply with **ISO 27000**, expect attacks and plan for them."]},
+{h:"B1 Networks, topologies & trends",b:[
+"Types: **LAN**, **WLAN**, **WAN** (the internet is a WAN), **SAN** (dedicated shared storage), **PAN**. Private: **intranet**, **extranet**, cloud network.",
+"Considerations: IEEE 802 standards, scalability, IP and Wi-Fi channel admin, sharing, performance, backups, security settings, reliability, **fault tolerance**. Diagrams are **physical** (layout) or **logical** (IPs, ports, IDs).",
+"Physical topologies: **star** (central switch; most common), **extended star**, **mesh** (robust; the internet), **wireless mesh**, **hierarchical/tree**, **ad-hoc** (direct, e.g. tethering). Logical: **bus** (broadcast) and **ring** (passed node to node).",
+"Architecture: **peer-to-peer** (no server), **client/server**, **thin client** (server does all processing).",
+"Trends: **virtualisation** (VMs), **segmentation**, isolation/**sandboxing**/containerisation (smaller attack surface, easy recovery), **SDN**, cloud risks (misconfiguration, APIs, account hijacking, provider reliance), **IoT** (weak defaults, Zigbee/Bluetooth, botnets), **BYOD** (passwords, privacy, updates, apps, wiping, tracking), remote working."]},
+{h:"B2–B3 Network components & infrastructure",b:[
+"Devices: **switch** (forwards to the right device), **router** (joins networks), **gateway** (joins networks with **different protocols**), **bridge** (joins/segments LANs), **repeater** (boosts signal), **access point** (wireless to wired), **modem** (DSL/fibre/wireless), USB hub.",
+"Media: NFC (≈4 cm, often unencrypted), Bluetooth (≈10 m), cellular/5G, **optical fibre** (fast, no electrical interference), Li-Fi, Ethernet (RJ45), USB, Wi-Fi 802.11.",
+"External media risks: loss/theft, interception, corruption, lifespan, malware vector. Controls: **encryption** and **secure disposal**.",
+"Software: GUI, CLI and web interfaces; monitoring tools (remote access, performance monitors, **event logs**, vulnerability scanners, **packet sniffers**); centralised vs **distributed** databases.",
+"**TCP/IP** 4 layers: **application** (HTTP, SMTP, FTP), **transport** (TCP), **internet** (IP), **network access** (Ethernet). **TLS** adds encryption, authentication and integrity. Packets have a **header** (addresses, sequence), **payload** and **trailer** (error check). **TCP** acknowledges; **UDP** doesn't (fast streaming/gaming).",
+"**NAT** (static, dynamic, **PAT**) hides private IPs. **IPv4** = 32 bits; **IPv6** = 128 bits. Private ranges: **10.x**, **172.16–31.x**, **192.168.x**; APIPA 169.254.x; loopback 127.0.0.1.",
+"Domains: **domain controllers**, subdomains, trust relationships. Benefits: limits access, restricts lateral movement, smaller attack surface.",
+"Services: **DNS** (name → IP, caching, reverse lookup), **directory services** (Active Directory, LDAP), authentication (2FA, MFA, **SSO**; **PAP** unencrypted, **CHAP** challenge, **EAP** framework), **DHCP** (ranges, leases, reservations, default gateway), routing (IGP, EGP, BGP), VPN remote access, file/print, web, email (SMTP, POP, MIME), VoIP, SMS, video conferencing, CaaS."]},
+{h:"C1 Internal policies",b:[
+"Cyber security policy follows **Plan–Do–Check–Act** from **ISO 27001**.",
+"**Internet/email policy**: no inappropriate or illegal content, protect confidential info, no copyrighted downloads, no unauthorised executables, users are monitored.",
+"**Password policy**, staff responsibilities, **training policy** (all staff, inclusive, tracked, updated), **security audits**.",
+"**Backup policy**: what's critical, backup type, media, offsite, timing, who's responsible, testing, legal compliance, recovery procedure.",
+"**Data protection policy** (Data Protection Officer, training, third parties). **Incident response**: contacts, roles (response leader, IT, senior management, **legal**, **PR**, HR, insurance), **triage**, escalation, containment, recovery, review.",
+"**Disaster recovery**: purpose and scope, triage list, activate incident response / **business continuity** / disaster recovery plans, roles, monitoring. Plus **external services** policies (cloud, suppliers, support agreements, response times, escalation)."]},
+{h:"D1–D2 Digital forensics",b:[
+"**Confiscate** suspect devices straight away; collect passwords, chargers and power; isolate from networks; photograph screens.",
+"**Live forensics** examines a running system: risk of changing data, anti-forensic software and running malware, but **RAM is volatile** and temporary data is lost on shutdown. Otherwise power off, remove batteries, use a **Faraday cage**, package it and record custody.",
+"Work on a **disk image (clone)**, not the original. Review user files and settings, **system logs**, **user activity** (browsing, cookies, recent files, email) and malware alerts.",
+"**Network forensics**: get the owner's permission; **passive** tools (analyse logs/traffic) vs **active** tools (may disrupt). Check firewall, router and WAP logs.",
+"Document the scene: secure it; photos, plans and video; **contemporaneous notes**; **witness statements**.",
+"Systematic analysis: compare with a clean image, **hash/checksum** files, snapshots (boot sector, RAM, processes, network info, temporary and deleted files, system files).",
+"Reliability: don't change data, competent investigator, **chain of custody**, log every action, justify any alteration. Visual evidence: photos, screenshots, **timestamps**, **metadata**. Avoid **false positives** and **alert fatigue**.",
+"Findings: crime, regulatory breach or civil liability? Signs of compromise: unusual traffic, logins, DNS requests, file reads or changes, port use. The **security report** covers title/date, contents, introduction, analysis (errors, omissions, unforeseen problems), conclusions and recommendations."]}
+],
+cards:[
+["Worm","Malware that spreads to other devices on its own, with no human action"],["Trojan","Malware disguised as a genuine program"],["Rootkit","Malware giving criminals full remote control of a computer"],
+["Polymorphic virus","Changes its code/appearance to avoid antivirus detection"],["Resident (TSR) virus","Hides in the computer's memory to avoid scans"],["Boot sector virus","Infects files needed to start the OS, stopping the device booting"],
+["Keylogger","Spyware that records keystrokes to steal passwords and PINs"],["Encryptor ransomware","Encrypts files and demands payment for the decryption key"],["Leakware / doxware","Threatens to publish sensitive data unless a ransom is paid"],
+["Scareware","Fake warnings (e.g. 'virus detected') that trick users into installing malware"],["Botnet","A network of compromised computers controlled by a criminal"],["DDoS","A botnet floods a target with traffic from many locations so it crashes"],
+["Spear phishing vs whaling","Spear: personalised to one target. Whaling: spear phishing aimed at senior, high-value people"],["Vishing / smishing","Phishing by voice call / by SMS text"],
+["DNS spoofing","Changing a DNS entry so a real domain points to a fake site"],["Pretexting","A made-up scenario used to create urgency and trick a victim"],
+["Tailgating","Following an authorised person through a secure door"],["Shoulder surfing","Watching someone's screen or keypad to steal passwords or PINs"],
+["Data poisoning","Deliberately corrupting AI training data to cause bias and errors"],["Zero-day vulnerability","A newly found flaw with no patch available yet"],
+["Attack vector vs attack surface","Vector: the method used to exploit a weakness. Surface: all possible vectors together"],
+["Port 21 / 25 / 80 / 443","FTP / SMTP / HTTP / HTTPS"],["Port scanner states","Open, closed, filtered"],["Penetration testing","External experts try to break in, then report the weaknesses"],
+["BlueSnarfing","Stealing data from a device over Bluetooth"],["Risk acceptance","Accepting a risk because preventing it costs more than the likely loss"],
+["Computer Misuse Act s1","Unauthorised access: up to 2 years"],["Computer Misuse Act s3","Unauthorised acts to impair a computer (e.g. DoS): up to 10 years"],
+["Computer Misuse Act s3A","Making or supplying tools for offences (e.g. writing a virus): up to 2 years"],["Max ICO fine","Up to £17.5 million for serious data breaches"],
+["Data minimisation","Only collect the personal data actually needed"],["Right to be forgotten","The right to have personal data erased"],
+["Differential vs incremental backup","Differential: changes since the last full backup. Incremental: changes since the last backup of any type"],
+["Hot site vs warm site","Hot: ready to run with current data. Warm: ready but data must be loaded"],["Why RAID isn't a backup","Deletions and corruption are copied to every disk at once"],
+["Heuristic detection","Spotting new malware by suspicious behaviour rather than known signatures"],["Quarantine","Isolating an infected file so it can't interact with other files"],
+["MFA factors","Knowledge, possession, inherence, location, behaviour"],["RBAC","Role-based access control: access depends on job role"],
+["Symmetric vs asymmetric encryption","Symmetric: one shared key (AES). Asymmetric: public + private keys (RSA)"],["E2EE","End-to-end encryption: only the two devices can read the data"],
+["Evil twin","A fake Wi-Fi access point copying a real one to steal data"],["MAC filtering","Only devices on an allowed list of MAC addresses can connect"],
+["Least privilege","Users only get access to what their task needs"],["Gateway","Connects networks that use different protocols"],
+["TCP vs UDP","TCP: acknowledges and resends packets. UDP: no acknowledgement, faster (streaming, gaming)"],["NAT","Translates private IP addresses to a public one"],
+["IPv4 vs IPv6","32-bit vs 128-bit addresses"],["DHCP","Automatically gives devices an IP address (with lease, gateway, etc.)"],
+["CHAP vs PAP","CHAP uses a challenge with encryption; PAP sends the password unencrypted"],["SSO","Single sign-on: one login for several systems"],
+["Plan–Do–Check–Act","The continuous improvement loop in ISO 27001 security policies"],["Triage","Dealing with the most urgent, dangerous risks first"],
+["Live forensics","Examining a running system to capture RAM and live processes"],["Faraday cage","Blocks radio signals so a seized device can't communicate"],
+["Chain of custody","A record of everyone who handled the evidence and when"],["Contemporaneous notes","Notes made at the time of, or straight after, an incident"],
+["Alert fatigue","Too many false positives cause real alerts to be ignored"],["Metadata","Data about data, e.g. a photo's time, location and camera"]],
+quiz:[
+["Which malware spreads to other devices without any human interaction?",["Trojan","Worm","Macro virus","Adware"],1,"Worms self-propagate through vulnerabilities."],
+["A virus that changes its appearance to avoid detection is…",["Boot sector","Polymorphic","Macro","Rootkit"],1,"It mutates, so signature detection struggles."],
+["Malware that encrypts files and demands payment for the key is an…",["Locker","Encryptor","Keylogger","Web beacon"],1,"Encryptors make files unreadable."],
+["A phishing email addressed personally to a company's CEO is…",["Vishing","Smishing","Whaling","Pretexting"],2,"Whaling targets high-value individuals."],
+["Following an employee through a secure door is…",["Coercion","Tailgating","Shoulder surfing","Piggybacking"],1,"Tailgating."],
+["An attacker changes a DNS record so bigbank.com points to their fake site. This is…",["DNS spoofing","DDoS","Data tampering only","SQL injection"],0,"A data-poisoning attack on DNS."],
+["Which port is used for secure web traffic?",["21","25","80","443"],3,"HTTPS uses 443."],
+["A port scanner gets no response from a port. The port is…",["Open","Closed","Filtered","Dynamic"],2,"Filtered ports are blocked."],
+["Launching a DoS attack falls under which section of the Computer Misuse Act?",["Section 1","Section 2","Section 3","Section 3A"],2,"Unauthorised acts to impair a computer: up to 10 years."],
+["Writing your own virus is an offence under…",["Section 1","Section 3A","Section 3ZA","GDPR"],1,"Making or supplying articles for use in offences."],
+["Which GDPR principle says data should be deleted when no longer needed?",["Accuracy","Storage limitation","Purpose limitation","Accountability"],1,"Storage limitation."],
+["A backup copying only files changed since the last backup of any type is…",["Full","Differential","Incremental","Archive"],2,"Incremental."],
+["Why is RAID not a substitute for backups?",["It's too slow","Deletions are copied to all disks","It needs the cloud","It only works offsite"],1,"It protects against disk failure only."],
+["A fully working replacement system that already holds current data is a…",["Cold site","Warm site","Hot site","Archive"],2,"Hot sites are ready to take over."],
+["Antivirus spotting new malware by its suspicious behaviour uses…",["Signatures","Heuristics","RAID","NAT"],1,"Heuristic detection."],
+["An SMS code sent to your phone is which MFA factor?",["Knowledge","Possession","Inherence","Behaviour"],1,"Something you have."],
+["Access based on a person's job role is…",["DAC","RBAC","RuBAC","SSO"],1,"Role-Based Access Control."],
+["AES is an example of…",["Asymmetric encryption","Symmetric encryption","Hashing only","A VPN"],1,"One shared key, multiple rounds."],
+["A rogue Wi-Fi network copying a café's network is an…",["Evil twin","Ad-hoc network","SAN","Extranet"],0,"Fake access point attack."],
+["Which device connects networks using different protocols?",["Switch","Repeater","Gateway","USB hub"],2,"Gateways translate protocols."],
+["Which protocol doesn't acknowledge packets, making it good for gaming?",["TCP","UDP","FTP","SMTP"],1,"UDP is connectionless."],
+["Which is a private IPv4 address?",["8.8.8.8","192.168.1.20","151.101.1.1","1.1.1.1"],1,"192.168.0.0–192.168.255.255 is private."],
+["Which service automatically assigns IP addresses?",["DNS","DHCP","LDAP","SMTP"],1,"Dynamic Host Configuration Protocol."],
+["The network topology where every node links to many others, as in the internet, is…",["Star","Mesh","Bus","Tree"],1,"Mesh is robust to broken links."],
+["Splitting a network into isolated subnetworks mainly…",["Increases the attack surface","Reduces the attack surface","Removes the need for passwords","Speeds up Wi-Fi"],1,"A breach is contained to one segment."],
+["Why must investigators capture RAM before powering off?",["RAM is volatile and is erased","RAM is encrypted","RAM holds the boot sector","Law requires it"],0,"Live processes and connections are lost."],
+["A record of everyone who handled seized evidence is the…",["Audit log","Chain of custody","Metadata","Triage list"],1,"It keeps evidence admissible."],
+["Investigators analyse a cloned copy of the disk to…",["Speed up the PC","Avoid changing the original evidence","Remove malware","Get a warrant"],1,"The original must stay unaltered."],
+["Too many false alarms causing real alerts to be ignored is…",["Alert fatigue","Data poisoning","Triage","Phishing"],0,"Alert fatigue."],
+["Which UK organisation publishes '10 Steps to Cyber Security'?",["OWASP","NIST","NCSC","ICO"],2,"The National Cyber Security Centre."]],
+exam:[
+{q:"Explain why a polymorphic virus is hard to detect.",m:2,cmd:"Explain",pts:["It changes its code/appearance/behaviour each time it spreads (1)","so antivirus software can't match it against a known signature (1)"]},
+{q:"State three steps that are normally part of a ransomware attack.",m:3,cmd:"State",pts:["Malware is delivered/installed, e.g. via a phishing email or infected download (1)","Files are encrypted / the device is locked (1)","A ransom demand is made, often in cryptocurrency, for the decryption key (1)"]},
+{q:"Explain what the goal of a phishing attack is.",m:3,cmd:"Explain",pts:["To trick the user into trusting a fake message that appears to come from a legitimate source (1)","so they click a link/attachment or reveal credentials such as usernames, passwords or bank details (1)","which the criminal then uses to steal money/data or install malware (1)"]},
+{q:"Describe an example of an impersonation attack and state one piece of advice to avoid one.",m:3,cmd:"Describe",pts:["A criminal pretends to be someone trusted, e.g. calls claiming to be from the bank or IT helpdesk (1)","and asks the victim to confirm a security code/password or grant access (1)","Advice: hang up and contact the organisation on a known official number / never share codes (1)"]},
+{q:"A new dental surgery is adding Wi-Fi for patients in its waiting area. Explain two precautions it should take to protect its wireless network.",m:4,cmd:"Explain",pts:["Use WPA3/WPA2 with a strong password (1) so traffic is encrypted and can't be read by eavesdroppers (1).","Put patient Wi-Fi on a separate segment/guest network from the medical records network (1) so a breach can't spread laterally (1).","Change default router credentials / use MAC filtering for staff devices (1) so attackers can't easily access settings or connect (1)."]},
+{q:"Explain the difference between a differential and an incremental backup.",m:4,cmd:"Explain",pts:["A differential backup copies all files changed since the last full backup (1)","so restoring needs only the full backup plus the latest differential (1)","An incremental backup copies only files changed since the last backup of any type (1)","so backups are smaller/faster but a restore needs the full backup plus every incremental (1)"]},
+{q:"Identify which section of the Computer Misuse Act 1990 each action breaks: (a) installing ransomware at a national water treatment centre; (b) an employee reading a colleague's emails after guessing their password; (c) writing a virus and sharing it online.",m:3,cmd:"State",pts:["(a) Section 3ZA: unauthorised acts causing serious damage, e.g. to critical national infrastructure (1)","(b) Section 1: unauthorised access to computer material (1)","(c) Section 3A: making/supplying articles for use in computer misuse offences (1)"]},
+{q:"Explain two issues that should be covered in an internet and email policy.",m:4,cmd:"Explain",pts:["No downloading/running unauthorised executables or visiting dangerous sites (1) because these could introduce malware to the network (1).","Care when sending confidential information internally and externally (1) to prevent data breaches and GDPR fines (1).","Users will be monitored (1) so staff know acceptable use is enforced and misuse can be investigated (1)."]},
+{q:"Explain why working with a live device can be challenging for a forensic investigator.",m:4,cmd:"Explain",pts:["Background processes keep changing data (1), so evidence could be altered/contaminated (1).","Malware or anti-forensic software may still be running (1) and could destroy evidence when triggered (1).","But if powered off, volatile RAM data (live processes, network connections) is lost (1), so investigators must capture it carefully first (1)."]},
+{q:"Describe three network-based signs that could show a system has been compromised.",m:3,cmd:"Describe",pts:["Unusual inbound/outbound traffic, e.g. to unusual countries or very high volumes (DoS/DDoS) (1)","Unusual login attempts in number or origin (1)","Unusual DNS requests to non-existent domains / unusual port usage flagged by the firewall (1)"]},
+{q:"Explain one advantage and one disadvantage of using multi-factor authentication.",m:4,cmd:"Explain",pts:["Advantage: even if a password is stolen, the attacker also needs another factor such as the user's phone or fingerprint (1), so accounts are much harder to break into (1).","Disadvantage: slower/less convenient logins, or users locked out if they lose their phone/token (1), which can reduce productivity or increase help-desk costs (1)."]},
+{q:"Evaluate the use of BYOD (bring your own device) in a modern organisation.",m:9,cmd:"Evaluate",pts:["For: lower hardware costs; staff are familiar with their own devices; flexibility and remote working; can improve productivity and morale.","Against: weak home passwords; personal and organisational data mixing (privacy); missing updates/patches; risky personal apps; lost/stolen devices; compatibility issues.","Controls: apply the password policy to all devices, mobile device management, monitoring/tracking with consent, segmentation or SAN access controls, encryption and certificates, remote wipe when staff leave.","Weighs up whether the benefits outweigh the security risks in context.","Level 3 (7–9): balanced, well-applied discussion with a supported conclusion, e.g. BYOD is worthwhile only with strong policies and technical controls."]},
+{q:"Assess the importance of staff training in protecting an organisation from cyber threats.",m:9,cmd:"Assess",pts:["Humans are often the weakest point: phishing, social engineering, weak passwords, accidental disclosure, tailgating.","Training builds a security culture: reporting suspicious activity, spotting phishing, physical security habits; simulated phishing tests measure progress.","Training alone isn't enough: technical controls (firewalls, MFA, encryption, patching, backups) and policies are also needed.","Needs to be regular, inclusive, tracked and updated as threats change (training policy).","Supported judgement on how important it is relative to other measures."]}]
+};
+
 const NEW_UNITS=[
 {id:"it6",code:"IT U6",title:"Website Development",assess:"Assignment · internal",exam:false,
 notes:[
@@ -1022,8 +1201,8 @@ exam:[
   const it=COURSES.find(c=>c.id==="it"),bz=COURSES.find(c=>c.id==="biz");if(!it||!bz)return;
   const U=id=>[...it.units,...bz.units,...NEW_UNITS].find(u=>u.id===id);
   const grouped=[
-    {id:"it12",name:"BTEC IT · Year 12",tab:"IT Y12",color:"--it",full:"Pearson BTEC Level 3 National Extended Certificate in Information Technology: Year 12 units (Unit 1 exam, Unit 3 assignment)",units:[U("it1"),U("it3")]},
-    {id:"it13",name:"BTEC IT · Year 13",tab:"IT Y13",color:"--it",full:"Pearson BTEC Level 3 National Extended Certificate in Information Technology: Year 13 units (Unit 2 set task, Unit 6 Website Development)",units:[U("it2"),U("it6")]},
+    {id:"it12",name:"BTEC IT · Year 12",tab:"IT Y12",color:"--it",full:"Pearson BTEC Level 3 National (AAQ 2025) Extended Certificate in Information Technology: Year 12 units (Unit 1 Information Systems, Unit 3 Web Development)",units:[Object.assign(U("it1"),{code:"IT U1",title:"Information Systems"}),Object.assign(U("it6"),{code:"IT U3"})]},
+    {id:"it13",name:"BTEC IT · Year 13",tab:"IT Y13",color:"--it",full:"Pearson BTEC Level 3 National (AAQ 2025) Extended Certificate in Information Technology: Year 13 units (Unit 2 Cyber Security & Incident Management exam, Unit 4)",units:[CYBER_UNIT]},
     {id:"biz12",name:"BTEC Business · Year 12",tab:"Bus Y12",color:"--biz",full:"Pearson BTEC Level 3 National Extended Certificate in Business: Year 12 units (Unit 1 Exploring Business, Unit 2 Marketing Campaign set task)",units:[U("b1"),U("b2")]},
     {id:"biz13",name:"BTEC Business · Year 13",tab:"Bus Y13",color:"--biz",full:"Pearson BTEC Level 3 National Extended Certificate in Business: Year 13 units (Unit 3 Personal & Business Finance exam, Unit 8 Recruitment & Selection)",units:[U("b3"),U("b8")]}];
   COURSES.splice(COURSES.indexOf(it),1);COURSES.splice(COURSES.indexOf(bz),1);
@@ -1031,7 +1210,7 @@ exam:[
   const s=COURSES.find(c=>c.id==="soton");if(s)s.tab="Soton";
 })();
 const COURSE_ALIAS={it:"it12",biz:"biz12"};
-const CMDS=[["Calculate","Work out a number — show your working."],["Describe","Give a clear account of features or steps; no reasons needed."],["Explain","Give a point, then why/how (because… so…)."],["Analyse","Break it down; show chains of cause and effect."],["Discuss","Look at different sides of an issue with reasons."],["Assess","Weigh up importance/impact and reach a judgement."],["Evaluate","Weigh strengths & weaknesses using evidence, then conclude."],["Justify","Give reasons/evidence that support a choice."],["Solve","Find the value(s) that make it true. Show each step."],["Simplify","Write it in its simplest form by cancelling and collecting terms."],["Rearrange","Change the subject of the formula."],["Compare","Give similarities and differences between two things."],["Write","Produce the code or answer asked for."]];
+const CMDS=[["Calculate","Work out a number — show your working."],["Describe","Give a clear account of features or steps; no reasons needed."],["Explain","Give a point, then why/how (because… so…)."],["Analyse","Break it down; show chains of cause and effect."],["Discuss","Look at different sides of an issue with reasons."],["Assess","Weigh up importance/impact and reach a judgement."],["Evaluate","Weigh strengths & weaknesses using evidence, then conclude."],["Justify","Give reasons/evidence that support a choice."],["Solve","Find the value(s) that make it true. Show each step."],["Simplify","Write it in its simplest form by cancelling and collecting terms."],["Rearrange","Change the subject of the formula."],["State","Give a short answer or name something. No explanation needed."],["Compare","Give similarities and differences between two things."],["Write","Produce the code or answer asked for."]];
 
 
 /* ============ STATE ============ */
@@ -1581,7 +1760,8 @@ function sectionsOf(u){
   return SECT_CACHE[key]=list;
 }
 const TAG_MEMO={};
-const TOPIC_HINTS={m1:[[/^Work out .*×.*²|BIDMAS|order of operations/i,"Order of operations"],[/estimate/i,"Order of operations"]],
+const TOPIC_HINTS={it2c:[[/internet and email policy/i,"C1"],[/multi-factor|MFA|authentication/i,"A4.1"],[/BYOD|bring your own/i,"B1 Networks"],[/compromised|network-based signs/i,"D1"],[/staff training/i,"C1"],[/Computer Misuse|GDPR/i,"A3"],[/ransomware|keylogger|spyware|adware|botnet/i,"A1.2.1 Spyware"],[/topolog|mesh|star network/i,"B1"],[/port \d|port scanner|attack vector|penetration/i,"A2"]],
+m1:[[/^Work out .*×.*²|BIDMAS|order of operations/i,"Order of operations"],[/estimate/i,"Order of operations"]],
   m2:[[/^Expand/i,"Brackets"],[/^Factorise x²/i,"Brackets"],[/subject/i,"Rearranging"],[/^Simplify.*\//i,"Algebraic fractions"],[/^If a =|find a²/i,"Simplifying"],[/number is doubled|^Solve .*=.*x/i,"Linear equations"],[/^Solve .*[<>]/i,"Linear inequalities"]],
   m4:[[/^Solve .* and /i,"Simultaneous"],[/x².*= 0|real roots|quadratic/i,"Quadratic"],[/log/i,"Logarithms"]],
   m3:[[/hypotenuse|Pythagoras|ladder/i,"Pythagoras"],[/cylinder/i,"Cylinders"],[/gradient|equation of the .*line|y-intercept|parallel/i,"Coordinates"]],

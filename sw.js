@@ -1,5 +1,5 @@
 // DOGTAG Revision offline service worker. Bump VERSION when you change any app file.
-const VERSION = "v8";
+const VERSION = "v10";
 const APP = "dogtag-app-" + VERSION;
 const EXTERNAL = "dogtag-external";
 const SHELL = [
